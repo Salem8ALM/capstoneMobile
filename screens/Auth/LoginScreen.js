@@ -3,12 +3,20 @@ import { View, StyleSheet, Text, Alert } from "react-native";
 import { TextInput, Button, IconButton, useTheme } from "react-native-paper";
 import * as LocalAuthentication from "expo-local-authentication";
 
+import { TouchableRipple } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const theme = useTheme();
 
+  const navigation = useNavigation();
+
+  function doSomething() {
+    console.log("clicked");
+  }
   const handleBiometricLogin = async () => {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
     if (!hasHardware) {
@@ -44,17 +52,29 @@ const LoginScreen = () => {
       <Text style={[styles.header, { color: theme.colors.primary }]}>
         Welcome back!
       </Text>
-      <Text style={styles.subheader}>
-        Login below or{" "}
-        <Text
-          style={{
-            color: theme.colors.primary,
-            textDecorationLine: "underline",
-          }}
-        >
-          create an account
+      <View
+        style={{
+          flexDirection: "row",
+          padding: 10,
+        }}
+      >
+        <Text>Login below or </Text>
+        <Text>
+          <TouchableRipple
+            onPress={() => navigation.navigate("register")}
+            rippleColor="rgba(0, 0, 0, .32)"
+          >
+            <Text
+              style={{
+                color: theme.colors.primary,
+                textDecorationLine: "underline",
+              }}
+            >
+              create an account
+            </Text>
+          </TouchableRipple>
         </Text>
-      </Text>
+      </View>
 
       {/* Email Input */}
       <TextInput
@@ -130,7 +150,6 @@ const styles = StyleSheet.create({
   },
   subheader: {
     fontSize: 14,
-    textAlign: "center",
     marginBottom: 24,
   },
   input: {

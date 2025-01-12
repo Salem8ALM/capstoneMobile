@@ -6,12 +6,12 @@ import AuthNavigator from "./navigations/AuthNavigator";
 
 export default function App() {
   return (
-    <PaperProvider>
-      <NavigationContainer>
+    <NavigationContainer>
+      <PaperProvider>
         {/* <QueryClientProvider client={queryClient}> */}
         <AuthNavigator />
-      </NavigationContainer>
-    </PaperProvider>
+      </PaperProvider>
+    </NavigationContainer>
   );
 }
 
