@@ -5,6 +5,7 @@ import * as LocalAuthentication from "expo-local-authentication";
 
 import { TouchableRipple } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
+import Routes from "../../utils/constants/routes";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
@@ -61,7 +62,7 @@ const LoginScreen = () => {
         <Text>Login below or </Text>
         <Text>
           <TouchableRipple
-            onPress={() => navigation.navigate("register")}
+            onPress={() => navigation.navigate(Routes.Auth.Register)}
             rippleColor="rgba(0, 0, 0, .32)"
           >
             <Text

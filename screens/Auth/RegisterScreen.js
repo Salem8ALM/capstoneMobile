@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Text, Alert } from "react-native";
-import { TextInput, Button, IconButton, useTheme } from "react-native-paper";
+import { TextInput, Button, useTheme } from "react-native-paper";
 import { Provider as PaperProvider } from "react-native-paper";
 
 const RegisterScreen = () => {
@@ -27,6 +27,8 @@ const RegisterScreen = () => {
       Alert.alert("Error", "Your Mobile Number must be 8 numbers long.");
       return;
     }
+
+    console.log("Yay works");
   }
 
   return (
