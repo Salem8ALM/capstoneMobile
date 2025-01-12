@@ -1,11 +1,12 @@
+import DashboardScreen from "../../screens/DashboardScreen";
+
 const Routes = {
   Auth: {
-    Login: "LoginScreen",
-    Register: "RegisterScreen",
+    Login: "Login",
+    Register: "Registration",
   },
   App: {
-    ForgotPassword: "ForgotPasswordScreen",
-    Home: "HomeScreen",
+    DashboardScreen: "Dashboard Screen",
     Profile: "ProfileScreen",
     Settings: "SettingsScreen",
   },

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { View, StyleSheet, Text, Alert } from "react-native";
 import { TextInput, Button, IconButton, useTheme } from "react-native-paper";
 import * as LocalAuthentication from "expo-local-authentication";
@@ -6,16 +6,25 @@ import * as LocalAuthentication from "expo-local-authentication";
 import { TouchableRipple } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import Routes from "../../utils/constants/routes";
+import UserContext from "../../context/UserContext";
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const theme = useTheme();
-
   const navigation = useNavigation();
 
-  function doSomething() {
+  const [civilId, setCivilId] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [login, setLogin] = useState("Login");
+
+  const theme = useTheme();
+  const [authenticated, setAuthenticated] = useContext(UserContext);
+
+  function handleLogin() {
+    setLogin("Logging in");
+    try {
+    } catch (error) {}
+    setLogin("Login");
     console.log("clicked");
   }
   const handleBiometricLogin = async () => {
@@ -43,6 +52,7 @@ const LoginScreen = () => {
 
     if (result.success) {
       Alert.alert("Success", "Logged in successfully!");
+      setAuthenticated(true);
     } else {
       Alert.alert("Failed", "Biometric authentication failed.");
     }
@@ -79,13 +89,13 @@ const LoginScreen = () => {
 
       {/* Email Input */}
       <TextInput
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
+        label="Civil ID"
+        value={civilId}
+        onChangeText={setCivilId}
         mode="outlined"
         style={styles.input}
-        keyboardType="email-address"
-        left={<TextInput.Icon icon="email" />}
+        keyboardType="numeric"
+        left={<TextInput.Icon icon="account" />}
       />
 
       {/* Password Input */}
@@ -106,12 +116,8 @@ const LoginScreen = () => {
       />
 
       {/* Sign In Button */}
-      <Button
-        mode="contained"
-        style={styles.button}
-        onPress={() => Alert.alert("Login", "Sign in button pressed")}
-      >
-        Sign In
+      <Button mode="contained" style={styles.button} onPress={handleLogin}>
+        {login}
       </Button>
 
       {/* Forgot Password Link */}

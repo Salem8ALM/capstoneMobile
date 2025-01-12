@@ -12,23 +12,29 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const [signup, setSignup] = useState("Sign Up");
+
   const theme = useTheme();
 
-  function submitRegisterForm() {
+  function submit() {
+    setSignup("Signing Up...");
     const civilIdNumerics = civilId.replace(/[^0-9]/g, "");
     const mobileNumberNumerics = mobileNumber.replace(/[^0-9]/g, "");
 
     if (civilIdNumerics.length != 12) {
-      Alert.alert("Error", "Your Civil Id must be 12 numbers long.");
+      Alert.alert("Civil Id", "Your Civil Id must be 12 numbers long.");
       return;
     }
 
     if (mobileNumberNumerics.length != 8) {
-      Alert.alert("Error", "Your Mobile Number must be 8 numbers long.");
+      Alert.alert(
+        "Mobile Number",
+        "Your Mobile Number must be 8 numbers long."
+      );
+
+      //Login with information
       return;
     }
-
-    console.log("Yay works");
   }
 
   return (
@@ -45,6 +51,7 @@ const RegisterScreen = () => {
           onChangeText={setUsername}
           mode="outlined"
           style={styles.input}
+          left={<TextInput.Icon icon="account-circle-outline" />}
         />
 
         <TextInput
@@ -53,6 +60,7 @@ const RegisterScreen = () => {
           onChangeText={setFirstName}
           mode="outlined"
           style={styles.input}
+          left={<TextInput.Icon icon="format-letter-case" />}
         />
 
         <TextInput
@@ -61,6 +69,7 @@ const RegisterScreen = () => {
           onChangeText={setLastName}
           mode="outlined"
           style={styles.input}
+          left={<TextInput.Icon icon="format-letter-ends-with" />}
         />
 
         <TextInput
@@ -70,6 +79,7 @@ const RegisterScreen = () => {
           mode="outlined"
           style={styles.input}
           keyboardType="numeric"
+          left={<TextInput.Icon icon="account" />}
         />
 
         <TextInput
@@ -79,6 +89,7 @@ const RegisterScreen = () => {
           mode="outlined"
           style={styles.input}
           keyboardType="numeric"
+          left={<TextInput.Icon icon="tablet-android" />}
         />
 
         <TextInput
@@ -94,14 +105,11 @@ const RegisterScreen = () => {
               onPress={() => setShowPassword(!showPassword)}
             />
           }
+          left={<TextInput.Icon icon="lock" />}
         />
 
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={submitRegisterForm}
-        >
-          Sign Up
+        <Button mode="contained" style={styles.button} onPress={submit}>
+          {signup}
         </Button>
       </View>
     </PaperProvider>
