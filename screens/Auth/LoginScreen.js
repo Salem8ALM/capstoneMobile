@@ -1,10 +1,102 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { StyleSheet, View, Animated, Dimensions } from "react-native";
 import { TextInput, Button, Text, useTheme } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 const { width, height } = Dimensions.get("window");
+
+const DiagonalLines = () => {
+  const backgroundAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const backgroundAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(backgroundAnim, {
+          toValue: 0.7,
+          duration: 10000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backgroundAnim, {
+          toValue: 0.1,
+          duration: 10000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    backgroundAnimation.start();
+
+    return () => backgroundAnimation.stop();
+  }, []);
+
+  const rotate = backgroundAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["45deg", "225deg"],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        StyleSheet.absoluteFill,
+        {
+          opacity: 0.1,
+          transform: [{ rotate }],
+        },
+      ]}
+    >
+      {Array.from({ length: 200 }).map((_, i) => (
+        <View key={i} style={[styles.diagonalLine, { left: i * 5 - 200 }]} />
+      ))}
+    </Animated.View>
+  );
+};
+
+const DiagonalLines2 = () => {
+  const backgroundAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const backgroundAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(backgroundAnim, {
+          toValue: 0.1,
+          duration: 10000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backgroundAnim, {
+          toValue: 0,
+          duration: 10000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    backgroundAnimation.start();
+
+    return () => backgroundAnimation.stop();
+  }, []);
+
+  const rotate = backgroundAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["4deg", "225deg"],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        StyleSheet.absoluteFill,
+        {
+          opacity: 0.1,
+          transform: [{ rotate }],
+        },
+      ]}
+    >
+      {Array.from({ length: 200 }).map((_, i) => (
+        <View key={i} style={[styles.diagonalLine, { left: i * 10 - 100 }]} />
+      ))}
+    </Animated.View>
+  );
+};
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -61,32 +153,10 @@ export default function LoginScreen() {
     }).start();
   };
 
-  const DiagonalLines = () => {
-    const rotate = backgroundAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: ["45deg", "225deg"],
-    });
-    return (
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          { opacity: 0.1, transform: [{ rotate }] },
-        ]}
-      >
-        {Array.from({ length: 20 }).map((_, i) => (
-          <View key={i} style={[styles.diagonalLine, { left: i * 50 - 100 }]} />
-        ))}
-      </Animated.View>
-    );
-  };
-
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={["#1a1a1a", "#2d2d2d", "#1a1a1a"]}
-        style={StyleSheet.absoluteFill}
-      />
       <DiagonalLines />
+      <DiagonalLines2 />
 
       <View style={styles.content}>
         <Text style={styles.title}>Welcome back!</Text>
