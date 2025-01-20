@@ -1,8 +1,19 @@
-import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, View, Animated, Dimensions } from "react-native";
-import { TextInput, Button, Text, useTheme } from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import React, { useState, useRef, useEffect, useContext } from "react";
+import { StyleSheet, View, Animated, Dimensions, Alert } from "react-native";
+import {
+  TextInput,
+  Button,
+  IconButton,
+  Text,
+  useTheme,
+} from "react-native-paper";
+
+import { TouchableRipple } from "react-native-paper";
+
+import { useNavigation } from "@react-navigation/native";
+import * as LocalAuthentication from "expo-local-authentication";
+import Routes from "../../utils/constants/routes";
+import UserContext from "../../context/UserContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -98,16 +109,33 @@ const DiagonalLines2 = () => {
   );
 };
 
-export default function LoginScreen() {
-  const [email, setEmail] = useState("");
+const LoginScreen = () => {
+  const navigation = useNavigation();
+
+  const [civilId, setCivilId] = useState("");
   const [password, setPassword] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+
+  const [login, setLogin] = useState("Login");
+
   const theme = useTheme();
 
   const [focusedField, setFocusedField] = useState("");
 
+  const [authenticated, setAuthenticated] = useContext(UserContext);
+
+  const checkToken = async () => {
+    // check if the token exists
+    const token = await getToken();
+    // exists ? setAuth to true : null
+    if (token) setAuthenticated(true);
+  };
+  useEffect(() => {
+    checkToken();
+  });
+
   // Animation values
-  const emailAnim = useRef(new Animated.Value(0)).current;
+  const civilIdAnim = useRef(new Animated.Value(0)).current;
   const passwordAnim = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const backgroundAnim = useRef(new Animated.Value(0)).current;
@@ -153,6 +181,44 @@ export default function LoginScreen() {
     }).start();
   };
 
+  function handleLogin() {
+    setLogin("Logging in");
+    try {
+    } catch (error) {}
+    setLogin("Login");
+    console.log("clicked");
+  }
+  const handleBiometricLogin = async () => {
+    const hasHardware = await LocalAuthentication.hasHardwareAsync();
+    if (!hasHardware) {
+      Alert.alert(
+        "Error",
+        "Your device does not support biometric authentication."
+      );
+      return;
+    }
+
+    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+    if (!isEnrolled) {
+      Alert.alert(
+        "Error",
+        "No biometric credentials found. Please set up biometrics."
+      );
+      return;
+    }
+
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: "Login with Biometrics",
+    });
+
+    if (result.success) {
+      Alert.alert("Success", "Logged in successfully!");
+      setAuthenticated(true);
+    } else {
+      Alert.alert("Failed", "Biometric authentication failed.");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <DiagonalLines />
@@ -160,12 +226,17 @@ export default function LoginScreen() {
 
       <View style={styles.content}>
         <Text style={styles.title}>Welcome back!</Text>
-        <Text style={styles.subtitle}>
-          Login below or{" "}
-          <Text style={styles.link} onPress={() => {}}>
-            create an account
+        <View style={styles.subtitle}>
+          <Text style={{ color: "white" }}>Login below or </Text>
+          <Text>
+            <TouchableRipple
+              onPress={() => navigation.navigate(Routes.Auth.Register)}
+              rippleColor="rgba(0, 0, 0, .32)"
+            >
+              <Text style={styles.link}>create an account</Text>
+            </TouchableRipple>
           </Text>
-        </Text>
+        </View>
 
         <Animated.View
           style={[
@@ -173,7 +244,7 @@ export default function LoginScreen() {
             {
               transform: [
                 {
-                  scale: emailAnim.interpolate({
+                  scale: civilIdAnim.interpolate({
                     inputRange: [0, 1],
                     outputRange: [1, 1.05],
                   }),
@@ -183,27 +254,29 @@ export default function LoginScreen() {
           ]}
         >
           <TextInput
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
+            label="Civil Id"
+            value={civilId}
+            onChangeText={setCivilId}
             mode="outlined"
             left={
               <TextInput.Icon
-                icon="email"
+                icon="account"
                 color={
-                  focusedField === "email" ? "#FFD700" : "rgba(255,255,255,0.2)"
+                  focusedField === "civilId"
+                    ? "#FFD700"
+                    : "rgba(255,255,255,0.2)"
                 }
               />
             }
             textColor="white"
             style={[styles.input]} // Set text color to white
             onFocus={() => {
-              setFocusedField("email");
-              animateField(emailAnim, 1);
+              setFocusedField("civilId");
+              animateField(civilIdAnim, 1);
             }}
             onBlur={() => {
               setFocusedField("");
-              animateField(emailAnim, 0);
+              animateField(civilIdAnim, 0);
             }}
             theme={{ colors: { primary: "#FFD700", background: "#2d2d2d" } }} // Dark background
           />
@@ -275,23 +348,37 @@ export default function LoginScreen() {
         >
           <Button
             mode="contained"
-            onPress={() => {}}
+            onPress={handleLogin}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
             style={styles.button}
             labelStyle={styles.buttonText}
           >
-            Sign In
+            {login}
           </Button>
         </Animated.View>
 
-        <Text style={styles.forgotPassword} onPress={() => {}}>
+        <Text
+          style={styles.forgotPassword}
+          onPress={() =>
+            Alert.alert("Forgot Password", "Forgot password link pressed")
+          }
+        >
           Forgot Password
         </Text>
+
+        {/* Biometric Login Button */}
+        <IconButton
+          icon="fingerprint"
+          size={70}
+          style={styles.biometric}
+          onPress={handleBiometricLogin}
+        />
+        <Text style={styles.biometricText}>Login with Fingerprint</Text>
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -312,12 +399,14 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: "#fff",
     textAlign: "center",
     marginBottom: 40,
+    flexDirection: "row",
+    padding: 10,
   },
   link: {
     color: "#FFD700",
+    textDecorationLine: "underline",
     textDecorationLine: "underline",
   },
   inputContainer: {
@@ -352,4 +441,16 @@ const styles = StyleSheet.create({
     height: height * 2,
     backgroundColor: "#FFD700",
   },
+  biometric: {
+    alignSelf: "center",
+    marginTop: 16,
+  },
+  biometricText: {
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: 8,
+    color: "#666",
+  },
 });
+
+export default LoginScreen;
