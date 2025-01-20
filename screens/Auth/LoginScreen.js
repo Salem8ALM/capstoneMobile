@@ -1,14 +1,13 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { StyleSheet, View, Animated, Dimensions, Alert } from "react-native";
+import { IconButton, Text } from "react-native-paper";
+
 import {
+  TouchableRipple,
   TextInput,
   Button,
-  IconButton,
-  Text,
   useTheme,
 } from "react-native-paper";
-
-import { TouchableRipple } from "react-native-paper";
 
 import { useNavigation } from "@react-navigation/native";
 import * as LocalAuthentication from "expo-local-authentication";
