@@ -4,7 +4,7 @@ import LoginScreen from "../screens/Auth/LoginScreen";
 import RegisterScreen from "../screens/Auth/RegisterScreen";
 import Routes from "../utils/constants/routes";
 import { View, StyleSheet, Dimensions } from "react-native";
-import DiagonalLines from "../animations/DiagonalLines";
+import DiagonalLines from "../utils/animations/DiagonalLines";
 
 const Stack = createNativeStackNavigator();
 const { width, height } = Dimensions.get("window");

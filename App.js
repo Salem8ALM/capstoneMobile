@@ -15,6 +15,8 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { View } from "react-native";
+import DiagonalLines from "./utils/animations/DiagonalLines";
 //----------
 
 export default function App() {
@@ -31,12 +33,19 @@ export default function App() {
   });
 
   return (
-    <NavigationContainer>
-      <PaperProvider>
-        <UserContext.Provider value={[authenticated, setAuthenticated]}>
-          {authenticated ? <AppNavigator /> : <AuthNavigator />}
-        </UserContext.Provider>
-      </PaperProvider>
-    </NavigationContainer>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#1a1a1a",
+      }}
+    >
+      <NavigationContainer>
+        <PaperProvider>
+          <UserContext.Provider value={[authenticated, setAuthenticated]}>
+            {authenticated ? <AppNavigator /> : <AuthNavigator />}
+          </UserContext.Provider>
+        </PaperProvider>
+      </NavigationContainer>
+    </View>
   );
 }

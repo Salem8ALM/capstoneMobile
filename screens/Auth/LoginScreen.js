@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import { StyleSheet, View, Animated, Dimensions, Alert } from "react-native";
+import { StyleSheet, View, Animated, Alert } from "react-native";
 import { IconButton, Text } from "react-native-paper";
 
 import {
@@ -10,9 +10,14 @@ import {
 } from "react-native-paper";
 
 import { useNavigation } from "@react-navigation/native";
-import * as LocalAuthentication from "expo-local-authentication";
 import Routes from "../../utils/constants/routes";
 import UserContext from "../../context/UserContext";
+import {
+  handlePressIn,
+  handlePressOut,
+} from "../../utils/animations/buttonAnimations";
+import { animateField } from "../../utils/animations/animations";
+import { handleBiometricLogin } from "./auth-utils/handleBiometricLogin";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -27,11 +32,16 @@ const LoginScreen = () => {
 
   const theme = useTheme();
 
-  // animation when field is focused
+  // use state for focused field
   const [focusedField, setFocusedField] = useState("");
 
   // Used to change from AuthNavigator to AppNavigator after authenticatino
   const [authenticated, setAuthenticated] = useContext(UserContext);
+
+  // Animation values
+  const civilIdAnim = useRef(new Animated.Value(0)).current;
+  const passwordAnim = useRef(new Animated.Value(0)).current;
+  const buttonAnim = useRef(new Animated.Value(1)).current;
 
   const checkToken = async () => {
     // check if the token exists
@@ -42,38 +52,6 @@ const LoginScreen = () => {
   useEffect(() => {
     checkToken();
   });
-
-  // Animation values
-  const civilIdAnim = useRef(new Animated.Value(0)).current;
-  const passwordAnim = useRef(new Animated.Value(0)).current;
-  const buttonAnim = useRef(new Animated.Value(1)).current;
-
-  const animateField = (anim, value) => {
-    Animated.spring(anim, {
-      toValue: value,
-      useNativeDriver: true,
-      friction: 4,
-      tension: 10,
-    }).start();
-  };
-
-  // Press hold
-  const handlePressIn = () => {
-    Animated.spring(buttonAnim, {
-      toValue: 0.9,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  // Press let go
-  const handlePressOut = () => {
-    Animated.spring(buttonAnim, {
-      toValue: 1,
-      friction: 3, // Make the animation a bit bouncy
-      tension: 100,
-      useNativeDriver: true,
-    }).start();
-  };
 
   // logic when "login" button is pressed
   function handleLogin() {
@@ -88,38 +66,71 @@ const LoginScreen = () => {
   }
 
   // biometric login
-  const handleBiometricLogin = async () => {
-    const hasHardware = await LocalAuthentication.hasHardwareAsync();
-    if (!hasHardware) {
-      Alert.alert(
-        "Error",
-        "Your device does not support biometric authentication."
-      );
-      return;
-    }
-
-    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-    if (!isEnrolled) {
-      Alert.alert(
-        "Error",
-        "No biometric credentials found. Please set up biometrics."
-      );
-      return;
-    }
-
-    const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: "Login with Biometrics",
-    });
-
-    if (result.success) {
-      Alert.alert("Success", "Logged in successfully!");
-
+  const authenticate = async () => {
+    // call function to check authentication
+    const status = await handleBiometricLogin();
+    if (status) {
       // over here is where the refresh token will be used to obtain a new access token to login with
       // For now, "setAuthenticated" is turned true to hide "AuthNaviagtor" component without actually
       // retrieving any actual user information from backend
+
+      Alert.alert("Success", "Logged in successfully!");
       setAuthenticated(true);
+    }
+  };
+
+  // temporary hack to ensure no duplicate screens are piled 
+  const resetStackUntilTwoScreens = () => {
+    // Temprorary hack for navigating from LoginScreen to RegisterScreen WITH SLIDING ANIMATION in place.
+    // For some reason, react navigation does not have animation for pop() function
+    // Therefore, I am using push() function to get that transition but also resetting the stack to avoid creating duplicates of the
+    // login and register screens. I am printing here the number of stacked screens to confirm its only two at the moment; login and register screens
+    // Again, this is a hack, not ideal in any way
+    // if you use pop()/goBack() with the 'presentation' defined as follows AuthNavigator:
+    //
+    // name={Routes.Auth.Register}
+    // component={RegisterScreen}
+    // options={{
+    //   headerShown: false,
+    //   presentation: transparentModal
+    // }}
+    // documentaion: https://reactnavigation.org/docs/stack-navigator/?config=dynamic#transparent-modals
+
+    // It would be removed instantly with no animation...very ugly
+    // If you don't include presentation and just use pop/goBack you will see white background during transition....Even uglier
+
+    let screenName = Routes.Auth.Register;
+    const navigationState = navigation.getState();
+    let routes = navigationState.routes;
+
+    console.log("Number of screens in the stack:", routes.length);
+
+    // Filter out duplicates by ensuring only one instance of each screen name
+    const uniqueRoutes = routes.filter(
+      (route, index, self) =>
+        index === self.findIndex((r) => r.name === route.name)
+    );
+
+    // If the screen is already in the unique routes, we need to handle it
+    const isScreenInStack = uniqueRoutes.some(
+      (route) => route.name === screenName
+    );
+
+    if (!isScreenInStack) {
+      // If the screen is not in the stack, push it to the stack with animation
+      navigation.push(screenName);
     } else {
-      Alert.alert("Failed", "Biometric authentication failed.");
+      // If the screen is already in the stack, remove the duplicate and push it
+      // Filter out the duplicate screen from the stack
+      const filteredRoutes = routes.filter(
+        (route) => route.name !== screenName
+      );
+
+      // Push the screen to the top of the stack
+      navigation.reset({
+        index: filteredRoutes.length, // Keep the first screen at the top
+        routes: [...filteredRoutes, { name: screenName }],
+      });
     }
   };
 
@@ -131,59 +142,7 @@ const LoginScreen = () => {
           <Text style={{ color: "white" }}>Login below or </Text>
           <Text>
             <TouchableRipple
-              onPress={() => {
-                // Temprorary hack for navigating from LoginScreen to RegisterScreen WITH SLIDING ANIMATION in place.
-                // For some reason, react navigation does not have animation for pop() function
-                // Therefore, I am using push() function to get that transition but also resetting the stack to avoid creating duplicates of the
-                // login and register screens. I am printing here the number of stacked screens to confirm its only two at the moment; login and register screens
-                // Again, this is a hack, not ideal in any way
-                // if you use pop()/goBack() with the 'presentation' defined as follows AuthNavigator:
-                //
-                // name={Routes.Auth.Register}
-                // component={RegisterScreen}
-                // options={{
-                //   headerShown: false,
-                //   presentation: transparentModal
-                // }}
-                // documentaion: https://reactnavigation.org/docs/stack-navigator/?config=dynamic#transparent-modals
-
-                // It would be removed instantly with no animation...very ugly
-                // If you don't include presentation and just use pop/goBack you will see white background during transition....Even uglier
-
-                let screenName = Routes.Auth.Register;
-                const navigationState = navigation.getState();
-                let routes = navigationState.routes;
-
-                console.log("Number of screens in the stack:", routes.length);
-
-                // Filter out duplicates by ensuring only one instance of each screen name
-                const uniqueRoutes = routes.filter(
-                  (route, index, self) =>
-                    index === self.findIndex((r) => r.name === route.name)
-                );
-
-                // If the screen is already in the unique routes, we need to handle it
-                const isScreenInStack = uniqueRoutes.some(
-                  (route) => route.name === screenName
-                );
-
-                if (!isScreenInStack) {
-                  // If the screen is not in the stack, push it to the stack with animation
-                  navigation.push(screenName);
-                } else {
-                  // If the screen is already in the stack, remove the duplicate and push it
-                  // Filter out the duplicate screen from the stack
-                  const filteredRoutes = routes.filter(
-                    (route) => route.name !== screenName
-                  );
-
-                  // Push the screen to the top of the stack
-                  navigation.reset({
-                    index: filteredRoutes.length, // Keep the first screen at the top
-                    routes: [...filteredRoutes, { name: screenName }],
-                  });
-                }
-              }}
+              onPress={resetStackUntilTwoScreens}
               rippleColor="rgba(255, 238, 0, 0.51)"
             >
               <Text style={styles.link}>create an account</Text>
@@ -302,20 +261,21 @@ const LoginScreen = () => {
           <Button
             mode="contained"
             onPress={handleLogin}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
+            onPressIn={() => handlePressIn(buttonAnim)}
+            onPressOut={() => handlePressOut(buttonAnim)}
             style={styles.button}
             labelStyle={styles.buttonText}
           >
             {login}
           </Button>
         </Animated.View>
-        This is only for astetics, lets not waste time on building the functionality 
+        {/* This is only for astetics, lets not waste time on building the
+        functionality */}
         <Text
           style={styles.forgotPassword}
-          onPress={() =>
-            Alert.alert("Forgot Password", "Forgot password link pressed")
-          }
+          onPress={() => {
+            Alert.alert("Forgot Password", "Forgot password link pressed");
+          }}
         >
           Forgot Password
         </Text>
@@ -324,7 +284,7 @@ const LoginScreen = () => {
           icon="fingerprint"
           size={70}
           style={styles.biometric}
-          onPress={handleBiometricLogin}
+          onPress={authenticate}
           iconColor="gray" // Set the icon color to white
         />
         <Text style={styles.biometricText}>Login with Fingerprint</Text>
@@ -365,8 +325,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    backgroundColor: "rgba(0, 0, 0, 0.86)24)", // Dark background for input
-    color: "#fff", // Set text color to white
+    backgroundColor: "rgba(0, 0, 0, 0.6)24)", // Dark background for input
   },
   buttonContainer: {
     marginTop: 20,

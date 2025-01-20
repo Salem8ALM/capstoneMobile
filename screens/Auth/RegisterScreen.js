@@ -1,120 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  StyleSheet,
-  Text,
-  Animated,
-  Alert,
-  Dimensions,
-} from "react-native";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { View, StyleSheet, Text, Animated, Alert } from "react-native";
 import {
   TextInput,
   Button,
   useTheme,
   TouchableRipple,
 } from "react-native-paper";
-import { useNavigation, CommonActions } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import Routes from "../../utils/constants/routes";
-import { StackActions, NavigationActions } from "@react-navigation/native";
-import { InteractionManager } from "react-native";
-
-const { width, height } = Dimensions.get("window");
-
-const DiagonalLines = () => {
-  const backgroundAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const backgroundAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(backgroundAnim, {
-          toValue: 0.7,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(backgroundAnim, {
-          toValue: 0.1,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-
-    backgroundAnimation.start();
-
-    return () => backgroundAnimation.stop();
-  }, []);
-
-  const rotate = backgroundAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["45deg", "225deg"],
-  });
-
-  return (
-    <Animated.View
-      style={[
-        StyleSheet.absoluteFill,
-        {
-          opacity: 0.1,
-          transform: [{ rotate }],
-        },
-      ]}
-    >
-      {Array.from({ length: 200 }).map((_, i) => (
-        <View key={i} style={[styles.diagonalLine, { left: i * 5 - 200 }]} />
-      ))}
-    </Animated.View>
-  );
-};
-
-const DiagonalLines2 = () => {
-  const backgroundAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const backgroundAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(backgroundAnim, {
-          toValue: 0.1,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(backgroundAnim, {
-          toValue: 0,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-
-    backgroundAnimation.start();
-
-    return () => backgroundAnimation.stop();
-  }, []);
-
-  const rotate = backgroundAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["4deg", "225deg"],
-  });
-
-  return (
-    <Animated.View
-      style={[
-        StyleSheet.absoluteFill,
-        {
-          opacity: 0.1,
-          transform: [{ rotate }],
-        },
-      ]}
-    >
-      {Array.from({ length: 200 }).map((_, i) => (
-        <View key={i} style={[styles.diagonalLine, { left: i * 10 - 100 }]} />
-      ))}
-    </Animated.View>
-  );
-};
+import UserContext from "../../context/UserContext";
+import { animateField } from "../../utils/animations/animations";
+import { handleBiometricLogin } from "./auth-utils/handleBiometricLogin";
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
 
+  // useStates for fields and password visibility
   const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -123,11 +24,16 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const [focusedField, setFocusedField] = useState("");
-
+  // Text when clicking on login
   const [signup, setSignup] = useState("Sign Up");
 
   const theme = useTheme();
+
+  // use state for focused field
+  const [focusedField, setFocusedField] = useState("");
+
+  // Used to change from AuthNavigator to AppNavigator after authenticatino
+  const [authenticated, setAuthenticated] = useContext(UserContext);
 
   const checkToken = async () => {
     // check if the token exists
@@ -139,6 +45,7 @@ const RegisterScreen = () => {
     checkToken();
   });
 
+  // Animation values
   const usernameAnim = useRef(new Animated.Value(0)).current;
   const firstNameAnim = useRef(new Animated.Value(0)).current;
   const lastNameAnim = useRef(new Animated.Value(0)).current;
@@ -148,52 +55,13 @@ const RegisterScreen = () => {
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const backgroundAnim = useRef(new Animated.Value(0)).current;
 
-  React.useEffect(() => {
-    const backgroundAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(backgroundAnim, {
-          toValue: 1,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(backgroundAnim, {
-          toValue: 0,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    backgroundAnimation.start();
-    return () => backgroundAnimation.stop();
-  }, []);
-
-  const animateField = (anim, value) => {
-    Animated.spring(anim, {
-      toValue: value,
-      useNativeDriver: true,
-      friction: 8,
-    }).start();
-  };
-
-  const handlePressIn = () => {
-    Animated.spring(buttonAnim, {
-      toValue: 0.95,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(buttonAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  function submit() {
+  // function to submit account creation
+  const submit = async () => {
     setSignup("Signing Up...");
     const civilIdNumerics = civilId.replace(/[^0-9]/g, "");
     const mobileNumberNumerics = mobileNumber.replace(/[^0-9]/g, "");
 
+    // Ensure civil id is exactly 12 digits long
     if (civilIdNumerics.length != 12) {
       Alert.alert("Civil Id", "Your Civil Id must be 12 numbers long.");
       setSignup("Sign Up");
@@ -201,23 +69,66 @@ const RegisterScreen = () => {
       return;
     }
 
+    // Ensure the number entered is exactly 8 numbers long
     if (mobileNumberNumerics.length != 8) {
       Alert.alert(
         "Mobile Number",
         "Your Mobile Number must be 8 numbers long."
       );
       setSignup("Sign Up");
-
-      //Login with information
-      return;
     }
-  }
+    Alert.alert(
+      "Almost there!",
+      "Authenticate biometrically to complete the sign up process.",
+      [
+        {
+          text: "Authenticate",
+          onPress: async () => {
+            const status = await handleBiometricLogin();
 
+            if (status) {
+              resetStackUntilTwoScreens();
+              Alert.alert(
+                "Successfully created Account!",
+                "Please login using your credientals or biometrically."
+              );
+            } else {
+              setSignup("Sign Up");
+              Alert.alert("Failed creating Account!", "Please try again.");
+            }
+            setSignup("Sign Up");
+          },
+        },
+        {
+          text: "Cancel",
+          onPress: () => setSignup("Sign Up"),
+          style: "cancel",
+        },
+      ],
+      { cancelable: true } // Allows dismissing the alert by tapping outside
+    );
+    setSignup("Sign Up");
+  };
+
+  // temporary hack to ensure no duplicate screens are piled
   const resetStackUntilTwoScreens = () => {
-    // navigation.goBack();
-    // navigation.setOptions({
-    //   animation: "slide_from_left", // Set the animation for the pop action
-    // });
+    // Temprorary hack for navigating from LoginScreen to RegisterScreen WITH SLIDING ANIMATION in place.
+    // For some reason, react navigation does not have animation for pop() function
+    // Therefore, I am using push() function to get that transition but also resetting the stack to avoid creating duplicates of the
+    // login and register screens. I am printing here the number of stacked screens to confirm its only two at the moment; login and register screens
+    // Again, this is a hack, not ideal in any way
+    // if you use pop()/goBack() with the 'presentation' defined as follows AuthNavigator:
+    //
+    // name={Routes.Auth.Register}
+    // component={RegisterScreen}
+    // options={{
+    //   headerShown: false,
+    //   presentation: transparentModal
+    // }}
+    // documentaion: https://reactnavigation.org/docs/stack-navigator/?config=dynamic#transparent-modals
+
+    // It would be removed instantly with no animation...very ugly
+    // If you don't include presentation and just use pop/goBack you will see white background during transition....Even uglier
 
     let screenName = Routes.Auth.Login;
     const navigationState = navigation.getState();
@@ -262,9 +173,7 @@ const RegisterScreen = () => {
           <Text style={{ color: "white" }}>Login below or </Text>
           <Text>
             <TouchableRipple
-              onPress={() => {
-                resetStackUntilTwoScreens();
-              }}
+              onPress={resetStackUntilTwoScreens}
               rippleColor="rgba(0, 0, 0, .32)"
             >
               <Text style={styles.link}>create an account</Text>
