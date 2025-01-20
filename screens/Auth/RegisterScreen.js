@@ -13,8 +13,10 @@ import {
   useTheme,
   TouchableRipple,
 } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, CommonActions } from "@react-navigation/native";
 import Routes from "../../utils/constants/routes";
+import { StackActions, NavigationActions } from "@react-navigation/native";
+import { InteractionManager } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -211,18 +213,58 @@ const RegisterScreen = () => {
     }
   }
 
+  const resetStackUntilTwoScreens = () => {
+    // navigation.goBack();
+    // navigation.setOptions({
+    //   animation: "slide_from_left", // Set the animation for the pop action
+    // });
+
+    let screenName = Routes.Auth.Login;
+    const navigationState = navigation.getState();
+    let routes = navigationState.routes;
+
+    console.log("Number of screens in the stack:", routes.length);
+
+    // Filter out duplicates by ensuring only one instance of each screen name
+    const uniqueRoutes = routes.filter(
+      (route, index, self) =>
+        index === self.findIndex((r) => r.name === route.name)
+    );
+
+    // If the screen is already in the unique routes, we need to handle it
+    const isScreenInStack = uniqueRoutes.some(
+      (route) => route.name === screenName
+    );
+
+    if (!isScreenInStack) {
+      // If the screen is not in the stack, push it to the stack with animation
+      navigation.push(screenName);
+    } else {
+      // If the screen is already in the stack, remove the duplicate and push it
+      // Filter out the duplicate screen from the stack
+      const filteredRoutes = routes.filter(
+        (route) => route.name !== screenName
+      );
+
+      // Push the screen to the top of the stack
+      navigation.reset({
+        index: filteredRoutes.length, // Keep the first screen at the top
+        routes: [...filteredRoutes, { name: screenName }],
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <DiagonalLines />
-      <DiagonalLines2 />
-
       <View style={styles.content}>
         <Text style={styles.title}>Welcome back!</Text>
         <View style={styles.subtitle}>
           <Text style={{ color: "white" }}>Login below or </Text>
           <Text>
             <TouchableRipple
-              onPress={() => navigation.goBack()}
+              onPress={() => {
+                resetStackUntilTwoScreens();
+              }}
               rippleColor="rgba(0, 0, 0, .32)"
             >
               <Text style={styles.link}>create an account</Text>
@@ -393,12 +435,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     textDecorationLine: "underline",
   },
-  diagonalLine: {
-    position: "absolute",
-    width: 1,
-    height: height * 2,
-    backgroundColor: "#FFD700",
-  },
+
   content: {
     flex: 1,
     padding: 20,

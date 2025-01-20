@@ -16,98 +16,6 @@ import UserContext from "../../context/UserContext";
 
 const { width, height } = Dimensions.get("window");
 
-const DiagonalLines = () => {
-  const backgroundAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const backgroundAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(backgroundAnim, {
-          toValue: 0.7,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(backgroundAnim, {
-          toValue: 0.1,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-
-    backgroundAnimation.start();
-
-    return () => backgroundAnimation.stop();
-  }, []);
-
-  const rotate = backgroundAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["45deg", "225deg"],
-  });
-
-  return (
-    <Animated.View
-      style={[
-        StyleSheet.absoluteFill,
-        {
-          opacity: 0.1,
-          transform: [{ rotate }],
-        },
-      ]}
-    >
-      {Array.from({ length: 200 }).map((_, i) => (
-        <View key={i} style={[styles.diagonalLine, { left: i * 5 - 200 }]} />
-      ))}
-    </Animated.View>
-  );
-};
-
-const DiagonalLines2 = () => {
-  const backgroundAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const backgroundAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(backgroundAnim, {
-          toValue: 0.1,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(backgroundAnim, {
-          toValue: 0,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-
-    backgroundAnimation.start();
-
-    return () => backgroundAnimation.stop();
-  }, []);
-
-  const rotate = backgroundAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["4deg", "225deg"],
-  });
-
-  return (
-    <Animated.View
-      style={[
-        StyleSheet.absoluteFill,
-        {
-          opacity: 0.1,
-          transform: [{ rotate }],
-        },
-      ]}
-    >
-      {Array.from({ length: 200 }).map((_, i) => (
-        <View key={i} style={[styles.diagonalLine, { left: i * 10 - 100 }]} />
-      ))}
-    </Animated.View>
-  );
-};
-
 const LoginScreen = () => {
   const navigation = useNavigation();
 
@@ -137,26 +45,6 @@ const LoginScreen = () => {
   const civilIdAnim = useRef(new Animated.Value(0)).current;
   const passwordAnim = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(1)).current;
-  const backgroundAnim = useRef(new Animated.Value(0)).current;
-
-  React.useEffect(() => {
-    const backgroundAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(backgroundAnim, {
-          toValue: 1,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(backgroundAnim, {
-          toValue: 0,
-          duration: 10000,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    backgroundAnimation.start();
-    return () => backgroundAnimation.stop();
-  }, []);
 
   const animateField = (anim, value) => {
     Animated.spring(anim, {
@@ -220,16 +108,47 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <DiagonalLines />
-      <DiagonalLines2 />
-
       <View style={styles.content}>
         <Text style={styles.title}>Welcome back!</Text>
         <View style={styles.subtitle}>
           <Text style={{ color: "white" }}>Login below or </Text>
           <Text>
             <TouchableRipple
-              onPress={() => navigation.navigate(Routes.Auth.Register)}
+              onPress={() => {
+                let screenName = Routes.Auth.Register;
+                const navigationState = navigation.getState();
+                let routes = navigationState.routes;
+
+                console.log("Number of screens in the stack:", routes.length);
+
+                // Filter out duplicates by ensuring only one instance of each screen name
+                const uniqueRoutes = routes.filter(
+                  (route, index, self) =>
+                    index === self.findIndex((r) => r.name === route.name)
+                );
+
+                // If the screen is already in the unique routes, we need to handle it
+                const isScreenInStack = uniqueRoutes.some(
+                  (route) => route.name === screenName
+                );
+
+                if (!isScreenInStack) {
+                  // If the screen is not in the stack, push it to the stack with animation
+                  navigation.push(screenName);
+                } else {
+                  // If the screen is already in the stack, remove the duplicate and push it
+                  // Filter out the duplicate screen from the stack
+                  const filteredRoutes = routes.filter(
+                    (route) => route.name !== screenName
+                  );
+
+                  // Push the screen to the top of the stack
+                  navigation.reset({
+                    index: filteredRoutes.length, // Keep the first screen at the top
+                    routes: [...filteredRoutes, { name: screenName }],
+                  });
+                }
+              }}
               rippleColor="rgba(0, 0, 0, .32)"
             >
               <Text style={styles.link}>create an account</Text>
@@ -412,7 +331,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    backgroundColor: "rgb(24, 24, 24)", // Dark background for input
+    backgroundColor: "rgba(0, 0, 0, 0.86)24)", // Dark background for input
     color: "#fff", // Set text color to white
   },
   buttonContainer: {
