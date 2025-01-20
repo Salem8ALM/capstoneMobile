@@ -79,7 +79,7 @@ const LoginScreen = () => {
     }
   };
 
-  // temporary hack to ensure no duplicate screens are piled 
+  // temporary hack to ensure no duplicate screens are piled
   const resetStackUntilTwoScreens = () => {
     // Temprorary hack for navigating from LoginScreen to RegisterScreen WITH SLIDING ANIMATION in place.
     // For some reason, react navigation does not have animation for pop() function
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    backgroundColor: "rgba(0, 0, 0, 0.6)24)", // Dark background for input
+    backgroundColor: "rgb(8, 8, 8)24)", // Dark background for input
   },
   buttonContainer: {
     marginTop: 20,

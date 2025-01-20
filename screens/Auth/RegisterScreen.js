@@ -11,6 +11,10 @@ import Routes from "../../utils/constants/routes";
 import UserContext from "../../context/UserContext";
 import { animateField } from "../../utils/animations/animations";
 import { handleBiometricLogin } from "./auth-utils/handleBiometricLogin";
+import {
+  handlePressIn,
+  handlePressOut,
+} from "../../utils/animations/buttonAnimations";
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -23,6 +27,7 @@ const RegisterScreen = () => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
 
   // Text when clicking on login
   const [signup, setSignup] = useState("Sign Up");
@@ -168,15 +173,15 @@ const RegisterScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome back!</Text>
+        <Text style={styles.title}>Sign Up</Text>
         <View style={styles.subtitle}>
-          <Text style={{ color: "white" }}>Login below or </Text>
+          <Text style={{ color: "white" }}>Sign up below or </Text>
           <Text>
             <TouchableRipple
               onPress={resetStackUntilTwoScreens}
               rippleColor="rgba(0, 0, 0, .32)"
             >
-              <Text style={styles.link}>create an account</Text>
+              <Text style={styles.link}>Login with an Existing account</Text>
             </TouchableRipple>
           </Text>
         </View>
@@ -201,11 +206,143 @@ const RegisterScreen = () => {
             value={username}
             onChangeText={setUsername}
             mode="outlined"
+            left={
+              <TextInput.Icon
+                icon="account-circle-outline"
+                color={
+                  focusedField === "username"
+                    ? "#FFD700"
+                    : "rgba(255,255,255,0.2)"
+                }
+              />
+            }
+            style={styles.input}
+            textColor="white"
+            onFocus={() => {
+              setFocusedField("username");
+              animateField(usernameAnim, 1);
+            }}
+            onBlur={() => {
+              setFocusedField("");
+              animateField(usernameAnim, 0);
+            }}
+            theme={{ colors: { primary: "#FFD700" } }} // Dark background
+          />
+        </Animated.View>
+
+        <Animated.View
+          style={[
+            styles.inputContainer,
+            {
+              transform: [
+                {
+                  scale: firstNameAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.05],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <TextInput
+            label="First Name"
+            value={firstName}
+            onChangeText={setFirstName}
+            mode="outlined"
             style={styles.input}
             textColor="white"
             left={
               <TextInput.Icon
-                icon="account-circle-outline"
+                icon="format-letter-case"
+                color={
+                  focusedField === "firstName"
+                    ? "#FFD700"
+                    : "rgba(255,255,255,0.2)"
+                }
+              />
+            }
+            onFocus={() => {
+              setFocusedField("firstName");
+              animateField(firstNameAnim, 1);
+            }}
+            onBlur={() => {
+              setFocusedField("");
+              animateField(firstNameAnim, 0);
+            }}
+            theme={{ colors: { primary: "#FFD700" } }} // Dark background
+          />
+        </Animated.View>
+
+        <Animated.View
+          style={[
+            styles.inputContainer,
+            {
+              // scales up and down the field
+              transform: [
+                {
+                  scale: lastNameAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.05],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <TextInput
+            label="Last Name"
+            value={lastName}
+            onChangeText={setLastName}
+            mode="outlined"
+            left={
+              <TextInput.Icon
+                icon="format-letter-ends-with"
+                color={
+                  focusedField === "lastName"
+                    ? "#FFD700"
+                    : "rgba(255,255,255,0.2)"
+                }
+              />
+            }
+            textColor="white"
+            style={[styles.input]}
+            onFocus={() => {
+              setFocusedField("lastName");
+              animateField(lastNameAnim, 1);
+            }}
+            onBlur={() => {
+              setFocusedField("");
+              animateField(lastNameAnim, 0);
+            }}
+            theme={{ colors: { primary: "#FFD700" } }} // Dark background
+          />
+        </Animated.View>
+
+        <Animated.View
+          style={[
+            styles.inputContainer,
+            {
+              // scales up and down the field
+              transform: [
+                {
+                  scale: civilIdAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.05],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <TextInput
+            label="Civil ID"
+            value={civilId}
+            onChangeText={setCivilId}
+            mode="outlined"
+            left={
+              <TextInput.Icon
+                icon="account"
                 color={
                   focusedField === "civilId"
                     ? "#FFD700"
@@ -213,75 +350,141 @@ const RegisterScreen = () => {
                 }
               />
             }
+            textColor="white"
+            style={[styles.input]}
             onFocus={() => {
               setFocusedField("civilId");
-              animateField(usernameAnim, 1);
+              animateField(civilIdAnim, 1);
             }}
             onBlur={() => {
               setFocusedField("");
-              animateField(usernameAnim, 0);
+              animateField(civilIdAnim, 0);
             }}
-            theme={{ colors: { primary: "#FFD700", background: "#2d2d2d" } }} // Dark background
+            theme={{ colors: { primary: "#FFD700" } }} // Dark background
           />
         </Animated.View>
 
-        <TextInput
-          label="First Name"
-          value={firstName}
-          onChangeText={setFirstName}
-          mode="outlined"
-          style={styles.input}
-          left={<TextInput.Icon icon="format-letter-case" />}
-        />
+        <Animated.View
+          style={[
+            styles.inputContainer,
+            {
+              // scales up and down the field
+              transform: [
+                {
+                  scale: mobileNumberAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.05],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <TextInput
+            label="Mobile Number"
+            value={mobileNumber}
+            onChangeText={setMobileNumber}
+            mode="outlined"
+            left={
+              <TextInput.Icon
+                icon="tablet-android"
+                color={
+                  focusedField === "mobileNumber"
+                    ? "#FFD700"
+                    : "rgba(255,255,255,0.2)"
+                }
+              />
+            }
+            textColor="white"
+            style={[styles.input]}
+            onFocus={() => {
+              setFocusedField("mobileNumber");
+              animateField(mobileNumberAnim, 1);
+            }}
+            onBlur={() => {
+              setFocusedField("");
+              animateField(mobileNumberAnim, 0);
+            }}
+            theme={{ colors: { primary: "#FFD700" } }} // Dark background
+          />
+        </Animated.View>
 
-        <TextInput
-          label="Last Name"
-          value={lastName}
-          onChangeText={setLastName}
-          mode="outlined"
-          style={styles.input}
-          left={<TextInput.Icon icon="format-letter-ends-with" />}
-        />
+        <Animated.View
+          style={[
+            styles.inputContainer,
+            {
+              transform: [
+                {
+                  scale: passwordAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.05],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          {/* Text input Field for password */}
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={secureTextEntry}
+            mode="outlined"
+            left={
+              <TextInput.Icon
+                icon="lock"
+                color={
+                  focusedField === "password"
+                    ? "#FFD700"
+                    : "rgba(255,255,255,0.2)"
+                }
+              />
+            }
+            right={
+              <TextInput.Icon
+                icon={secureTextEntry ? "eye" : "eye-off"}
+                color={
+                  focusedField === "password"
+                    ? "#FFD700"
+                    : "rgba(255,255,255,0.2)"
+                }
+                onPress={() => setSecureTextEntry(!secureTextEntry)}
+              />
+            }
+            textColor="white"
+            style={[styles.input]}
+            onFocus={() => {
+              setFocusedField("password");
+              animateField(passwordAnim, 1);
+            }}
+            onBlur={() => {
+              setFocusedField("");
+              animateField(passwordAnim, 0);
+            }}
+            theme={{
+              colors: { primary: "#FFD700" },
+            }}
+          />
+        </Animated.View>
 
-        <TextInput
-          label="Civil ID"
-          value={civilId}
-          onChangeText={setCivilId}
-          mode="outlined"
-          style={styles.input}
-          keyboardType="numeric"
-          left={<TextInput.Icon icon="account" />}
-        />
-
-        <TextInput
-          label="Mobile Number"
-          value={mobileNumber}
-          onChangeText={setMobileNumber}
-          mode="outlined"
-          style={styles.input}
-          keyboardType="numeric"
-          left={<TextInput.Icon icon="tablet-android" />}
-        />
-
-        <TextInput
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          mode="outlined"
-          style={styles.input}
-          secureTextEntry={!showPassword}
-          right={
-            <TextInput.Icon
-              icon={showPassword ? "eye-off" : "eye"}
-              onPress={() => setShowPassword(!showPassword)}
-            />
-          }
-          left={<TextInput.Icon icon="lock" />}
-        />
-
-        <Button mode="contained" style={styles.button} onPress={submit}>
-          {signup}
-        </Button>
+        <Animated.View
+          style={[
+            styles.buttonContainer,
+            { transform: [{ scale: buttonAnim }] },
+          ]}
+        >
+          <Button
+            mode="contained"
+            onPress={submit}
+            onPressIn={() => handlePressIn(buttonAnim)}
+            onPressOut={() => handlePressOut(buttonAnim)}
+            style={styles.button}
+            labelStyle={styles.buttonText}
+          >
+            {signup}
+          </Button>
+        </Animated.View>
       </View>
     </View>
   );
@@ -306,10 +509,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   subtitle: {
+    marginBottom: 20,
+
     fontSize: 16,
     textAlign: "center",
     flexDirection: "row",
     padding: 10,
+    justifyContent: "center", // Center align items horizontally
   },
   link: {
     color: "#FFD700",
@@ -329,15 +535,20 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   input: {
-    backgroundColor: "rgb(24, 24, 24)", // Dark background for input
-    color: "#fff", // Set text color to white
-    margin: 10,
+    marginBottom: 20,
+    backgroundColor: "rgb(8, 8, 8)24)", // Dark background for input
   },
   button: {
-    marginTop: 16,
-    paddingVertical: 8,
-    borderRadius: 4,
+    backgroundColor: "#FFD700",
+    padding: 5,
+    borderRadius: 8,
   },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
+  },
+
   login: {
     fontSize: 14,
     textAlign: "center",
