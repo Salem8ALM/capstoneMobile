@@ -14,21 +14,23 @@ import * as LocalAuthentication from "expo-local-authentication";
 import Routes from "../../utils/constants/routes";
 import UserContext from "../../context/UserContext";
 
-const { width, height } = Dimensions.get("window");
-
 const LoginScreen = () => {
   const navigation = useNavigation();
 
+  // useStates for fields and password visibility
   const [civilId, setCivilId] = useState("");
   const [password, setPassword] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
 
+  // Text when clicking on login
   const [login, setLogin] = useState("Login");
 
   const theme = useTheme();
 
+  // animation when field is focused
   const [focusedField, setFocusedField] = useState("");
 
+  // Used to change from AuthNavigator to AppNavigator after authenticatino
   const [authenticated, setAuthenticated] = useContext(UserContext);
 
   const checkToken = async () => {
@@ -54,6 +56,7 @@ const LoginScreen = () => {
     }).start();
   };
 
+  // Press hold
   const handlePressIn = () => {
     Animated.spring(buttonAnim, {
       toValue: 0.95,
@@ -61,6 +64,7 @@ const LoginScreen = () => {
     }).start();
   };
 
+  // Press let go
   const handlePressOut = () => {
     Animated.spring(buttonAnim, {
       toValue: 1,
@@ -68,13 +72,18 @@ const LoginScreen = () => {
     }).start();
   };
 
+  // logic when "login" button is pressed
   function handleLogin() {
     setLogin("Logging in");
     try {
+      // logic for fetching
     } catch (error) {}
+
+    // this is currently not visible since nothing is fetched, but this should be here
     setLogin("Login");
-    console.log("clicked");
   }
+
+  // biometric login
   const handleBiometricLogin = async () => {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
     if (!hasHardware) {
@@ -100,6 +109,10 @@ const LoginScreen = () => {
 
     if (result.success) {
       Alert.alert("Success", "Logged in successfully!");
+
+      // over here is where the refresh token will be used to obtain a new access token to login with
+      // For now, "setAuthenticated" is turned true to hide "AuthNaviagtor" component without actually
+      // retrieving any actual user information from backend
       setAuthenticated(true);
     } else {
       Alert.alert("Failed", "Biometric authentication failed.");
@@ -115,6 +128,11 @@ const LoginScreen = () => {
           <Text>
             <TouchableRipple
               onPress={() => {
+
+                // Temprorary hack for navigating from LoginScreen to RegisterScreen WITH SLIDING ANIMATION in place.
+                // For some reason, react navigation does not have animation for pop() function
+                // if you use pop() with 
+
                 let screenName = Routes.Auth.Register;
                 const navigationState = navigation.getState();
                 let routes = navigationState.routes;
@@ -352,12 +370,6 @@ const styles = StyleSheet.create({
     color: "#FFD700",
     textAlign: "center",
     textDecorationLine: "underline",
-  },
-  diagonalLine: {
-    position: "absolute",
-    width: 1,
-    height: height * 2,
-    backgroundColor: "#FFD700",
   },
   biometric: {
     alignSelf: "center",

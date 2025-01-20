@@ -1,12 +1,6 @@
 import React from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import LoginScreen from "../screens/Auth/LoginScreen";
-import RegisterScreen from "../screens/Auth/RegisterScreen";
-import Routes from "../utils/constants/routes";
 import { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated, Dimensions } from "react-native";
-
-import { CardStyleInterpolators } from "@react-navigation/stack";
 
 const { width, height } = Dimensions.get("window");
 
