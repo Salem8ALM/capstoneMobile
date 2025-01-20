@@ -52,14 +52,15 @@ const LoginScreen = () => {
     Animated.spring(anim, {
       toValue: value,
       useNativeDriver: true,
-      friction: 8,
+      friction: 4,
+      tension: 10,
     }).start();
   };
 
   // Press hold
   const handlePressIn = () => {
     Animated.spring(buttonAnim, {
-      toValue: 0.95,
+      toValue: 0.9,
       useNativeDriver: true,
     }).start();
   };
@@ -68,12 +69,15 @@ const LoginScreen = () => {
   const handlePressOut = () => {
     Animated.spring(buttonAnim, {
       toValue: 1,
+      friction: 3, // Make the animation a bit bouncy
+      tension: 100,
       useNativeDriver: true,
     }).start();
   };
 
   // logic when "login" button is pressed
   function handleLogin() {
+    console.log("clicked");
     setLogin("Logging in");
     try {
       // logic for fetching
@@ -128,10 +132,23 @@ const LoginScreen = () => {
           <Text>
             <TouchableRipple
               onPress={() => {
-
                 // Temprorary hack for navigating from LoginScreen to RegisterScreen WITH SLIDING ANIMATION in place.
                 // For some reason, react navigation does not have animation for pop() function
-                // if you use pop() with 
+                // Therefore, I am using push() function to get that transition but also resetting the stack to avoid creating duplicates of the
+                // login and register screens. I am printing here the number of stacked screens to confirm its only two at the moment; login and register screens
+                // Again, this is a hack, not ideal in any way
+                // if you use pop()/goBack() with the 'presentation' defined as follows AuthNavigator:
+                //
+                // name={Routes.Auth.Register}
+                // component={RegisterScreen}
+                // options={{
+                //   headerShown: false,
+                //   presentation: transparentModal
+                // }}
+                // documentaion: https://reactnavigation.org/docs/stack-navigator/?config=dynamic#transparent-modals
+
+                // It would be removed instantly with no animation...very ugly
+                // If you don't include presentation and just use pop/goBack you will see white background during transition....Even uglier
 
                 let screenName = Routes.Auth.Register;
                 const navigationState = navigation.getState();
@@ -167,17 +184,18 @@ const LoginScreen = () => {
                   });
                 }
               }}
-              rippleColor="rgba(0, 0, 0, .32)"
+              rippleColor="rgba(255, 238, 0, 0.51)"
             >
               <Text style={styles.link}>create an account</Text>
             </TouchableRipple>
           </Text>
         </View>
-
+        {/* Animation for civil Id field when it becomes focused */}
         <Animated.View
           style={[
             styles.inputContainer,
             {
+              // scales up and down the field
               transform: [
                 {
                   scale: civilIdAnim.interpolate({
@@ -190,7 +208,7 @@ const LoginScreen = () => {
           ]}
         >
           <TextInput
-            label="Civil Id"
+            label="Civil ID"
             value={civilId}
             onChangeText={setCivilId}
             mode="outlined"
@@ -205,7 +223,7 @@ const LoginScreen = () => {
               />
             }
             textColor="white"
-            style={[styles.input]} // Set text color to white
+            style={[styles.input]}
             onFocus={() => {
               setFocusedField("civilId");
               animateField(civilIdAnim, 1);
@@ -214,10 +232,9 @@ const LoginScreen = () => {
               setFocusedField("");
               animateField(civilIdAnim, 0);
             }}
-            theme={{ colors: { primary: "#FFD700", background: "#2d2d2d" } }} // Dark background
+            theme={{ colors: { primary: "#FFD700" } }} // Dark background
           />
         </Animated.View>
-
         <Animated.View
           style={[
             styles.inputContainer,
@@ -233,6 +250,7 @@ const LoginScreen = () => {
             },
           ]}
         >
+          {/* Text input Field for password */}
           <TextInput
             label="Password"
             value={password}
@@ -261,7 +279,7 @@ const LoginScreen = () => {
               />
             }
             textColor="white"
-            style={[styles.input]} // Set text color to white
+            style={[styles.input]}
             onFocus={() => {
               setFocusedField("password");
               animateField(passwordAnim, 1);
@@ -275,7 +293,6 @@ const LoginScreen = () => {
             }}
           />
         </Animated.View>
-
         <Animated.View
           style={[
             styles.buttonContainer,
@@ -293,7 +310,7 @@ const LoginScreen = () => {
             {login}
           </Button>
         </Animated.View>
-
+        This is only for astetics, lets not waste time on building the functionality 
         <Text
           style={styles.forgotPassword}
           onPress={() =>
@@ -302,13 +319,13 @@ const LoginScreen = () => {
         >
           Forgot Password
         </Text>
-
         {/* Biometric Login Button */}
         <IconButton
           icon="fingerprint"
           size={70}
           style={styles.biometric}
           onPress={handleBiometricLogin}
+          iconColor="gray" // Set the icon color to white
         />
         <Text style={styles.biometricText}>Login with Fingerprint</Text>
       </View>
@@ -335,14 +352,13 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    textAlign: "center",
-    marginBottom: 40,
+    marginBottom: 20,
     flexDirection: "row",
     padding: 10,
+    justifyContent: "center", // Center align items horizontally
   },
   link: {
     color: "#FFD700",
-    textDecorationLine: "underline",
     textDecorationLine: "underline",
   },
   inputContainer: {
@@ -373,13 +389,13 @@ const styles = StyleSheet.create({
   },
   biometric: {
     alignSelf: "center",
-    marginTop: 16,
+    marginTop: 40,
   },
   biometricText: {
     fontSize: 14,
     textAlign: "center",
     marginTop: 8,
-    color: "#666",
+    color: "gray",
   },
 });
 
