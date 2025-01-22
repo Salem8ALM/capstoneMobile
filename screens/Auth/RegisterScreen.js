@@ -179,7 +179,7 @@ const RegisterScreen = () => {
           <Text>
             <TouchableRipple
               onPress={resetStackUntilTwoScreens}
-              rippleColor="rgba(0, 0, 0, .32)"
+              rippleColor="rgba(255, 238, 0, 0.51)"
             >
               <Text style={styles.link}>Login with an Existing account</Text>
             </TouchableRipple>
@@ -206,6 +206,9 @@ const RegisterScreen = () => {
             value={username}
             onChangeText={setUsername}
             mode="outlined"
+            autoCapitalize="none" // Disable auto-capitalization
+            keyboardType="default" // Default keyboard for mixed input
+            textContentType="username" // Hints the type of input to autofill services
             left={
               <TextInput.Icon
                 icon="account-circle-outline"
@@ -250,6 +253,9 @@ const RegisterScreen = () => {
             value={firstName}
             onChangeText={setFirstName}
             mode="outlined"
+            autoCapitalize="words" // Automatically capitalize the first letter of each word
+            keyboardType="default" // Standard keyboard
+            textContentType="name" // Hint for autofill services
             style={styles.input}
             textColor="white"
             left={
@@ -305,6 +311,9 @@ const RegisterScreen = () => {
                 }
               />
             }
+            autoCapitalize="words" // Automatically capitalize the first letter of each word
+            keyboardType="default" // Standard keyboard
+            textContentType="name" // Hint for autofill services
             textColor="white"
             style={[styles.input]}
             onFocus={() => {
@@ -350,6 +359,8 @@ const RegisterScreen = () => {
                 }
               />
             }
+            maxLength={12}
+            inputMode="numeric"
             textColor="white"
             style={[styles.input]}
             onFocus={() => {
@@ -395,6 +406,8 @@ const RegisterScreen = () => {
                 }
               />
             }
+            maxLength={8}
+            inputMode="numeric"
             textColor="white"
             style={[styles.input]}
             onFocus={() => {
@@ -452,6 +465,8 @@ const RegisterScreen = () => {
                 onPress={() => setSecureTextEntry(!secureTextEntry)}
               />
             }
+            autoCapitalize="none" // Avoid capitalization
+            textContentType="password" // Help autofill services recognize it as a password
             textColor="white"
             style={[styles.input]}
             onFocus={() => {
