@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React, { useContext } from "react";
 import UserContext from "../context/UserContext";
+import { deleteToken } from "../storage/TokenStorage";
 
 export default function DashboardScreen() {
   const [authenticated, setAuthenticated] = useContext(UserContext);
@@ -8,7 +9,14 @@ export default function DashboardScreen() {
   return (
     <View>
       <Text>Dashboard Screen</Text>
-      <Text onPress={() => setAuthenticated(false)}>logout</Text>
+      <Text
+        onPress={() => {
+          deleteToken("access");
+          setAuthenticated(false);
+        }}
+      >
+        logout
+      </Text>
       <></>
     </View>
   );

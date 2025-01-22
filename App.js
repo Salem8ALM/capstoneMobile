@@ -7,16 +7,14 @@ import AuthNavigator from "./navigations/AuthNavigator";
 import { useState, useEffect } from "react";
 import UserContext from "./context/UserContext";
 import AppNavigator from "./navigations/AppNavigator";
+import { View } from "react-native";
 
 //-------- although not currently in use, they will be used for token storage
-import { checkToken } from "./storage/TokenStorage";
 import {
   QueryCache,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { View } from "react-native";
-import DiagonalLines from "./utils/animations/DiagonalLines";
 //----------
 
 export default function App() {
@@ -24,7 +22,7 @@ export default function App() {
 
   const checkToken = async () => {
     // check if the token exists
-    const token = await getToken();
+    const token = await getToken("access");
     // exists ? setAuth to true : null
     if (token) setAuthenticated(true);
   };
