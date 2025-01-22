@@ -9,7 +9,6 @@ const loginAPI = async (civilId, password) => {
       civilId: civilId,
       password: password,
     });
-    console.log("Login response:", response.data);
     return response.data;
   } catch (error) {
     throw error; // Re-throw to handle it in the calling function
@@ -17,13 +16,27 @@ const loginAPI = async (civilId, password) => {
 };
 
 // Function to call the /signup endpoint
-const signupAPI = async () => {
+const signupAPI = async (
+  username,
+  firstName,
+  lastName,
+  civilId,
+  mobileNumber,
+  password,
+  role
+) => {
   try {
-    const response = await instance.post(controller + "/v1/signup");
-    console.log("Signup response:", response.data);
+    const response = await instance.post(controller + "/v1/signup", {
+      username: username,
+      firstName: firstName,
+      lastName: lastName,
+      civilId: civilId,
+      mobileNumber: mobileNumber,
+      password: password,
+      role: role,
+    });
     return response.data;
   } catch (error) {
-    console.error("Error during signup:", error.message);
     throw error; // Re-throw to handle it in the calling function
   }
 };

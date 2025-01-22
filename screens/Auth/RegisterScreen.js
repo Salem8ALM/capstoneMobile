@@ -15,6 +15,8 @@ import {
   handlePressIn,
   handlePressOut,
 } from "../../utils/animations/buttonAnimations";
+import { signupAPI } from "../../api/Auth";
+import { setToken, getToken } from "../../storage/TokenStorage";
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -28,7 +30,6 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [secureTextEntry, setSecureTextEntry] = useState(true);
-
   // Text when clicking on login
   const [signup, setSignup] = useState("Sign Up");
 
@@ -40,10 +41,9 @@ const RegisterScreen = () => {
   // Used to change from AuthNavigator to AppNavigator after authenticatino
   const [authenticated, setAuthenticated] = useContext(UserContext);
 
+  // check if token exists
   const checkToken = async () => {
-    // check if the token exists
-    const token = await getToken();
-    // exists ? setAuth to true : null
+    const token = await getToken("access");
     if (token) setAuthenticated(true);
   };
   useEffect(() => {
@@ -81,38 +81,108 @@ const RegisterScreen = () => {
         "Your Mobile Number must be 8 numbers long."
       );
       setSignup("Sign Up");
-    }
-    Alert.alert(
-      "Almost there!",
-      "Authenticate biometrically to complete the sign up process.",
-      [
-        {
-          text: "Authenticate",
-          onPress: async () => {
-            const status = await handleBiometricLogin();
 
-            if (status) {
-              resetStackUntilTwoScreens();
+      return;
+    }
+
+    if (
+      !civilId ||
+      !password ||
+      !username ||
+      !firstName ||
+      !lastName ||
+      !password
+    ) {
+      Alert.alert(
+        "Incomplete fields",
+        "Please ensure all fields are filled to successfully sign up"
+      );
+      setSignup("Sign Up");
+      return;
+    }
+    const existingToken = checkToken();
+    if (existingToken) {
+      Alert.alert(
+        "Already a user!",
+        "It seems you have previously logged in on this device. Would you like to replace the data of your previous account on this device with this new one?",
+        [
+          {
+            text: "Replace",
+            onPress: () => {
               Alert.alert(
-                "Successfully created Account!",
-                "Please login using your credientals or biometrically."
+                "Almost there!",
+                "Authenticate biometrically to complete the sign up process.",
+                [
+                  {
+                    text: "Authenticate",
+                    onPress: async () => {
+                      let status = await handleBiometricLogin();
+
+                      if (status) {
+                        resetStackUntilTwoScreens();
+
+                        try {
+                          const response = await signupAPI(
+                            username,
+                            firstName,
+                            lastName,
+                            civilId,
+                            mobileNumber,
+                            password,
+                            "BUSINESS_OWNER"
+                          );
+
+                          // uncomment this
+                          // await setToken(response.accessToken, "access");
+                          // checkToken();
+
+                          await setToken(response.refreshToken, "refresh");
+                        } catch (error) {
+                          Alert.alert(
+                            "Failed Signup",
+                            "A user is already registered with your civil ID. Please login with your credentials!"
+                          );
+                          setSignup("Sign Up");
+                          return;
+                        } finally {
+                          setSignup("Sign Up");
+                        }
+
+                        Alert.alert(
+                          "Successfully created Account!",
+                          "Please login using your credientals or biometrically."
+                        );
+                      } else {
+                        Alert.alert(
+                          "Failed creating Account!",
+                          "Please try again."
+                        );
+                      }
+                      setSignup("Sign Up");
+                    },
+                  },
+                  {
+                    text: "Cancel",
+                    onPress: () => setSignup("Sign Up"),
+                    style: "cancel",
+                  },
+                ],
+                { cancelable: true } // Allows dismissing the alert by tapping outside
               );
-            } else {
-              setSignup("Sign Up");
-              Alert.alert("Failed creating Account!", "Please try again.");
-            }
-            setSignup("Sign Up");
+            },
           },
-        },
-        {
-          text: "Cancel",
-          onPress: () => setSignup("Sign Up"),
-          style: "cancel",
-        },
-      ],
-      { cancelable: true } // Allows dismissing the alert by tapping outside
-    );
-    setSignup("Sign Up");
+          {
+            text: "Cancel",
+            onPress: () => {
+              setSignup("Sign Up");
+              return;
+            },
+
+            style: "cancel",
+          },
+        ]
+      );
+    }
   };
 
   // temporary hack to ensure no duplicate screens are piled
