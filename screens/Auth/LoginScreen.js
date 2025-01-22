@@ -182,6 +182,8 @@ const LoginScreen = () => {
               />
             }
             textColor="white"
+            maxLength={12}
+            inputMode="numeric"
             style={[styles.input]}
             onFocus={() => {
               setFocusedField("civilId");
