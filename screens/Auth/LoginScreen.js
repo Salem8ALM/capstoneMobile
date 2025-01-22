@@ -18,6 +18,8 @@ import {
 } from "../../utils/animations/buttonAnimations";
 import { animateField } from "../../utils/animations/animations";
 import { handleBiometricLogin } from "./auth-utils/handleBiometricLogin";
+import { loginAPI, refreshTokenAPI } from "../../api/Auth";
+import { setToken, getToken } from "../../storage/TokenStorage";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -38,15 +40,16 @@ const LoginScreen = () => {
   // Used to change from AuthNavigator to AppNavigator after authenticatino
   const [authenticated, setAuthenticated] = useContext(UserContext);
 
+  const [data, setData] = useState(null);
+
   // Animation values
   const civilIdAnim = useRef(new Animated.Value(0)).current;
   const passwordAnim = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(1)).current;
 
+  // check if token exists
   const checkToken = async () => {
-    // check if the token exists
-    const token = await getToken();
-    // exists ? setAuth to true : null
+    const token = await getToken("access");
     if (token) setAuthenticated(true);
   };
   useEffect(() => {
@@ -54,28 +57,59 @@ const LoginScreen = () => {
   });
 
   // logic when "login" button is pressed
-  function handleLogin() {
-    console.log("clicked");
+  const handleLogin = async () => {
     setLogin("Logging in");
-    try {
-      // logic for fetching
-    } catch (error) {}
 
-    // this is currently not visible since nothing is fetched, but this should be here
-    setLogin("Login");
-  }
+    if (!civilId || !password) {
+      Alert.alert(
+        "Incomplete credentials",
+        "Please enter both your civil ID and password."
+      );
+      setLogin("Login");
+      return;
+    }
+
+    try {
+      const response = await loginAPI(civilId, password);
+      setData(response); // Save the response data
+
+      // Set new tokens
+      await setToken(response.accessToken, "access");
+      await setToken(response.refreshToken, "refresh");
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Failed Login", "Incorrect credentials!");
+    } finally {
+      setLogin("Login");
+    }
+  };
 
   // biometric login
   const authenticate = async () => {
     // call function to check authentication
-    const status = await handleBiometricLogin();
-    if (status) {
-      // over here is where the refresh token will be used to obtain a new access token to login with
-      // For now, "setAuthenticated" is turned true to hide "AuthNaviagtor" component without actually
-      // retrieving any actual user information from backend
+    const refreshToken = await getToken("refresh");
 
-      Alert.alert("Success", "Logged in successfully!");
-      setAuthenticated(true);
+    if (refreshToken) {
+      const status = await handleBiometricLogin();
+
+      if (status) {
+        // over here is where the refresh token will be used to obtain a new access token to login with
+        // For now, "setAuthenticated" is turned true to hide "AuthNaviagtor" component without actually
+        // retrieving any actual user information from backend
+
+        const response = await refreshTokenAPI(refreshToken);
+
+        await setToken(response.accessToken, "access");
+        await setToken(response.refreshToken, "refresh");
+
+        checkToken();
+        Alert.alert("Success", "Logged in successfully!");
+      }
+    } else {
+      Alert.alert(
+        "Biometric data not found.",
+        "Login in at least once to have data stored"
+      );
     }
   };
 
@@ -240,6 +274,7 @@ const LoginScreen = () => {
               />
             }
             textColor="white"
+            autoCapitalize="none" // Disable auto-capitalization
             style={[styles.input]}
             onFocus={() => {
               setFocusedField("password");
