@@ -23,7 +23,8 @@ const signupAPI = async (
   civilId,
   mobileNumber,
   password,
-  role
+  role,
+  bank
 ) => {
   try {
     const response = await instance.post(controller + "/v1/signup", {
@@ -34,6 +35,7 @@ const signupAPI = async (
       mobileNumber: mobileNumber,
       password: password,
       role: role,
+      bank: bank,
     });
     return response.data;
   } catch (error) {
