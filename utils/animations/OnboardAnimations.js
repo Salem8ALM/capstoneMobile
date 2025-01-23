@@ -4,7 +4,7 @@ import { View, StyleSheet, Animated, Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-const DiagonalLines = ({
+const OnboardAnimations = ({
   toValueSequence,
   duration,
   outputRange,
@@ -21,11 +21,13 @@ const DiagonalLines = ({
             Animated.timing(backgroundAnim, {
               toValue,
               duration,
-              useNativeDriver: true,
+
+              useNativeDriver: false,
             }),
           Animated.timing(backgroundAnim, {
             toValue: 0,
             duration: 10000,
+
             useNativeDriver: true,
           })
         )
@@ -38,7 +40,7 @@ const DiagonalLines = ({
   }, [toValueSequence, duration, backgroundAnim]);
 
   const rotate = backgroundAnim.interpolate({
-    inputRange: [0, 1.5],
+    inputRange: [0, 1],
     outputRange,
   });
 
@@ -47,14 +49,14 @@ const DiagonalLines = ({
       style={[
         StyleSheet.absoluteFillObject,
         {
-          opacity: 0.07,
+          opacity: 0.03,
           zIndex: 1,
           transform: [{ rotate }],
           pointerEvents: "none",
         },
       ]}
     >
-      {Array.from({ length: 200 }).map((_, i) => (
+      {Array.from({ length: 100 }).map((_, i) => (
         <View
           key={i}
           style={[styles.diagonalLine, { left: i * lineSpacing + lineOffset }]}
@@ -67,9 +69,9 @@ const DiagonalLines = ({
 const styles = StyleSheet.create({
   diagonalLine: {
     position: "absolute",
-    width: 2,
-    height: height * 9, // Ensures lines cover the entire height of the screen
+    width: 1000,
+    height: height * 2, // Ensures lines cover the entire height of the screen
     backgroundColor: "#FFD700", // Golden color for the lines
   },
 });
-export default DiagonalLines;
+export default OnboardAnimations;

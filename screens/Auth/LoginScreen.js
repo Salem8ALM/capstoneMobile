@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import { StyleSheet, View, Animated, Alert } from "react-native";
+import { StyleSheet, View, Animated, Alert, Dimensions } from "react-native";
 import { IconButton, Text } from "react-native-paper";
 
 import {
@@ -20,6 +20,9 @@ import { animateField } from "../../utils/animations/animations";
 import { handleBiometricLogin } from "./auth-utils/handleBiometricLogin";
 import { loginAPI, refreshTokenAPI } from "../../api/Auth";
 import { setToken, getToken } from "../../storage/TokenStorage";
+import { LinearGradient } from "expo-linear-gradient";
+
+const { width, height } = Dimensions.get("window");
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -38,7 +41,8 @@ const LoginScreen = () => {
   const [focusedField, setFocusedField] = useState("");
 
   // Used to change from AuthNavigator to AppNavigator after authenticatino
-  const [authenticated, setAuthenticated] = useContext(UserContext);
+  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
+    useContext(UserContext);
 
   const [data, setData] = useState(null);
 
@@ -103,7 +107,7 @@ const LoginScreen = () => {
         await setToken(response.refreshToken, "refresh");
 
         checkToken();
-        Alert.alert("Success", "Logged in successfully!");
+        // Alert.alert("Success", "Logged in successfully!");
       }
     } else {
       Alert.alert(
@@ -169,172 +173,184 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Welcome back!</Text>
-        <View style={styles.subtitle}>
-          <Text style={{ color: "white" }}>Login below or </Text>
-          <Text>
-            <TouchableRipple
-              onPress={resetStackUntilTwoScreens}
-              rippleColor="rgba(255, 238, 0, 0.51)"
-            >
-              <Text style={styles.link}>create an account</Text>
-            </TouchableRipple>
-          </Text>
-        </View>
-        {/* Animation for civil Id field when it becomes focused */}
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            {
-              // scales up and down the field
-              transform: [
-                {
-                  scale: civilIdAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.05],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TextInput
-            label="Civil ID"
-            value={civilId}
-            onChangeText={setCivilId}
-            mode="outlined"
-            left={
-              <TextInput.Icon
-                icon="account"
-                color={
-                  focusedField === "civilId"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-              />
-            }
-            textColor="white"
-            maxLength={12}
-            inputMode="numeric"
-            style={[styles.input]}
-            onFocus={() => {
-              setFocusedField("civilId");
-              animateField(civilIdAnim, 1);
-            }}
-            onBlur={() => {
-              setFocusedField("");
-              animateField(civilIdAnim, 0);
-            }}
-            theme={{ colors: { primary: "#FFD700" } }} // Dark background
-          />
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            {
-              transform: [
-                {
-                  scale: passwordAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.05],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          {/* Text input Field for password */}
-          <TextInput
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={secureTextEntry}
-            mode="outlined"
-            left={
-              <TextInput.Icon
-                icon="lock"
-                color={
-                  focusedField === "password"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-              />
-            }
-            right={
-              <TextInput.Icon
-                icon={secureTextEntry ? "eye" : "eye-off"}
-                color={
-                  focusedField === "password"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-                onPress={() => setSecureTextEntry(!secureTextEntry)}
-              />
-            }
-            textColor="white"
-            autoCapitalize="none" // Disable auto-capitalization
-            style={[styles.input]}
-            onFocus={() => {
-              setFocusedField("password");
-              animateField(passwordAnim, 1);
-            }}
-            onBlur={() => {
-              setFocusedField("");
-              animateField(passwordAnim, 0);
-            }}
-            theme={{
-              colors: { primary: "#FFD700" },
-            }}
-          />
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            { transform: [{ scale: buttonAnim }] },
-          ]}
-        >
-          <Button
-            mode="contained"
-            onPress={handleLogin}
-            onPressIn={() => handlePressIn(buttonAnim)}
-            onPressOut={() => handlePressOut(buttonAnim)}
-            style={styles.button}
-            labelStyle={styles.buttonText}
+    <LinearGradient
+      colors={["black", "rgba(14, 16, 12, 0.95)", "black"]} // Gradient colors
+      style={styles.gradient} // Full-screen gradient
+      start={{ x: 0, y: 0 }} // Gradient starts at the top
+      end={{ x: 0, y: 1 }} // Gradient ends at the bottom
+    >
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Welcome back!</Text>
+          <View style={styles.subtitle}>
+            <Text style={{ color: "white" }}>Login below or </Text>
+            <Text>
+              <TouchableRipple
+                onPress={resetStackUntilTwoScreens}
+                rippleColor="rgba(255, 238, 0, 0.51)"
+              >
+                <Text style={styles.link}>create an account</Text>
+              </TouchableRipple>
+            </Text>
+          </View>
+          {/* Animation for civil Id field when it becomes focused */}
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                // scales up and down the field
+                transform: [
+                  {
+                    scale: civilIdAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+              },
+            ]}
           >
-            {login}
-          </Button>
-        </Animated.View>
-        {/* This is only for astetics, lets not waste time on building the
+            <TextInput
+              label="Civil ID"
+              value={civilId}
+              onChangeText={setCivilId}
+              mode="outlined"
+              left={
+                <TextInput.Icon
+                  icon="account"
+                  color={
+                    focusedField === "civilId"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
+                />
+              }
+              textColor="white"
+              maxLength={12}
+              inputMode="numeric"
+              style={[styles.input]}
+              onFocus={() => {
+                setFocusedField("civilId");
+                animateField(civilIdAnim, 1);
+              }}
+              onBlur={() => {
+                setFocusedField("");
+                animateField(civilIdAnim, 0);
+              }}
+              theme={{ colors: { primary: "#FFD700" } }} // Dark background
+            />
+          </Animated.View>
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                transform: [
+                  {
+                    scale: passwordAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            {/* Text input Field for password */}
+            <TextInput
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={secureTextEntry}
+              mode="outlined"
+              left={
+                <TextInput.Icon
+                  icon="lock"
+                  color={
+                    focusedField === "password"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
+                />
+              }
+              right={
+                <TextInput.Icon
+                  icon={secureTextEntry ? "eye" : "eye-off"}
+                  color={
+                    focusedField === "password"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
+                  onPress={() => setSecureTextEntry(!secureTextEntry)}
+                />
+              }
+              textColor="white"
+              autoCapitalize="none" // Disable auto-capitalization
+              style={[styles.input]}
+              onFocus={() => {
+                setFocusedField("password");
+                animateField(passwordAnim, 1);
+              }}
+              onBlur={() => {
+                setFocusedField("");
+                animateField(passwordAnim, 0);
+              }}
+              theme={{
+                colors: { primary: "#FFD700" },
+              }}
+            />
+          </Animated.View>
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { transform: [{ scale: buttonAnim }] },
+            ]}
+          >
+            <Button
+              mode="contained"
+              onPress={handleLogin}
+              onPressIn={() => handlePressIn(buttonAnim)}
+              onPressOut={() => handlePressOut(buttonAnim)}
+              style={styles.button}
+              labelStyle={styles.buttonText}
+            >
+              {login}
+            </Button>
+          </Animated.View>
+          {/* This is only for astetics, lets not waste time on building the
         functionality */}
-        <Text
-          style={styles.forgotPassword}
-          onPress={() => {
-            Alert.alert("Forgot Password", "Forgot password link pressed");
-          }}
-        >
-          Forgot Password
-        </Text>
-        {/* Biometric Login Button */}
-        <IconButton
-          icon="fingerprint"
-          size={70}
-          style={styles.biometric}
-          onPress={authenticate}
-          iconColor="gray" // Set the icon color to white
-        />
-        <Text style={styles.biometricText}>Login with Fingerprint</Text>
+          <Text
+            style={styles.forgotPassword}
+            onPress={() => {
+              Alert.alert("Forgot Password", "Forgot password link pressed");
+            }}
+          >
+            Forgot Password
+          </Text>
+          {/* Biometric Login Button */}
+          <IconButton
+            icon="fingerprint"
+            size={70}
+            style={styles.biometric}
+            onPress={authenticate}
+            iconColor="gray" // Set the icon color to white
+          />
+          <Text style={styles.biometricText}>Login with Fingerprint</Text>
+        </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1a1a1a",
   },
+  gradient: {
+    flex: 1, // Ensures the gradient covers the entire screen
+    width: width,
+    height: height,
+  },
+
   content: {
     flex: 1,
     padding: 20,

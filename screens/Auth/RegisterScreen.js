@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { View, StyleSheet, Text, Animated, Alert } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  Animated,
+  Alert,
+  Dimensions,
+} from "react-native";
 import {
   TextInput,
   Button,
@@ -17,6 +24,9 @@ import {
 } from "../../utils/animations/buttonAnimations";
 import { signupAPI } from "../../api/Auth";
 import { setToken, getToken } from "../../storage/TokenStorage";
+import { LinearGradient } from "expo-linear-gradient";
+
+const { width, height } = Dimensions.get("window");
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -39,7 +49,8 @@ const RegisterScreen = () => {
   const [focusedField, setFocusedField] = useState("");
 
   // Used to change from AuthNavigator to AppNavigator after authenticatino
-  const [authenticated, setAuthenticated] = useContext(UserContext);
+  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
+    useContext(UserContext);
 
   // check if token exists
   const checkToken = async () => {
@@ -242,337 +253,344 @@ const RegisterScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Sign Up</Text>
-        <View style={styles.subtitle}>
-          <Text style={{ color: "white" }}>Sign up below or </Text>
-          <Text>
-            <TouchableRipple
-              onPress={resetStackUntilTwoScreens}
-              rippleColor="rgba(255, 238, 0, 0.51)"
-            >
-              <Text style={styles.link}>Login with an Existing account</Text>
-            </TouchableRipple>
-          </Text>
-        </View>
+    <LinearGradient
+      colors={["black", "rgba(14, 16, 12, 0.95)", "black"]} // Gradient colors
+      style={styles.gradient} // Full-screen gradient
+      start={{ x: 0, y: 0 }} // Gradient starts at the top
+      end={{ x: 0, y: 1 }} // Gradient ends at the bottom
+    >
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Sign Up</Text>
+          <View style={styles.subtitle}>
+            <Text style={{ color: "white" }}>Sign up below or </Text>
+            <Text>
+              <TouchableRipple
+                onPress={resetStackUntilTwoScreens}
+                rippleColor="rgba(255, 238, 0, 0.51)"
+              >
+                <Text style={styles.link}>Login with an Existing account</Text>
+              </TouchableRipple>
+            </Text>
+          </View>
 
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            {
-              transform: [
-                {
-                  scale: usernameAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.05],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TextInput
-            label="Username"
-            value={username}
-            onChangeText={setUsername}
-            mode="outlined"
-            autoCapitalize="none" // Disable auto-capitalization
-            keyboardType="default" // Default keyboard for mixed input
-            textContentType="username" // Hints the type of input to autofill services
-            left={
-              <TextInput.Icon
-                icon="account-circle-outline"
-                color={
-                  focusedField === "username"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-              />
-            }
-            style={styles.input}
-            textColor="white"
-            onFocus={() => {
-              setFocusedField("username");
-              animateField(usernameAnim, 1);
-            }}
-            onBlur={() => {
-              setFocusedField("");
-              animateField(usernameAnim, 0);
-            }}
-            theme={{ colors: { primary: "#FFD700" } }} // Dark background
-          />
-        </Animated.View>
-
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            {
-              transform: [
-                {
-                  scale: firstNameAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.05],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TextInput
-            label="First Name"
-            value={firstName}
-            onChangeText={setFirstName}
-            mode="outlined"
-            autoCapitalize="words" // Automatically capitalize the first letter of each word
-            keyboardType="default" // Standard keyboard
-            textContentType="name" // Hint for autofill services
-            style={styles.input}
-            textColor="white"
-            left={
-              <TextInput.Icon
-                icon="format-letter-case"
-                color={
-                  focusedField === "firstName"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-              />
-            }
-            onFocus={() => {
-              setFocusedField("firstName");
-              animateField(firstNameAnim, 1);
-            }}
-            onBlur={() => {
-              setFocusedField("");
-              animateField(firstNameAnim, 0);
-            }}
-            theme={{ colors: { primary: "#FFD700" } }} // Dark background
-          />
-        </Animated.View>
-
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            {
-              // scales up and down the field
-              transform: [
-                {
-                  scale: lastNameAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.05],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TextInput
-            label="Last Name"
-            value={lastName}
-            onChangeText={setLastName}
-            mode="outlined"
-            left={
-              <TextInput.Icon
-                icon="format-letter-ends-with"
-                color={
-                  focusedField === "lastName"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-              />
-            }
-            autoCapitalize="words" // Automatically capitalize the first letter of each word
-            keyboardType="default" // Standard keyboard
-            textContentType="name" // Hint for autofill services
-            textColor="white"
-            style={[styles.input]}
-            onFocus={() => {
-              setFocusedField("lastName");
-              animateField(lastNameAnim, 1);
-            }}
-            onBlur={() => {
-              setFocusedField("");
-              animateField(lastNameAnim, 0);
-            }}
-            theme={{ colors: { primary: "#FFD700" } }} // Dark background
-          />
-        </Animated.View>
-
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            {
-              // scales up and down the field
-              transform: [
-                {
-                  scale: civilIdAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.05],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TextInput
-            label="Civil ID"
-            value={civilId}
-            onChangeText={setCivilId}
-            mode="outlined"
-            left={
-              <TextInput.Icon
-                icon="account"
-                color={
-                  focusedField === "civilId"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-              />
-            }
-            maxLength={12}
-            inputMode="numeric"
-            textColor="white"
-            style={[styles.input]}
-            onFocus={() => {
-              setFocusedField("civilId");
-              animateField(civilIdAnim, 1);
-            }}
-            onBlur={() => {
-              setFocusedField("");
-              animateField(civilIdAnim, 0);
-            }}
-            theme={{ colors: { primary: "#FFD700" } }} // Dark background
-          />
-        </Animated.View>
-
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            {
-              // scales up and down the field
-              transform: [
-                {
-                  scale: mobileNumberAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.05],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TextInput
-            label="Mobile Number"
-            value={mobileNumber}
-            onChangeText={setMobileNumber}
-            mode="outlined"
-            left={
-              <TextInput.Icon
-                icon="tablet-android"
-                color={
-                  focusedField === "mobileNumber"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-              />
-            }
-            maxLength={8}
-            inputMode="numeric"
-            textColor="white"
-            style={[styles.input]}
-            onFocus={() => {
-              setFocusedField("mobileNumber");
-              animateField(mobileNumberAnim, 1);
-            }}
-            onBlur={() => {
-              setFocusedField("");
-              animateField(mobileNumberAnim, 0);
-            }}
-            theme={{ colors: { primary: "#FFD700" } }} // Dark background
-          />
-        </Animated.View>
-
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            {
-              transform: [
-                {
-                  scale: passwordAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.05],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          {/* Text input Field for password */}
-          <TextInput
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={secureTextEntry}
-            mode="outlined"
-            left={
-              <TextInput.Icon
-                icon="lock"
-                color={
-                  focusedField === "password"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-              />
-            }
-            right={
-              <TextInput.Icon
-                icon={secureTextEntry ? "eye" : "eye-off"}
-                color={
-                  focusedField === "password"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-                onPress={() => setSecureTextEntry(!secureTextEntry)}
-              />
-            }
-            autoCapitalize="none" // Avoid capitalization
-            textContentType="password" // Help autofill services recognize it as a password
-            textColor="white"
-            style={[styles.input]}
-            onFocus={() => {
-              setFocusedField("password");
-              animateField(passwordAnim, 1);
-            }}
-            onBlur={() => {
-              setFocusedField("");
-              animateField(passwordAnim, 0);
-            }}
-            theme={{
-              colors: { primary: "#FFD700" },
-            }}
-          />
-        </Animated.View>
-
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            { transform: [{ scale: buttonAnim }] },
-          ]}
-        >
-          <Button
-            mode="contained"
-            onPress={submit}
-            onPressIn={() => handlePressIn(buttonAnim)}
-            onPressOut={() => handlePressOut(buttonAnim)}
-            style={styles.button}
-            labelStyle={styles.buttonText}
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                transform: [
+                  {
+                    scale: usernameAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+              },
+            ]}
           >
-            {signup}
-          </Button>
-        </Animated.View>
+            <TextInput
+              label="Username"
+              value={username}
+              onChangeText={setUsername}
+              mode="outlined"
+              autoCapitalize="none" // Disable auto-capitalization
+              keyboardType="default" // Default keyboard for mixed input
+              textContentType="username" // Hints the type of input to autofill services
+              left={
+                <TextInput.Icon
+                  icon="account-circle-outline"
+                  color={
+                    focusedField === "username"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
+                />
+              }
+              style={styles.input}
+              textColor="white"
+              onFocus={() => {
+                setFocusedField("username");
+                animateField(usernameAnim, 1);
+              }}
+              onBlur={() => {
+                setFocusedField("");
+                animateField(usernameAnim, 0);
+              }}
+              theme={{ colors: { primary: "#FFD700" } }} // Dark background
+            />
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                transform: [
+                  {
+                    scale: firstNameAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <TextInput
+              label="First Name"
+              value={firstName}
+              onChangeText={setFirstName}
+              mode="outlined"
+              autoCapitalize="words" // Automatically capitalize the first letter of each word
+              keyboardType="default" // Standard keyboard
+              textContentType="name" // Hint for autofill services
+              style={styles.input}
+              textColor="white"
+              left={
+                <TextInput.Icon
+                  icon="format-letter-case"
+                  color={
+                    focusedField === "firstName"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
+                />
+              }
+              onFocus={() => {
+                setFocusedField("firstName");
+                animateField(firstNameAnim, 1);
+              }}
+              onBlur={() => {
+                setFocusedField("");
+                animateField(firstNameAnim, 0);
+              }}
+              theme={{ colors: { primary: "#FFD700" } }} // Dark background
+            />
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                // scales up and down the field
+                transform: [
+                  {
+                    scale: lastNameAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <TextInput
+              label="Last Name"
+              value={lastName}
+              onChangeText={setLastName}
+              mode="outlined"
+              left={
+                <TextInput.Icon
+                  icon="format-letter-ends-with"
+                  color={
+                    focusedField === "lastName"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
+                />
+              }
+              autoCapitalize="words" // Automatically capitalize the first letter of each word
+              keyboardType="default" // Standard keyboard
+              textContentType="name" // Hint for autofill services
+              textColor="white"
+              style={[styles.input]}
+              onFocus={() => {
+                setFocusedField("lastName");
+                animateField(lastNameAnim, 1);
+              }}
+              onBlur={() => {
+                setFocusedField("");
+                animateField(lastNameAnim, 0);
+              }}
+              theme={{ colors: { primary: "#FFD700" } }} // Dark background
+            />
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                // scales up and down the field
+                transform: [
+                  {
+                    scale: civilIdAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <TextInput
+              label="Civil ID"
+              value={civilId}
+              onChangeText={setCivilId}
+              mode="outlined"
+              left={
+                <TextInput.Icon
+                  icon="account"
+                  color={
+                    focusedField === "civilId"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
+                />
+              }
+              maxLength={12}
+              inputMode="numeric"
+              textColor="white"
+              style={[styles.input]}
+              onFocus={() => {
+                setFocusedField("civilId");
+                animateField(civilIdAnim, 1);
+              }}
+              onBlur={() => {
+                setFocusedField("");
+                animateField(civilIdAnim, 0);
+              }}
+              theme={{ colors: { primary: "#FFD700" } }} // Dark background
+            />
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                // scales up and down the field
+                transform: [
+                  {
+                    scale: mobileNumberAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <TextInput
+              label="Mobile Number"
+              value={mobileNumber}
+              onChangeText={setMobileNumber}
+              mode="outlined"
+              left={
+                <TextInput.Icon
+                  icon="tablet-android"
+                  color={
+                    focusedField === "mobileNumber"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
+                />
+              }
+              maxLength={8}
+              inputMode="numeric"
+              textColor="white"
+              style={[styles.input]}
+              onFocus={() => {
+                setFocusedField("mobileNumber");
+                animateField(mobileNumberAnim, 1);
+              }}
+              onBlur={() => {
+                setFocusedField("");
+                animateField(mobileNumberAnim, 0);
+              }}
+              theme={{ colors: { primary: "#FFD700" } }} // Dark background
+            />
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                transform: [
+                  {
+                    scale: passwordAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            {/* Text input Field for password */}
+            <TextInput
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={secureTextEntry}
+              mode="outlined"
+              left={
+                <TextInput.Icon
+                  icon="lock"
+                  color={
+                    focusedField === "password"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
+                />
+              }
+              right={
+                <TextInput.Icon
+                  icon={secureTextEntry ? "eye" : "eye-off"}
+                  color={
+                    focusedField === "password"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
+                  onPress={() => setSecureTextEntry(!secureTextEntry)}
+                />
+              }
+              autoCapitalize="none" // Avoid capitalization
+              textContentType="password" // Help autofill services recognize it as a password
+              textColor="white"
+              style={[styles.input]}
+              onFocus={() => {
+                setFocusedField("password");
+                animateField(passwordAnim, 1);
+              }}
+              onBlur={() => {
+                setFocusedField("");
+                animateField(passwordAnim, 0);
+              }}
+              theme={{
+                colors: { primary: "#FFD700" },
+              }}
+            />
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { transform: [{ scale: buttonAnim }] },
+            ]}
+          >
+            <Button
+              mode="contained"
+              onPress={submit}
+              onPressIn={() => handlePressIn(buttonAnim)}
+              onPressOut={() => handlePressOut(buttonAnim)}
+              style={styles.button}
+              labelStyle={styles.buttonText}
+            >
+              {signup}
+            </Button>
+          </Animated.View>
+        </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -580,7 +598,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#1a1a1a",
+  },
+  gradient: {
+    flex: 1, // Ensures the gradient covers the entire screen
+    width: width,
+    height: height,
   },
   content: {
     flex: 1,

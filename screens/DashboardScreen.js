@@ -4,7 +4,8 @@ import UserContext from "../context/UserContext";
 import { deleteToken } from "../storage/TokenStorage";
 
 export default function DashboardScreen() {
-  const [authenticated, setAuthenticated] = useContext(UserContext);
+  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
+    useContext(UserContext);
 
   return (
     <View>

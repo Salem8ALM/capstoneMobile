@@ -14,18 +14,18 @@ const AuthNavigator = () => {
     <View style={styles.container}>
       {/* DiagonalLines: animation component */}
       <DiagonalLines
-        toValueSequence={[0.7, 0.1]}
-        duration={10000}
-        outputRange={["45deg", "225deg"]}
+        toValueSequence={[0.5, 0]}
+        duration={250000}
+        outputRange={["45deg", "25000deg"]}
         lineSpacing={5}
-        lineOffset={-200}
+        lineOffset={-300}
       />
       <DiagonalLines
         toValueSequence={[0.1, 0]}
-        duration={10000}
-        outputRange={["4deg", "225deg"]}
+        duration={500000}
+        outputRange={["40deg", "225000deg"]}
         lineSpacing={10}
-        lineOffset={-100}
+        lineOffset={-200}
       />
 
       <Stack.Navigator detachInactiveScreens={false}>
