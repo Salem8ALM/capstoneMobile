@@ -56,8 +56,9 @@ const OnboardingNavigator = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#1a1a1a",
     flex: 1, // Ensures the container takes up the full screen
+
+    backgroundColor: "#1a1a1a",
   },
   logout: {
     padding: 20,
