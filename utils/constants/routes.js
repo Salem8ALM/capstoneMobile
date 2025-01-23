@@ -10,6 +10,11 @@ const Routes = {
     Profile: "ProfileScreen",
     Settings: "SettingsScreen",
   },
+  Onboard: {
+    OnboardWelcome: "OnboardWelcome",
+    OnboardAddBusiness: "OnboardAddBusiness",
+    Settings: "SettingsScreen",
+  },
 };
 
 export default Routes;
