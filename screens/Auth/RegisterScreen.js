@@ -129,7 +129,8 @@ const RegisterScreen = () => {
                             civilId,
                             mobileNumber,
                             password,
-                            "BUSINESS_OWNER"
+                            "BUSINESS_OWNER",
+                            "NOT_BANK"
                           );
 
                           // uncomment this
