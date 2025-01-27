@@ -50,7 +50,6 @@ const refreshTokenAPI = async (refreshToken) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error during refresh:", error.message);
     throw error; // Re-throw to handle it in the calling function
   }
 };

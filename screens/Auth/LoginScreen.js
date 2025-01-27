@@ -91,6 +91,7 @@ const LoginScreen = () => {
   // biometric login
   const authenticate = async () => {
     // call function to check authentication
+
     const refreshToken = await getToken("refresh");
 
     if (refreshToken) {
