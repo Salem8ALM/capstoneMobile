@@ -1,6 +1,19 @@
 import React, { useRef, useEffect, useContext, useState } from "react";
-import { StyleSheet, View, Animated, Alert, Dimensions } from "react-native";
-import { Button, Text, TextInput, useTheme } from "react-native-paper";
+import {
+  StyleSheet,
+  View,
+  Animated,
+  Alert,
+  Dimensions,
+  Image,
+} from "react-native";
+import {
+  ActivityIndicator,
+  Button,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Icons library
 import UserContext from "../../context/UserContext";
@@ -17,14 +30,34 @@ import {
 } from "../../api/Business";
 import { setToken, getToken } from "../../storage/TokenStorage";
 import * as ImagePicker from "expo-image-picker";
-// import RNFS from "react-native-fs";
+import { Buffer } from "buffer"; // Import the Buffer library
+import axios from "axios";
 
 const { width, height } = Dimensions.get("window");
+
+function getBase64(url, token) {
+  return axios
+    .get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the token in the headers
+      },
+      responseType: "arraybuffer", // Fetch the image as binary data
+    })
+    .then((response) => Buffer.from(response.data, "binary").toString("base64")) // Convert binary to base64
+    .catch((error) => {
+      // Log the error for debugging
+      console.error("Error fetching the image:", error);
+      throw new Error("Error fetching image. Please try again later.");
+    });
+}
 
 const OnboardAddBusiness = () => {
   const navigation = useNavigation();
 
   const [businessNickname, setBusinessNickname] = useState("");
+
+  const [imageUri, setImageUri] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // for financial statement pdf upload
   const [uploadText, setUploadText] = useState("Attach financial Statement"); // Default button text
@@ -52,6 +85,33 @@ const OnboardAddBusiness = () => {
   const scanAnim = useRef(new Animated.Value(1)).current;
 
   const businessNicknameAnim = useRef(new Animated.Value(0)).current;
+
+  const fetchImage = async () => {
+    try {
+      setIsLoading(true);
+      const fileId = 1; // Replace with the actual file ID you want to fetch
+      const token =
+        "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJjNDMwMzRmZi1iYzYxLTRiZDMtYjRjYi0xNTMxNzE3NDU5NzgiLCJzdWIiOiJlbmdyaWJyYWhpbWFkbmFuIiwicm9sZXMiOiJCVVNJTkVTU19PV05FUiIsImJhbmsiOiJOT1RfQkFOSyIsImNpdmlsSWQiOiIwMDAwMDAwMDAwMDAiLCJ0eXBlIjoiQUNDRVNTIiwiaWF0IjoxNzM4MDg2MjE3LCJleHAiOjE3MzgwODk4MTd9.k4c6g206nFGJj2sqX7LAzBkZ02Cc63bKM8cwL5y4gBI"; // Replace with your actual token
+
+      // Construct the URL to fetch the image
+      const url = `http://192.168.2.143:8080/api/files/${4}`;
+
+      // Fetch the base64 string of the imag
+      const base64Data = await getBase64(url, token);
+
+      // Update the URI to show the image from base64 data
+      setImageUri(`data:image/png;base64,${base64Data}`);
+    } catch (error) {
+      console.error("Error fetching image:", error);
+      // Show an error message to the user
+      Alert.alert(
+        "Error",
+        error.message || "There was an error fetching the image."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const checkToken = async () => {
     const token = await getToken("access");
@@ -150,9 +210,6 @@ const OnboardAddBusiness = () => {
 
   // logic when "Submit" button is pressed
   const handleSubmit = async () => {
-    console.log(selectedPhoto);
-    console.log(selectedDocument);
-
     setSubmitText("Submitting");
 
     // ensure all required fields are filled
@@ -188,46 +245,38 @@ const OnboardAddBusiness = () => {
       const token = await checkToken();
 
       const formData = new FormData();
-      formData.append("businessNickname", businessNickname);
-
-      // Convert the document file
+      formData.append("businessNickname", businessNickname); // Send the text parameter
       formData.append("financialStatementPDF", {
-        uri: selectedDocument.uri,
-        name: "financialStatementPDF", // Extract file name
-        type: selectedDocument.type || "application/pdf", // Fallback type
+        uri: selectedDocument.uri, // Path or URI to the file
+        type: "image/jpeg", // Adjust the type based on your file
+        name: "financialStatementPDF.jpeg", // File name
       });
-
-      // Convert the photo file
       formData.append("businessLicenseImage", {
-        uri: selectedPhoto.uri,
-        name: selectedPhoto.uri.split("/").pop(), // Extract file name
-        type: selectedPhoto.type || "image/jpeg", // Fallback type
+        uri: selectedPhoto.uri, // Path or URI to the file
+        type: "image/jpeg", // Adjust the type based on your file
+        name: "businessLicenseImage.jpg", // File name
       });
 
       // formData.append("financialStatement", "this is financial statement");
       // formData.append("businessLicense", "this is business license");
 
-      const response = await addCompanyAPI(
-        token,
-        businessNickname,
-        selectedDocument,
-        selectedPhoto
-      );
-
-      // const response = await addCompanyAPI(token, formData);
-
-      // const response = await testFormData();
+      const response = await addCompanyAPI(token, formData);
 
       console.log(response);
+      setSubmitText("Submit");
+
       Alert.alert("Success", "added your business");
     } catch (error) {
-      console.log(error);
       Alert.alert("Failed Login", "Failed to add your business!");
+      setSubmitText("Submit");
     }
   };
 
   useEffect(() => {
     checkToken();
+
+    // checkOnboard();
+
     // Start bouncing animation when the component mounts
     Animated.loop(
       Animated.sequence([
@@ -394,11 +443,40 @@ const OnboardAddBusiness = () => {
           </Button>
         </Animated.View>
       </View>
+
+      <Button
+        style={styles.button}
+        title="Fetch Image"
+        onPress={fetchImage}
+        disabled={isLoading}
+      />
+
+      {isLoading && (
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          style={styles.loadingIndicator}
+        />
+      )}
+
+      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container2: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: 300,
+    height: 300,
+    marginTop: 20,
+  },
+  loadingIndicator: {
+    marginTop: 20,
+  },
   container: {
     flex: 1,
 
