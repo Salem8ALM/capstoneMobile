@@ -1,0 +1,1 @@
+export { default as BoubyanReq } from './BoubyanReq.svg'; 
