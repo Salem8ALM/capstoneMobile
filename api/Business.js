@@ -22,17 +22,16 @@ const addCompanyAPI = async (token, formdata) => {
   }
 };
 
-
 const getCompanyAPI = async (token) => {
-  console.log(`token: ${token}`);
+  console.log(`inside getCompany: ${token}`);
 
   try {
-    const response = await instance.post(controller + "/get", null, {
+    const response = await instance.get(controller + "/get", {
       headers: {
         Authorization: `Bearer ${token}`, // Attach the token here
       },
     });
-    return response.data;
+    console.log(response.data);
   } catch (error) {
     console.log(error.response.data);
     throw error; // Re-throw to handle it in the calling function
@@ -54,4 +53,4 @@ const getFinancialStatementAPI = async (token) => {
   }
 };
 
-export { addCompanyAPI, getFinancialStatementAPI };
+export { addCompanyAPI, getFinancialStatementAPI, getCompanyAPI };

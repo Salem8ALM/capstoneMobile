@@ -24,6 +24,7 @@ import {
 import Routes from "../../utils/constants/routes";
 import { animateField } from "../../utils/animations/animations";
 import {
+  getCompanyAPI,
   addCompanyAPI,
   getFinancialStatementAPI,
   testFormData,
@@ -76,7 +77,8 @@ const OnboardAddBusiness = () => {
   // use state for focused field
   const [focusedField, setFocusedField] = useState("");
 
-  const { authenticated, setAuthenticated } = useContext(UserContext);
+  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
+    useContext(UserContext);
 
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
@@ -113,13 +115,32 @@ const OnboardAddBusiness = () => {
     }
   };
 
+  // checking token and whether the user is onboarded
+  const checkUserState = async () => {
+    const token = await checkToken();
+    await checkBusinessEntity(token);
+  };
+
   const checkToken = async () => {
     const token = await getToken("access");
+    console.log("INside check token" + token);
+
     if (token) {
       setAuthenticated(true);
+
       return token;
     } else {
       Alert.alert("Please log in again", "The session has timed out");
+    }
+  };
+
+  const checkBusinessEntity = async (token) => {
+    console.log(token);
+    try {
+      await getCompanyAPI(token);
+      setOnboarded(true);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -266,6 +287,7 @@ const OnboardAddBusiness = () => {
       setSubmitText("Submit");
 
       Alert.alert("Success", "added your business");
+      await checkBusinessEntity(token);
     } catch (error) {
       Alert.alert("Failed Login", "Failed to add your business!");
       setSubmitText("Submit");
@@ -273,7 +295,7 @@ const OnboardAddBusiness = () => {
   };
 
   useEffect(() => {
-    checkToken();
+    checkUserState();
 
     // checkOnboard();
 
@@ -444,7 +466,7 @@ const OnboardAddBusiness = () => {
         </Animated.View>
       </View>
 
-      <Button
+      {/* <Button
         style={styles.button}
         title="Fetch Image"
         onPress={fetchImage}
@@ -459,7 +481,7 @@ const OnboardAddBusiness = () => {
         />
       )}
 
-      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
+      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />} */}
     </View>
   );
 };
