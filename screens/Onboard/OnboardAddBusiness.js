@@ -1,6 +1,19 @@
 import React, { useRef, useEffect, useContext, useState } from "react";
-import { StyleSheet, View, Animated, Alert, Dimensions } from "react-native";
-import { Button, Text, TextInput, useTheme } from "react-native-paper";
+import {
+  StyleSheet,
+  View,
+  Animated,
+  Alert,
+  Dimensions,
+  Image,
+} from "react-native";
+import {
+  ActivityIndicator,
+  Button,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Icons library
 import UserContext from "../../context/UserContext";
@@ -10,21 +23,62 @@ import {
 } from "../../utils/animations/buttonAnimations";
 import Routes from "../../utils/constants/routes";
 import { animateField } from "../../utils/animations/animations";
+import {
+  getCompanyAPI,
+  addCompanyAPI,
+  getFinancialStatementAPI,
+  testFormData,
+} from "../../api/Business";
+import { setToken, getToken } from "../../storage/TokenStorage";
+import * as ImagePicker from "expo-image-picker";
+import { Buffer } from "buffer"; // Import the Buffer library
+import axios from "axios";
 
 const { width, height } = Dimensions.get("window");
+
+function getBase64(url, token) {
+  return axios
+    .get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the token in the headers
+      },
+      responseType: "arraybuffer", // Fetch the image as binary data
+    })
+    .then((response) => Buffer.from(response.data, "binary").toString("base64")) // Convert binary to base64
+    .catch((error) => {
+      // Log the error for debugging
+      console.error("Error fetching the image:", error);
+      throw new Error("Error fetching image. Please try again later.");
+    });
+}
 
 const OnboardAddBusiness = () => {
   const navigation = useNavigation();
 
-  const [businessName, setBusinessName] = useState("");
-  const [businessLicense, setBusinessLicense] = useState("");
+  const [businessNickname, setBusinessNickname] = useState("");
+
+  const [imageUri, setImageUri] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // for financial statement pdf upload
+  const [uploadText, setUploadText] = useState("Attach financial Statement"); // Default button text
+  const [uploadIcon, setUploadIcon] = useState("file-upload"); // Default button text
+  const [selectedDocument, setSelectedDocument] = useState(null);
+
+  // for business License photo
+  const [scanText, setScanText] = useState("Scan Business License"); // Default button text
+  const [scanIcon, setScanIcon] = useState("barcode-scan"); // Default button text
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+
+  const [submitText, setSubmitText] = useState("Submit"); // Default button text
 
   const theme = useTheme();
 
   // use state for focused field
   const [focusedField, setFocusedField] = useState("");
 
-  const { authenticated, setAuthenticated } = useContext(UserContext);
+  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
+    useContext(UserContext);
 
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
@@ -32,16 +86,219 @@ const OnboardAddBusiness = () => {
   const pdfUploadAnim = useRef(new Animated.Value(1)).current;
   const scanAnim = useRef(new Animated.Value(1)).current;
 
-  const businessNameAnim = useRef(new Animated.Value(0)).current;
-  const businessLicesneAnim = useRef(new Animated.Value(0)).current;
+  const businessNicknameAnim = useRef(new Animated.Value(0)).current;
+
+  const fetchImage = async () => {
+    try {
+      setIsLoading(true);
+      const fileId = 1; // Replace with the actual file ID you want to fetch
+      const token =
+        "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJjNDMwMzRmZi1iYzYxLTRiZDMtYjRjYi0xNTMxNzE3NDU5NzgiLCJzdWIiOiJlbmdyaWJyYWhpbWFkbmFuIiwicm9sZXMiOiJCVVNJTkVTU19PV05FUiIsImJhbmsiOiJOT1RfQkFOSyIsImNpdmlsSWQiOiIwMDAwMDAwMDAwMDAiLCJ0eXBlIjoiQUNDRVNTIiwiaWF0IjoxNzM4MDg2MjE3LCJleHAiOjE3MzgwODk4MTd9.k4c6g206nFGJj2sqX7LAzBkZ02Cc63bKM8cwL5y4gBI"; // Replace with your actual token
+
+      // Construct the URL to fetch the image
+      const url = `http://192.168.2.143:8080/api/files/${4}`;
+
+      // Fetch the base64 string of the imag
+      const base64Data = await getBase64(url, token);
+
+      // Update the URI to show the image from base64 data
+      setImageUri(`data:image/png;base64,${base64Data}`);
+    } catch (error) {
+      console.error("Error fetching image:", error);
+      // Show an error message to the user
+      Alert.alert(
+        "Error",
+        error.message || "There was an error fetching the image."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // checking token and whether the user is onboarded
+  const checkUserState = async () => {
+    const token = await checkToken();
+    await checkBusinessEntity(token);
+  };
 
   const checkToken = async () => {
     const token = await getToken("access");
-    if (token) setAuthenticated(true);
+    console.log("INside check token" + token);
+
+    if (token) {
+      setAuthenticated(true);
+
+      return token;
+    } else {
+      Alert.alert("Please log in again", "The session has timed out");
+    }
+  };
+
+  const checkBusinessEntity = async (token) => {
+    console.log(token);
+    try {
+      await getCompanyAPI(token);
+      setOnboarded(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // for both financial statement pdf upload and
+  const pickFile = async (
+    setSelected,
+    setButtonText,
+    setButtonIcon,
+    message
+  ) => {
+    try {
+      // Request permission to access the media library
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert(
+          "Permission required",
+          "You need to allow access to the library to pick files."
+        );
+        return;
+      }
+
+      // Launch the image picker
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.mediaTypes, // Specify media type
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        // Extract the file name from the URI
+        const selectedAsset = result.assets[0];
+
+        // Update state
+        setSelected(selectedAsset);
+        setButtonText(message);
+        setButtonIcon("file-check-outline");
+      } else {
+        Alert.alert("Unsuccessful selection", "User canceled file selection.");
+      }
+    } catch (error) {
+      console.log("Error picking file:", error);
+      Alert.alert("Error", "Something went wrong while picking the file.");
+    }
+  };
+
+  const downloadFinancialStatement = async () => {
+    console.log("downloaded");
+    // try {
+    //   const token = await checkToken();
+
+    //   const responseComplete = await getFinancialStatementAPI(token); // Make API request to download the file
+    //   let response = responseComplete.financialStatementPDF;
+    //   console.log(response); // Log the response to verify
+
+    //   if (response && response.data) {
+    //     // Assuming response.data is the byte[] or base64 string
+    //     const byteArray = response.data; // This should be your byte array or base64 string
+
+    //     // Convert byte array to base64 string if needed (ensure your API returns base64 or buffer)
+    //     const base64Data = byteArray; // If response is byte[], convert it to base64 string
+
+    //     // Create file path to save the PDF locally (using react-native-fs)
+    //     const filePath =
+    //       RNFS.DocumentDirectoryPath + "/financial_statement.pdf";
+
+    //     // Write the base64 data to the file path
+    //     await RNFS.writeFile(filePath, base64Data, "base64");
+    //     Alert.alert(
+    //       "Download Successful",
+    //       "Financial statement downloaded to your device."
+    //     );
+
+    //     // Optionally, open the file after download (if you want to automatically open the PDF)
+    //     await RNFS.openFile(filePath);
+    //   } else {
+    //     Alert.alert("Error", "No financial statement available.");
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    //   Alert.alert(
+    //     "Failed to Download",
+    //     "An error occurred while downloading the financial statement."
+    //   );
+    // }
+  };
+
+  // logic when "Submit" button is pressed
+  const handleSubmit = async () => {
+    setSubmitText("Submitting");
+
+    // ensure all required fields are filled
+    if (!businessNickname) {
+      Alert.alert(
+        "Business Nickname is Missing",
+        "Please enter a business nickname to distinguish it from your other businesses."
+      );
+      setSubmitText("Submit");
+      return;
+    }
+
+    if (!selectedDocument) {
+      Alert.alert(
+        "Financial Statement Missing",
+        "Please upload your financial statement document."
+      );
+      setSubmitText("Submit");
+      return;
+    }
+
+    if (!selectedPhoto) {
+      Alert.alert(
+        "Business License Missing",
+        "Please scan your business license document."
+      );
+
+      setSubmitText("Submit");
+      return;
+    }
+
+    try {
+      const token = await checkToken();
+
+      const formData = new FormData();
+      formData.append("businessNickname", businessNickname); // Send the text parameter
+      formData.append("financialStatementPDF", {
+        uri: selectedDocument.uri, // Path or URI to the file
+        type: "image/jpeg", // Adjust the type based on your file
+        name: "financialStatementPDF.jpeg", // File name
+      });
+      formData.append("businessLicenseImage", {
+        uri: selectedPhoto.uri, // Path or URI to the file
+        type: "image/jpeg", // Adjust the type based on your file
+        name: "businessLicenseImage.jpg", // File name
+      });
+
+      // formData.append("financialStatement", "this is financial statement");
+      // formData.append("businessLicense", "this is business license");
+
+      const response = await addCompanyAPI(token, formData);
+
+      console.log(response);
+      setSubmitText("Submit");
+
+      Alert.alert("Success", "added your business");
+      await checkBusinessEntity(token);
+    } catch (error) {
+      Alert.alert("Failed Login", "Failed to add your business!");
+      setSubmitText("Submit");
+    }
   };
 
   useEffect(() => {
-    checkToken();
+    checkUserState();
+
+    // checkOnboard();
+
     // Start bouncing animation when the component mounts
     Animated.loop(
       Animated.sequence([
@@ -74,7 +331,7 @@ const OnboardAddBusiness = () => {
             {
               transform: [
                 {
-                  scale: businessNameAnim.interpolate({
+                  scale: businessNicknameAnim.interpolate({
                     inputRange: [0, 1],
                     outputRange: [1, 1.05],
                   }),
@@ -84,9 +341,9 @@ const OnboardAddBusiness = () => {
           ]}
         >
           <TextInput
-            label="Bussiness Name"
-            value={businessName}
-            onChangeText={setBusinessName}
+            label="Bussiness Nickname"
+            value={businessNickname}
+            onChangeText={setBusinessNickname}
             mode="outlined"
             keyboardType="default" // Default keyboard for mixed input
             textContentType="username" // Hints the type of input to autofill services
@@ -94,7 +351,7 @@ const OnboardAddBusiness = () => {
               <TextInput.Icon
                 icon="account-circle-outline"
                 color={
-                  focusedField === "businessName"
+                  focusedField === "businessNickname"
                     ? "#FFD700"
                     : "rgba(255,255,255,0.2)"
                 }
@@ -103,58 +360,12 @@ const OnboardAddBusiness = () => {
             style={styles.input}
             textColor="white"
             onFocus={() => {
-              setFocusedField("businessName");
-              animateField(businessNameAnim, 1);
+              setFocusedField("businessNickname");
+              animateField(businessNicknameAnim, 1);
             }}
             onBlur={() => {
               setFocusedField("");
-              animateField(businessNameAnim, 0);
-            }}
-            theme={{ colors: { primary: "#FFD700" } }} // Dark background
-          />
-        </Animated.View>
-
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            {
-              transform: [
-                {
-                  scale: businessLicesneAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.05],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TextInput
-            label="Bussiness License"
-            value={businessLicense}
-            onChangeText={setBusinessLicense}
-            mode="outlined"
-            keyboardType="default" // Default keyboard for mixed input
-            textContentType="username" // Hints the type of input to autofill services
-            left={
-              <TextInput.Icon
-                icon="account-circle-outline"
-                color={
-                  focusedField === "businessLicense"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-              />
-            }
-            style={styles.input}
-            textColor="white"
-            onFocus={() => {
-              setFocusedField("businessLicense");
-              animateField(businessLicesneAnim, 1);
-            }}
-            onBlur={() => {
-              setFocusedField("");
-              animateField(businessLicesneAnim, 0);
+              animateField(businessNicknameAnim, 0);
             }}
             theme={{ colors: { primary: "#FFD700" } }} // Dark background
           />
@@ -169,7 +380,7 @@ const OnboardAddBusiness = () => {
           <Button
             icon={({ color }) => (
               <MaterialCommunityIcons
-                name="file-upload"
+                name={uploadIcon}
                 size={24}
                 color={color}
               />
@@ -179,35 +390,55 @@ const OnboardAddBusiness = () => {
             onPressOut={() => handlePressOut(pdfUploadAnim)}
             style={styles.secondaryButton}
             labelStyle={styles.secondaryButtonText}
-            onPress={() => {
-              navigation.goBack();
-              //   navigation.push();
-            }}
+            onPress={() =>
+              pickFile(
+                setSelectedDocument,
+                setUploadText,
+                setUploadIcon,
+                "Document Successfully Uploaded"
+              )
+            }
           >
-            Attach financial Statement
+            {uploadText}
           </Button>
         </Animated.View>
+
         <Animated.View
           style={[styles.buttonContainer, { transform: [{ scale: scanAnim }] }]}
         >
           <Button
             icon={({ color }) => (
-              <MaterialCommunityIcons name="camera" size={24} color={color} />
+              <MaterialCommunityIcons name={scanIcon} size={24} color={color} />
             )}
             mode="outlined"
             onPressIn={() => handlePressIn(scanAnim)}
             onPressOut={() => handlePressOut(scanAnim)}
             style={styles.secondaryButton}
             labelStyle={styles.secondaryButtonText}
-            onPress={() => {
-              navigation.goBack();
-              //   navigation.push();
-            }}
+            onPress={() =>
+              pickFile(
+                setSelectedPhoto,
+                setScanText,
+                setScanIcon,
+                "License Scanned and Attached"
+              )
+            }
           >
-            {" "}
-            Scan Financial Statement
+            {scanText}
           </Button>
         </Animated.View>
+
+        <Button
+          icon={({ color }) => (
+            <MaterialCommunityIcons name="triangle" size={24} color={color} />
+          )}
+          mode="outlined"
+          style={styles.secondaryButton}
+          labelStyle={styles.secondaryButtonText}
+          onPress={downloadFinancialStatement}
+        >
+          download
+        </Button>
 
         <Animated.View
           style={[
@@ -224,21 +455,50 @@ const OnboardAddBusiness = () => {
               />
             )}
             mode="contained"
-            // onPress={submit}
             onPressIn={() => handlePressIn(buttonAnim)}
             onPressOut={() => handlePressOut(buttonAnim)}
             style={styles.submit}
             labelStyle={styles.buttonText}
+            onPress={handleSubmit}
           >
-            {"Review"}
+            {submitText}
           </Button>
         </Animated.View>
       </View>
+
+      {/* <Button
+        style={styles.button}
+        title="Fetch Image"
+        onPress={fetchImage}
+        disabled={isLoading}
+      />
+
+      {isLoading && (
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          style={styles.loadingIndicator}
+        />
+      )}
+
+      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />} */}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container2: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: 300,
+    height: 300,
+    marginTop: 20,
+  },
+  loadingIndicator: {
+    marginTop: 20,
+  },
   container: {
     flex: 1,
 

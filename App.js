@@ -16,23 +16,47 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import OnboardingNavigator from "./navigations/OnboardingNavigator";
-import { deleteToken } from "./storage/TokenStorage";
+import { deleteToken, getToken } from "./storage/TokenStorage";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { getCompanyAPI } from "./api/Business";
 //----------
 
 export default function App() {
   const [authenticated, setAuthenticated] = useState(false); // User authentication status
   const [onboarded, setOnboarded] = useState(false); // User onboarding status
 
+  // checking token and whether the user is onboarded
+  const checkUserState = async () => {
+    const token = await checkToken();
+    await checkBusinessEntity(token);
+  };
+
   const checkToken = async () => {
-    // Check if the token exists
     const token = await getToken("access");
-    // If token exists, set authentication to true
-    if (token) setAuthenticated(true);
+    console.log("INside check token" + token);
+
+    if (token) {
+      setAuthenticated(true);
+
+      return token;
+    } else {
+      Alert.alert("Please log in again", "The session has timed out");
+    }
+  };
+
+  const checkBusinessEntity = async (token) => {
+    console.log(token);
+    try {
+      await getCompanyAPI(token);
+      setOnboarded(true);
+    } catch (error) {
+      setOnboarded(false);
+      console.log(error);
+    }
   };
 
   useEffect(() => {
-    checkToken();
+    checkUserState();
   }, []);
 
   return (

@@ -9,23 +9,51 @@ import {
   handlePressOut,
 } from "../../utils/animations/buttonAnimations";
 import Routes from "../../utils/constants/routes";
+import { getCompanyAPI } from "../../api/Business";
+import { getToken } from "../../storage/TokenStorage";
 
 const OnboardWelcome = () => {
   const navigation = useNavigation();
   const theme = useTheme();
 
-  const { authenticated, setAuthenticated } = useContext(UserContext);
+  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
+    useContext(UserContext);
 
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
 
+  // checking token and whether the user is onboarded
+  const checkUserState = async () => {
+    const token = await checkToken();
+    await checkBusinessEntity(token);
+  };
+
   const checkToken = async () => {
     const token = await getToken("access");
-    if (token) setAuthenticated(true);
+    console.log("INside check token" + token);
+
+    if (token) {
+      setAuthenticated(true);
+
+      return token;
+    } else {
+      Alert.alert("Please log in again", "The session has timed out");
+    }
+  };
+
+  const checkBusinessEntity = async (token) => {
+    console.log(token);
+    try {
+      await getCompanyAPI(token);
+      setOnboarded(true);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
-    checkToken();
+    checkUserState();
+
     // Start bouncing animation when the component mounts
     Animated.loop(
       Animated.sequence([
