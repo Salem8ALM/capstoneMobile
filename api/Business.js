@@ -2,7 +2,7 @@ import axios from "axios";
 import { getToken } from "../storage/TokenStorage";
 import instance from "./index";
 
-const controller = "/business/v1";
+const controller = "/business";
 
 // login with civilId and password
 const addCompanyAPI = async (token, formdata) => {
