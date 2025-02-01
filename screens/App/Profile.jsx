@@ -35,11 +35,11 @@ export function Profile() {
   const fetchImage = async () => {
     try {
       setIsLoading(true);
-      const fileId = 1; // Replace with the actual file ID you want to fetch
+      const fileId = 2; // Replace with the actual file ID you want to fetch
       const token = await getToken("access");
       console.log(token);
       // Construct the URL to fetch the image
-      const url = `http://192.168.2.143:8080/api/files/${5}`;
+      const url = `http://192.168.0.143:8080/api/files/${fileId}`; //http://192.168.2.143
 
       // Fetch the base64 string of the imag
       const base64Data = await getBase64(url, token);
@@ -47,7 +47,6 @@ export function Profile() {
       // Update the URI to show the image from base64 data
       setImageUri(`data:image/png;base64,${base64Data}`);
     } catch (error) {
-      console.error("Error fetching image:", error);
       // Show an error message to the user
       Alert.alert(
         "Error",

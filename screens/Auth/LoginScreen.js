@@ -94,23 +94,30 @@ const LoginScreen = () => {
 
     const refreshToken = await getToken("refresh");
 
-    if (refreshToken) {
-      const status = await handleBiometricLogin();
+    try {
+      if (refreshToken) {
+        const status = await handleBiometricLogin();
 
-      if (status) {
-        // over here is where the refresh token will be used to obtain a new access token to login with
-        // For now, "setAuthenticated" is turned true to hide "AuthNaviagtor" component without actually
-        // retrieving any actual user information from backend
+        if (status) {
+          // over here is where the refresh token will be used to obtain a new access token to login with
+          // For now, "setAuthenticated" is turned true to hide "AuthNaviagtor" component without actually
+          // retrieving any actual user information from backend
 
-        const response = await refreshTokenAPI(refreshToken);
+          const response = await refreshTokenAPI(refreshToken);
 
-        await setToken(response.accessToken, "access");
-        await setToken(response.refreshToken, "refresh");
+          await setToken(response.accessToken, "access");
+          await setToken(response.refreshToken, "refresh");
 
-        checkToken();
-        // Alert.alert("Success", "Logged in successfully!");
+          checkToken();
+          // Alert.alert("Success", "Logged in successfully!");
+        }
+      } else {
+        Alert.alert(
+          "Biometric data not found.",
+          "Login in at least once to have data stored"
+        );
       }
-    } else {
+    } catch (error) {
       Alert.alert(
         "Biometric data not found.",
         "Login in at least once to have data stored"
@@ -212,7 +219,18 @@ const LoginScreen = () => {
             ]}
           >
             <TextInput
-              label="Civil ID"
+              label={
+                <Text
+                  style={{
+                    color:
+                      focusedField === "civilId"
+                        ? "#FFD700"
+                        : "rgba(255,255,255,0.3)",
+                  }}
+                >
+                  Civil ID
+                </Text>
+              }
               value={civilId}
               onChangeText={setCivilId}
               mode="outlined"
@@ -222,7 +240,7 @@ const LoginScreen = () => {
                   color={
                     focusedField === "civilId"
                       ? "#FFD700"
-                      : "rgba(255,255,255,0.2)"
+                      : "rgba(255,255,255,0.3)"
                   }
                 />
               }
@@ -258,7 +276,18 @@ const LoginScreen = () => {
           >
             {/* Text input Field for password */}
             <TextInput
-              label="Password"
+              label={
+                <Text
+                  style={{
+                    color:
+                      focusedField === "password"
+                        ? "#FFD700"
+                        : "rgba(255,255,255,0.3)",
+                  }}
+                >
+                  Password
+                </Text>
+              }
               value={password}
               onChangeText={setPassword}
               secureTextEntry={secureTextEntry}
@@ -269,7 +298,7 @@ const LoginScreen = () => {
                   color={
                     focusedField === "password"
                       ? "#FFD700"
-                      : "rgba(255,255,255,0.2)"
+                      : "rgba(255,255,255,0.3)"
                   }
                 />
               }
@@ -279,7 +308,7 @@ const LoginScreen = () => {
                   color={
                     focusedField === "password"
                       ? "#FFD700"
-                      : "rgba(255,255,255,0.2)"
+                      : "rgba(255,255,255,0.3)"
                   }
                   onPress={() => setSecureTextEntry(!secureTextEntry)}
                 />

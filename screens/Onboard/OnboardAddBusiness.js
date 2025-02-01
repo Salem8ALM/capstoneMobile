@@ -265,6 +265,7 @@ const OnboardAddBusiness = () => {
     try {
       const token = await checkToken();
 
+      // using
       const formData = new FormData();
       formData.append("businessNickname", businessNickname); // Send the text parameter
       formData.append("financialStatementPDF", {
@@ -278,16 +279,24 @@ const OnboardAddBusiness = () => {
         name: "businessLicenseImage.jpg", // File name
       });
 
-      // formData.append("financialStatement", "this is financial statement");
-      // formData.append("businessLicense", "this is business license");
+      // call the text extraction function here and pass the two images to get the two strings
+      // Note the following two fields are nullable
+      formData.append(
+        "financialStatementText",
+        "This is a financial statement Text. It is assumed that will be a long string"
+      );
+
+      formData.append(
+        "businessLicenseText",
+        "This is a business license Text. It is assumed that will be a long string"
+      );
 
       const response = await addCompanyAPI(token, formData);
 
       console.log(response);
       setSubmitText("Submit");
-
-      Alert.alert("Success", "added your business");
       await checkBusinessEntity(token);
+      Alert.alert("Success", "added your business");
     } catch (error) {
       Alert.alert("Failed Login", "Failed to add your business!");
       setSubmitText("Submit");
