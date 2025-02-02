@@ -33,6 +33,7 @@ import { setToken, getToken } from "../../storage/TokenStorage";
 import * as ImagePicker from "expo-image-picker";
 import { Buffer } from "buffer"; // Import the Buffer library
 import axios from "axios";
+import Constants from "expo-constants";
 
 const { width, height } = Dimensions.get("window");
 
@@ -169,6 +170,7 @@ const OnboardAddBusiness = () => {
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
+        base64: true,
       });
 
       if (!result.canceled) {
@@ -229,6 +231,36 @@ const OnboardAddBusiness = () => {
     // }
   };
 
+  const performOCR = async (file) => {
+    let myHeaders = new Headers();
+    myHeaders.append("apikey", Constants.expoConfig.extra.apiKey);
+    myHeaders.append("Content-Type", "multipart/form-data");
+
+    let raw = file;
+    let requestOptions = {
+      method: "POST",
+      redirect: "follow",
+      headers: myHeaders,
+      body: raw,
+    };
+
+    // Return the promise from fetch so that the calling function can wait for it.
+    return fetch(
+      "https://api.apilayer.com/image_to_text/upload",
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        // Set the extracted text in state (or log it)
+        console.log(result);
+        return result.all_text;
+      })
+      .catch((error) => {
+        console.log("error", error);
+        throw error; // rethrow to allow the caller to handle the error if needed
+      });
+  };
+
   // logic when "Submit" button is pressed
   const handleSubmit = async () => {
     setSubmitText("Submitting");
@@ -265,6 +297,7 @@ const OnboardAddBusiness = () => {
     try {
       const token = await checkToken();
 
+      // using
       const formData = new FormData();
       formData.append("businessNickname", businessNickname); // Send the text parameter
       formData.append("financialStatementPDF", {
@@ -278,17 +311,25 @@ const OnboardAddBusiness = () => {
         name: "businessLicenseImage.jpg", // File name
       });
 
-      // formData.append("financialStatement", "this is financial statement");
-      // formData.append("businessLicense", "this is business license");
+      // call the text extraction function here and pass the two images to get the two strings
+      // Note the following two fields are nullable
+      // Call OCR with the whole file asset, not just its uri
+      const newFinancialStatementText = await performOCR(selectedDocument);
+      const newBusinessLicenseText = await performOCR(selectedPhoto);
+
+      console.log(newFinancialStatementText, newBusinessLicenseText);
+
+      formData.append("financialStatementText", newFinancialStatementText);
+      formData.append("businessLicenseText", newBusinessLicenseText);
 
       const response = await addCompanyAPI(token, formData);
 
       console.log(response);
       setSubmitText("Submit");
-
-      Alert.alert("Success", "added your business");
       await checkBusinessEntity(token);
+      Alert.alert("Success", "added your business");
     } catch (error) {
+      console.log(error);
       Alert.alert("Failed Login", "Failed to add your business!");
       setSubmitText("Submit");
     }
