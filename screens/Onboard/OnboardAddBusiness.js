@@ -124,7 +124,7 @@ const OnboardAddBusiness = () => {
 
   const checkToken = async () => {
     const token = await getToken("access");
-    console.log("INside check token" + token);
+    console.log("INside check token " + token);
 
     if (token) {
       setAuthenticated(true);
@@ -168,7 +168,6 @@ const OnboardAddBusiness = () => {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.mediaTypes, // Specify media type
         allowsEditing: true,
-        aspect: [4, 3],
         quality: 1,
         base64: true,
       });
@@ -244,6 +243,7 @@ const OnboardAddBusiness = () => {
       body: raw,
     };
 
+    console.log("uploading image");
     // Return the promise from fetch so that the calling function can wait for it.
     return fetch(
       "https://api.apilayer.com/image_to_text/upload",
