@@ -39,7 +39,7 @@ export function Profile() {
       const token = await getToken("access");
       console.log(token);
       // Construct the URL to fetch the image
-      const url = `http://192.168.0.143:8080/api/files/${fileId}`; //http://192.168.2.143
+      const url = `http://192.168.8.6:8080/api/files/${fileId}`; //http://192.168.2.143
 
       // Fetch the base64 string of the imag
       const base64Data = await getBase64(url, token);

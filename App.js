@@ -60,7 +60,9 @@ export default function App() {
     <SafeAreaView
       style={{
         flex: 1,
+        backgroundColor: '#fff' // or whatever background color you want
       }}
+      edges={['right', 'left']} // This will only protect content from left/right notches
     >
       <PaperProvider>
         <NavigationContainer>
