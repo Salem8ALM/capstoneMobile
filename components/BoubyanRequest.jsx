@@ -1,23 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import BoubyanReq from "../assets/svg/BoubyanReq.svg";
 
-const BoubyanRequest = ({ isSelected: isAllSelected }) => {
-  const [isSelected, setIsSelected] = useState(false);
-
-  // Update local selection state when allSelected changes
-  useEffect(() => {
-    setIsSelected(isAllSelected);
-  }, [isAllSelected]);
-
-  const handlePress = () => {
-    setIsSelected(!isSelected);
-  };
-
+const BoubyanRequest = ({ isSelected, onPress }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        onPress={handlePress}
+        onPress={onPress}
         style={[styles.cardContainer, isSelected && styles.cardSelected]}
       >
         <BoubyanReq />

@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   },
   absoluteTopLeft: {
     position: "absolute",
-    top: 10, // Adjust to your desired distance from the top
+    top: 40, // Adjust to your desired distance from the top
     left: 20, // Adjust to your desired distance from the left
     zIndex: 1, // Ensure it appears above other components if overlapping
   },
