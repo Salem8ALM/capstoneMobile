@@ -61,13 +61,13 @@ export default function App() {
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#292933',
       }}
       edges={[]}
     >
       <StatusBar
         barStyle="dark-content"
-        backgroundColor="#fff"
+        backgroundColor="#292933"
       />
       <PaperProvider>
         <NavigationContainer>

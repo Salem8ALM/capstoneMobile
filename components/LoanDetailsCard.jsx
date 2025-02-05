@@ -1,7 +1,9 @@
 import { useState, useRef } from "react"
-import { View, Text, TextInput, StyleSheet, Animated, TouchableOpacity } from "react-native"
+import { View, StyleSheet, Animated, Dimensions } from "react-native"
+import { TextInput, Button, Text } from "react-native-paper"
 import { LinearGradient } from "expo-linear-gradient"
-import Icon from "react-native-vector-icons/FontAwesome"
+
+const { width, height } = Dimensions.get("window")
 
 export function LoanDetailsCard({ onSubmit }) {
   const [loanTitle, setLoanTitle] = useState("")
@@ -15,6 +17,7 @@ export function LoanDetailsCard({ onSubmit }) {
   const descriptionAnim = useRef(new Animated.Value(0)).current
   const amountAnim = useRef(new Animated.Value(0)).current
   const termAnim = useRef(new Animated.Value(0)).current
+  const buttonAnim = useRef(new Animated.Value(1)).current
 
   const animateField = (anim: Animated.Value, toValue: number) => {
     Animated.spring(anim, {
@@ -32,230 +35,285 @@ export function LoanDetailsCard({ onSubmit }) {
     })
   }
 
+  const handlePressIn = () => {
+    Animated.spring(buttonAnim, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start()
+  }
+
+  const handlePressOut = () => {
+    Animated.spring(buttonAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start()
+  }
+
   return (
-    <LinearGradient colors={["rgba(217, 217, 217, 0.2)", "rgba(39, 39, 42, 0.5)"]} style={styles.container}>
-      <Text style={styles.title}>Please enter the loan details</Text>
+    <LinearGradient
+      colors={["rgba(217, 217, 217, 0.2)", "rgba(39, 39, 42, 0.5)"]}
+      style={styles.gradient}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+    >
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.title}>Loan Details</Text>
 
-      {/* Loan Title Input */}
-      <Animated.View
-        style={[
-          styles.inputContainer,
-          {
-            transform: [
+          <Animated.View
+            style={[
+              styles.inputContainer,
               {
-                scale: titleAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 1.05],
-                }),
+                transform: [
+                  {
+                    scale: titleAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
               },
-            ],
-          },
-        ]}
-      >
-        <Text style={styles.label}>Loan Title</Text>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter loan title"
-            placeholderTextColor="#71717A"
-            value={loanTitle}
-            onChangeText={setLoanTitle}
-            onFocus={() => {
-              setFocusedField("title")
-              animateField(titleAnim, 1)
-            }}
-            onBlur={() => {
-              setFocusedField("")
-              animateField(titleAnim, 0)
-            }}
-          />
-          <Icon name="tag" size={24} color="#ffffff" style={styles.inputIcon} />
-        </View>
-      </Animated.View>
+            ]}
+          >
+            <TextInput
+              label={
+                <Text
+                  style={{
+                    color: focusedField === "title" ? "#FFD700" : "rgba(255,255,255,0.3)",
+                  }}
+                >
+                  Loan Title
+                </Text>
+              }
+              value={loanTitle}
+              onChangeText={setLoanTitle}
+              mode="outlined"
+              left={
+                <TextInput.Icon icon="tag" color={focusedField === "title" ? "#FFD700" : "rgba(255,255,255,0.3)"} />
+              }
+              textColor="white"
+              style={styles.input}
+              onFocus={() => {
+                setFocusedField("title")
+                animateField(titleAnim, 1)
+              }}
+              onBlur={() => {
+                setFocusedField("")
+                animateField(titleAnim, 0)
+              }}
+              theme={{ colors: { primary: "#FFD700" } }}
+            />
+          </Animated.View>
 
-      {/* Loan Description Input */}
-      <Animated.View
-        style={[
-          styles.inputContainer,
-          {
-            transform: [
+          <Animated.View
+            style={[
+              styles.inputContainer,
               {
-                scale: descriptionAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 1.05],
-                }),
+                transform: [
+                  {
+                    scale: descriptionAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
               },
-            ],
-          },
-        ]}
-      >
-        <Text style={styles.label}>Description</Text>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter loan description"
-            placeholderTextColor="#71717A"
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            numberOfLines={3}
-            onFocus={() => {
-              setFocusedField("description")
-              animateField(descriptionAnim, 1)
-            }}
-            onBlur={() => {
-              setFocusedField("")
-              animateField(descriptionAnim, 0)
-            }}
-          />
-          <Icon name="file-text-o" size={24} color="#ffffff" style={styles.inputIcon} />
-        </View>
-      </Animated.View>
+            ]}
+          >
+            <TextInput
+              label={
+                <Text
+                  style={{
+                    color: focusedField === "description" ? "#FFD700" : "rgba(255,255,255,0.3)",
+                  }}
+                >
+                  Description
+                </Text>
+              }
+              value={description}
+              onChangeText={setDescription}
+              mode="outlined"
+              left={
+                <TextInput.Icon
+                  icon="file-text-outline"
+                  color={focusedField === "description" ? "#FFD700" : "rgba(255,255,255,0.3)"}
+                />
+              }
+              textColor="white"
+              style={styles.input}
+              multiline
+              numberOfLines={3}
+              onFocus={() => {
+                setFocusedField("description")
+                animateField(descriptionAnim, 1)
+              }}
+              onBlur={() => {
+                setFocusedField("")
+                animateField(descriptionAnim, 0)
+              }}
+              theme={{ colors: { primary: "#FFD700" } }}
+            />
+          </Animated.View>
 
-      {/* Loan Amount Input */}
-      <Animated.View
-        style={[
-          styles.inputContainer,
-          {
-            transform: [
+          <Animated.View
+            style={[
+              styles.inputContainer,
               {
-                scale: amountAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 1.05],
-                }),
+                transform: [
+                  {
+                    scale: amountAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
               },
-            ],
-          },
-        ]}
-      >
-        <Text style={styles.label}>Loan Amount</Text>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter amount"
-            placeholderTextColor="#71717A"
-            keyboardType="numeric"
-            value={loanAmount}
-            onChangeText={setLoanAmount}
-            onFocus={() => {
-              setFocusedField("amount")
-              animateField(amountAnim, 1)
-            }}
-            onBlur={() => {
-              setFocusedField("")
-              animateField(amountAnim, 0)
-            }}
-          />
-          <Icon name="dollar" size={24} color="#ffffff" style={styles.inputIcon} />
-        </View>
-      </Animated.View>
+            ]}
+          >
+            <TextInput
+              label={
+                <Text
+                  style={{
+                    color: focusedField === "amount" ? "#FFD700" : "rgba(255,255,255,0.3)",
+                  }}
+                >
+                  Loan Amount
+                </Text>
+              }
+              value={loanAmount}
+              onChangeText={setLoanAmount}
+              mode="outlined"
+              left={
+                <TextInput.Icon
+                  icon="currency-usd"
+                  color={focusedField === "amount" ? "#FFD700" : "rgba(255,255,255,0.3)"}
+                />
+              }
+              textColor="white"
+              keyboardType="numeric"
+              style={styles.input}
+              onFocus={() => {
+                setFocusedField("amount")
+                animateField(amountAnim, 1)
+              }}
+              onBlur={() => {
+                setFocusedField("")
+                animateField(amountAnim, 0)
+              }}
+              theme={{ colors: { primary: "#FFD700" } }}
+            />
+          </Animated.View>
 
-      {/* Loan Term Input */}
-      <Animated.View
-        style={[
-          styles.inputContainer,
-          {
-            transform: [
+          <Animated.View
+            style={[
+              styles.inputContainer,
               {
-                scale: termAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 1.05],
-                }),
+                transform: [
+                  {
+                    scale: termAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
               },
-            ],
-          },
-        ]}
-      >
-        <Text style={styles.label}>Loan Term</Text>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter term in months"
-            placeholderTextColor="#71717A"
-            keyboardType="numeric"
-            value={loanTerm}
-            onChangeText={setLoanTerm}
-            onFocus={() => {
-              setFocusedField("term")
-              animateField(termAnim, 1)
-            }}
-            onBlur={() => {
-              setFocusedField("")
-              animateField(termAnim, 0)
-            }}
-          />
-          <Icon name="clock-o" size={24} color="#ffffff" style={styles.inputIcon} />
-        </View>
-      </Animated.View>
+            ]}
+          >
+            <TextInput
+              label={
+                <Text
+                  style={{
+                    color: focusedField === "term" ? "#FFD700" : "rgba(255,255,255,0.3)",
+                  }}
+                >
+                  Loan Term (months)
+                </Text>
+              }
+              value={loanTerm}
+              onChangeText={setLoanTerm}
+              mode="outlined"
+              left={
+                <TextInput.Icon icon="calendar" color={focusedField === "term" ? "#FFD700" : "rgba(255,255,255,0.3)"} />
+              }
+              textColor="white"
+              keyboardType="numeric"
+              style={styles.input}
+              onFocus={() => {
+                setFocusedField("term")
+                animateField(termAnim, 1)
+              }}
+              onBlur={() => {
+                setFocusedField("")
+                animateField(termAnim, 0)
+              }}
+              theme={{ colors: { primary: "#FFD700" } }}
+            />
+          </Animated.View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Submit</Text>
-      </TouchableOpacity>
+          <Animated.View style={[styles.buttonContainer, { transform: [{ scale: buttonAnim }] }]}>
+            <Button
+              mode="contained"
+              onPress={handleSubmit}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              style={styles.button}
+              labelStyle={styles.buttonText}
+            >
+              Submit
+            </Button>
+          </Animated.View>
+        </View>
+      </View>
     </LinearGradient>
   )
 }
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+    width: width,
+    height: height,
+  },
   container: {
-    width: '90%',
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    borderRadius: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 400,
+    backgroundColor: "rgba(41, 41, 51, 0.7)",
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: "#777777",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
     marginBottom: 20,
-    textAlign: 'center',
   },
   inputContainer: {
     marginBottom: 15,
-    width: '100%',
-  },
-  label: {
-    color: '#ffffff',
-    marginBottom: 5,
-    fontSize: 16,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 10,
-    paddingHorizontal: 15,
   },
   input: {
-    flex: 1,
-    color: '#ffffff',
-    paddingVertical: 12,
-    fontSize: 16,
+    backgroundColor: "rgba(8, 8, 8, 0.5)",
   },
-  inputIcon: {
-    marginLeft: 10,
-  },
-  submitButton: {
-    backgroundColor: "#FFD700",
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 25,
+  buttonContainer: {
     marginTop: 20,
-    alignSelf: "center",
-    width: '80%',
   },
-  submitButtonText: {
-    color: "#292933",
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: 'center',
+  button: {
+    backgroundColor: "#FFD700",
+    padding: 5,
+    borderRadius: 8,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
   },
 })
 

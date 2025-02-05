@@ -28,6 +28,8 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
     alignSelf: "center",
     alignItems: "center",
+    padding: 20,
+    backgroundColor: "rgba(41, 41, 51, 0.7)", // Match app's dark theme
   },
   cardSelected: {
     borderColor: "#FFD700", // Yellow border when selected

@@ -159,6 +159,13 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
+    backgroundColor: "#292933",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 20,
   },
   applyButton: {
     marginHorizontal: 20,
