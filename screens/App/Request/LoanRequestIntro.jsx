@@ -17,26 +17,53 @@ const FinanceSymbol = ({ icon, size, color }) => {
     x: Math.random() * width,
     y: Math.random() * height,
   });
-  const [opacity] = useState(new Animated.Value(0));
+
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateX = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     animateSymbol();
   }, []);
 
   const animateSymbol = () => {
-    Animated.sequence([
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 1000 + Math.random() * 1000,
+    // Reset position
+    translateX.setValue(0);
+    translateY.setValue(0);
+
+    // Generate random movement
+    const randomX = (Math.random() - 0.5) * 100; // Move up to 50px left or right
+    const randomY = (Math.random() - 0.5) * 100; // Move up to 50px up or down
+
+    Animated.parallel([
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 1000 + Math.random() * 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 1000 + Math.random() * 1000,
+          delay: 2000 + Math.random() * 2000,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.timing(translateX, {
+        toValue: randomX,
+        duration: 4000 + Math.random() * 2000,
+        easing: Easing.inOut(Easing.quad),
         useNativeDriver: true,
       }),
-      Animated.timing(opacity, {
-        toValue: 0,
-        duration: 1000 + Math.random() * 1000,
-        delay: 1000 + Math.random() * 2000,
+      Animated.timing(translateY, {
+        toValue: randomY,
+        duration: 4000 + Math.random() * 2000,
+        easing: Easing.inOut(Easing.quad),
         useNativeDriver: true,
       }),
-    ]).start(() => animateSymbol());
+    ]).start(() => {
+      setTimeout(animateSymbol, Math.random() * 1000);
+    });
   };
 
   return (
@@ -47,6 +74,7 @@ const FinanceSymbol = ({ icon, size, color }) => {
           left: position.x,
           top: position.y,
           opacity,
+          transform: [{ translateX }, { translateY }],
         },
       ]}
     >
@@ -64,55 +92,20 @@ const LoanRequestIntro = () => {
   const iconPulseAnim = useRef(new Animated.Value(1)).current;
 
   const symbols = [
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.02)" },
-    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.02)" },
-    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.05)" },
-    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.04)" },
-    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.02)" },
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.02)" },
-    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.02)" },
-    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.05)" },
-    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.04)" },
-    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.02)" },
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.02)" },
-    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.02)" },
-    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.05)" },
-    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.04)" },
-    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.02)" },
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.02)" },
-    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.02)" },
-    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.05)" },
-    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.04)" },
-    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.02)" },
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.02)" },
-    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.02)" },
-    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.05)" },
-    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.04)" },
-    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.02)" },
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.02)" },
-    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.02)" },
-    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.05)" },
-    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.04)" },
-    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.02)" },
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.02)" },
-    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.02)" },
-    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.05)" },
-    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.04)" },
-    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.02)" },
+    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.2)" },
+    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.2)" },
+    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.2)" },
+    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.2)" },
+    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.2)" },
+    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.2)" },
+    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.2)" },
+    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.2)" },
+    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.2)" },
+    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.2)" },
+    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.2)" },
+    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.2)" },
   ];
 
   useEffect(() => {
@@ -147,7 +140,7 @@ const LoanRequestIntro = () => {
         }),
       ])
     ).start();
-  }, [fadeAnim, scaleAnim, iconPulseAnim]); // Added dependencies
+  }, [fadeAnim, scaleAnim, iconPulseAnim]);
 
   return (
     <View style={styles.container}>
