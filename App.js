@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import UserContext from "./context/UserContext";
 import AppNavigator from "./navigations/AppNavigator";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from 'react-native';
 
 //-------- although not currently in use, they will be used for token storage
 import {
@@ -14,7 +16,6 @@ import {
 } from "@tanstack/react-query";
 import OnboardingNavigator from "./navigations/OnboardingNavigator";
 import { deleteToken, getToken } from "./storage/TokenStorage";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { getCompanyAPI } from "./api/Business";
 //----------
 
@@ -60,8 +61,14 @@ export default function App() {
     <SafeAreaView
       style={{
         flex: 1,
+        backgroundColor: '#292933',
       }}
+      edges={[]}
     >
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#292933"
+      />
       <PaperProvider>
         <NavigationContainer>
           <UserContext.Provider
@@ -76,7 +83,10 @@ export default function App() {
               onboarded ? (
                 <AppNavigator />
               ) : (
-                <View style={{ flex: 1 }}>
+                <View style={{ 
+                  flex: 1,
+                  backgroundColor: '#fff'
+                }}>
                   <TouchableOpacity
                     onPress={async () => {
                       setAuthenticated(false);
@@ -104,7 +114,7 @@ const styles = StyleSheet.create({
   },
   absoluteTopLeft: {
     position: "absolute",
-    top: 10, // Adjust to your desired distance from the top
+    top: 40, // Adjust to your desired distance from the top
     left: 20, // Adjust to your desired distance from the left
     zIndex: 1, // Ensure it appears above other components if overlapping
   },
