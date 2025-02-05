@@ -1,30 +1,30 @@
-import { useState, useRef } from "react"
-import { View, StyleSheet, Animated, Dimensions } from "react-native"
-import { TextInput, Button, Text } from "react-native-paper"
-import { LinearGradient } from "expo-linear-gradient"
+import { useState, useRef } from "react";
+import { View, StyleSheet, Animated, Dimensions } from "react-native";
+import { TextInput, Button, Text } from "react-native-paper";
+import { LinearGradient } from "expo-linear-gradient";
 
-const { width, height } = Dimensions.get("window")
+const { width, height } = Dimensions.get("window");
 
 export function LoanDetailsCard({ onSubmit }) {
-  const [loanTitle, setLoanTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [loanAmount, setLoanAmount] = useState("")
-  const [loanTerm, setLoanTerm] = useState("")
-  const [focusedField, setFocusedField] = useState("")
+  const [loanTitle, setLoanTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [loanAmount, setLoanAmount] = useState("");
+  const [loanTerm, setLoanTerm] = useState("");
+  const [focusedField, setFocusedField] = useState("");
 
   // Animation values
-  const titleAnim = useRef(new Animated.Value(0)).current
-  const descriptionAnim = useRef(new Animated.Value(0)).current
-  const amountAnim = useRef(new Animated.Value(0)).current
-  const termAnim = useRef(new Animated.Value(0)).current
-  const buttonAnim = useRef(new Animated.Value(1)).current
+  const titleAnim = useRef(new Animated.Value(0)).current;
+  const descriptionAnim = useRef(new Animated.Value(0)).current;
+  const amountAnim = useRef(new Animated.Value(0)).current;
+  const termAnim = useRef(new Animated.Value(0)).current;
+  const buttonAnim = useRef(new Animated.Value(1)).current;
 
   const animateField = (anim: Animated.Value, toValue: number) => {
     Animated.spring(anim, {
       toValue,
       useNativeDriver: true,
-    }).start()
-  }
+    }).start();
+  };
 
   const handleSubmit = () => {
     onSubmit({
@@ -32,22 +32,22 @@ export function LoanDetailsCard({ onSubmit }) {
       description,
       loanAmount,
       loanTerm,
-    })
-  }
+    });
+  };
 
   const handlePressIn = () => {
     Animated.spring(buttonAnim, {
       toValue: 0.95,
       useNativeDriver: true,
-    }).start()
-  }
+    }).start();
+  };
 
   const handlePressOut = () => {
     Animated.spring(buttonAnim, {
       toValue: 1,
       useNativeDriver: true,
-    }).start()
-  }
+    }).start();
+  };
 
   return (
     <LinearGradient
@@ -79,7 +79,10 @@ export function LoanDetailsCard({ onSubmit }) {
               label={
                 <Text
                   style={{
-                    color: focusedField === "title" ? "#FFD700" : "rgba(255,255,255,0.3)",
+                    color:
+                      focusedField === "title"
+                        ? "#FFD700"
+                        : "rgba(255,255,255,0.3)",
                   }}
                 >
                   Loan Title
@@ -89,17 +92,24 @@ export function LoanDetailsCard({ onSubmit }) {
               onChangeText={setLoanTitle}
               mode="outlined"
               left={
-                <TextInput.Icon icon="tag" color={focusedField === "title" ? "#FFD700" : "rgba(255,255,255,0.3)"} />
+                <TextInput.Icon
+                  icon="tag"
+                  color={
+                    focusedField === "title"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.3)"
+                  }
+                />
               }
               textColor="white"
               style={styles.input}
               onFocus={() => {
-                setFocusedField("title")
-                animateField(titleAnim, 1)
+                setFocusedField("title");
+                animateField(titleAnim, 1);
               }}
               onBlur={() => {
-                setFocusedField("")
-                animateField(titleAnim, 0)
+                setFocusedField("");
+                animateField(titleAnim, 0);
               }}
               theme={{ colors: { primary: "#FFD700" } }}
             />
@@ -124,7 +134,10 @@ export function LoanDetailsCard({ onSubmit }) {
               label={
                 <Text
                   style={{
-                    color: focusedField === "description" ? "#FFD700" : "rgba(255,255,255,0.3)",
+                    color:
+                      focusedField === "description"
+                        ? "#FFD700"
+                        : "rgba(255,255,255,0.3)",
                   }}
                 >
                   Description
@@ -136,7 +149,11 @@ export function LoanDetailsCard({ onSubmit }) {
               left={
                 <TextInput.Icon
                   icon="file-text-outline"
-                  color={focusedField === "description" ? "#FFD700" : "rgba(255,255,255,0.3)"}
+                  color={
+                    focusedField === "description"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.3)"
+                  }
                 />
               }
               textColor="white"
@@ -144,12 +161,12 @@ export function LoanDetailsCard({ onSubmit }) {
               multiline
               numberOfLines={3}
               onFocus={() => {
-                setFocusedField("description")
-                animateField(descriptionAnim, 1)
+                setFocusedField("description");
+                animateField(descriptionAnim, 1);
               }}
               onBlur={() => {
-                setFocusedField("")
-                animateField(descriptionAnim, 0)
+                setFocusedField("");
+                animateField(descriptionAnim, 0);
               }}
               theme={{ colors: { primary: "#FFD700" } }}
             />
@@ -174,7 +191,10 @@ export function LoanDetailsCard({ onSubmit }) {
               label={
                 <Text
                   style={{
-                    color: focusedField === "amount" ? "#FFD700" : "rgba(255,255,255,0.3)",
+                    color:
+                      focusedField === "amount"
+                        ? "#FFD700"
+                        : "rgba(255,255,255,0.3)",
                   }}
                 >
                   Loan Amount
@@ -186,19 +206,23 @@ export function LoanDetailsCard({ onSubmit }) {
               left={
                 <TextInput.Icon
                   icon="currency-usd"
-                  color={focusedField === "amount" ? "#FFD700" : "rgba(255,255,255,0.3)"}
+                  color={
+                    focusedField === "amount"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.3)"
+                  }
                 />
               }
               textColor="white"
               keyboardType="numeric"
               style={styles.input}
               onFocus={() => {
-                setFocusedField("amount")
-                animateField(amountAnim, 1)
+                setFocusedField("amount");
+                animateField(amountAnim, 1);
               }}
               onBlur={() => {
-                setFocusedField("")
-                animateField(amountAnim, 0)
+                setFocusedField("");
+                animateField(amountAnim, 0);
               }}
               theme={{ colors: { primary: "#FFD700" } }}
             />
@@ -223,7 +247,10 @@ export function LoanDetailsCard({ onSubmit }) {
               label={
                 <Text
                   style={{
-                    color: focusedField === "term" ? "#FFD700" : "rgba(255,255,255,0.3)",
+                    color:
+                      focusedField === "term"
+                        ? "#FFD700"
+                        : "rgba(255,255,255,0.3)",
                   }}
                 >
                   Loan Term (months)
@@ -233,24 +260,36 @@ export function LoanDetailsCard({ onSubmit }) {
               onChangeText={setLoanTerm}
               mode="outlined"
               left={
-                <TextInput.Icon icon="calendar" color={focusedField === "term" ? "#FFD700" : "rgba(255,255,255,0.3)"} />
+                <TextInput.Icon
+                  icon="calendar"
+                  color={
+                    focusedField === "term"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.3)"
+                  }
+                />
               }
               textColor="white"
               keyboardType="numeric"
               style={styles.input}
               onFocus={() => {
-                setFocusedField("term")
-                animateField(termAnim, 1)
+                setFocusedField("term");
+                animateField(termAnim, 1);
               }}
               onBlur={() => {
-                setFocusedField("")
-                animateField(termAnim, 0)
+                setFocusedField("");
+                animateField(termAnim, 0);
               }}
               theme={{ colors: { primary: "#FFD700" } }}
             />
           </Animated.View>
 
-          <Animated.View style={[styles.buttonContainer, { transform: [{ scale: buttonAnim }] }]}>
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { transform: [{ scale: buttonAnim }] },
+            ]}
+          >
             <Button
               mode="contained"
               onPress={handleSubmit}
@@ -265,7 +304,7 @@ export function LoanDetailsCard({ onSubmit }) {
         </View>
       </View>
     </LinearGradient>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -315,7 +354,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
   },
-})
+});
 
-export default LoanDetailsCard
-
+export default LoanDetailsCard;

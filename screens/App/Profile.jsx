@@ -1,12 +1,12 @@
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import ImageFetcher from '../../components/ImageFetcher';
+import React from "react";
+import { View, StyleSheet, Text } from "react-native";
+import ImageFetcher from "../../components/ImageFetcher";
 
 export function Profile() {
   return (
     <View style={styles.container}>
-      <ImageFetcher 
-        fileId={2} 
+      <ImageFetcher
+        fileId={1}
         style={styles.profileImage} // Optional custom styling
       />
       <View style={styles.infoContainer}>
@@ -21,8 +21,8 @@ export function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   profileImage: {
     // Custom image styling if needed
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     marginTop: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
 });
 

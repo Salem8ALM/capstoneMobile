@@ -89,33 +89,6 @@ const OnboardAddBusiness = () => {
 
   const businessNicknameAnim = useRef(new Animated.Value(0)).current;
 
-  const fetchImage = async () => {
-    try {
-      setIsLoading(true);
-      const fileId = 1; // Replace with the actual file ID you want to fetch
-      const token =
-        "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJjNDMwMzRmZi1iYzYxLTRiZDMtYjRjYi0xNTMxNzE3NDU5NzgiLCJzdWIiOiJlbmdyaWJyYWhpbWFkbmFuIiwicm9sZXMiOiJCVVNJTkVTU19PV05FUiIsImJhbmsiOiJOT1RfQkFOSyIsImNpdmlsSWQiOiIwMDAwMDAwMDAwMDAiLCJ0eXBlIjoiQUNDRVNTIiwiaWF0IjoxNzM4MDg2MjE3LCJleHAiOjE3MzgwODk4MTd9.k4c6g206nFGJj2sqX7LAzBkZ02Cc63bKM8cwL5y4gBI"; // Replace with your actual token
-
-      // Construct the URL to fetch the image
-      const url = `http://192.168.2.143:8080/api/files/${4}`;
-
-      // Fetch the base64 string of the imag
-      const base64Data = await getBase64(url, token);
-
-      // Update the URI to show the image from base64 data
-      setImageUri(`data:image/png;base64,${base64Data}`);
-    } catch (error) {
-      console.error("Error fetching image:", error);
-      // Show an error message to the user
-      Alert.alert(
-        "Error",
-        error.message || "There was an error fetching the image."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // checking token and whether the user is onboarded
   const checkUserState = async () => {
     const token = await checkToken();
