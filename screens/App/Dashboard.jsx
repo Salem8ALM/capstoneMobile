@@ -1,6 +1,13 @@
-import React, { useEffect } from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
-import Animated, {
+import React, { useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Animated,
+} from "react-native";
+import {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
@@ -12,14 +19,30 @@ import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { Card } from "react-native-paper";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const screenWidth = Dimensions.get("window").width;
 
 const HomeScreen = () => {
   const scale = useSharedValue(1);
   const iconTranslateY = useSharedValue(0);
+  const translateX = useRef(new Animated.Value(-screenWidth)).current;
 
-  // Looping animation for icons
+  useEffect(() => {
+    translateX.setValue(-screenWidth);
+
+    const animation = Animated.loop(
+      Animated.timing(translateX, {
+        toValue: screenWidth * 2,
+        duration: 2500,
+        useNativeDriver: true,
+      })
+    );
+    animation.start();
+
+    return () => animation.stop();
+  }, []);
+
   useEffect(() => {
     iconTranslateY.value = withRepeat(
       withTiming(10, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
@@ -56,13 +79,31 @@ const HomeScreen = () => {
         👋 Welcome, User!
       </Text>
 
+      {/* Financial Score */}
+      <View>
+        <Text style={{ color: "#fff", fontSize: 16 }}>Financial Score:</Text>
+        <View
+          style={{
+            height: 8,
+            backgroundColor: "#444",
+            borderRadius: 4,
+            overflow: "hidden",
+            marginTop: 10,
+            marginBottom: 10,
+          }}
+        >
+          <View
+            style={{ width: "80%", height: "100%", backgroundColor: "#FFD700" }}
+          />
+        </View>
+      </View>
+
       {/* Business Card */}
       <Card
         style={{
           backgroundColor: "#2A2A2E",
           padding: 15,
           borderRadius: 10,
-          marginBottom: 20,
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -81,52 +122,53 @@ const HomeScreen = () => {
         </View>
       </Card>
 
-      {/* Financial Score */}
-      <View style={{ marginBottom: 20 }}>
-        <Text style={{ color: "#fff", fontSize: 16 }}>Financial Score:</Text>
-        <View
-          style={{
-            height: 8,
-            backgroundColor: "#444",
-            borderRadius: 4,
-            overflow: "hidden",
-            marginTop: 5,
-          }}
-        >
-          <View
-            style={{ width: "80%", height: "100%", backgroundColor: "#FFD700" }}
-          />
+      <View style={styles.card}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={styles.title}>AI Financial Analysis</Text>
+          {/* AI Icon */}
         </View>
+        <Text style={styles.description}>
+          Gain deep insights with AI-driven reports.
+        </Text>
+
+        {/* Full Coverage Gradient Shine Effect */}
+        <Animated.View
+          style={[styles.shineWrapper, { transform: [{ translateX }] }]}
+        >
+          <LinearGradient
+            colors={[
+              "rgba(255,255,255,0.1)",
+              "rgba(255, 255, 255, 0.4)",
+              "rgba(255,255,255,0.1)",
+            ]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={styles.shine}
+          />
+        </Animated.View>
       </View>
 
-      {/* AI Analysis Card with Bouncing Icons */}
-      <Card
-        style={{
-          backgroundColor: "#2A2A2E",
-          padding: 15,
-          borderRadius: 10,
-          marginBottom: 20,
-        }}
+      {/* Apply for Loan Button with Gradient */}
+      <TouchableOpacity
+        onPress={handlePress}
+        style={{ marginTop: 20, marginBottom: 30 }}
       >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Animated.View style={iconAnimatedStyle}>
-            <MaterialIcons name="insights" size={30} color="yellow" />
-          </Animated.View>
-          <Text
-            style={{
-              color: "#fff",
-              fontSize: 18,
-              fontWeight: "bold",
-              marginLeft: 10,
-            }}
-          >
-            AI Financial Analysis
+        <Animated.View
+          style={[
+            {
+              padding: 12,
+              borderRadius: 10,
+              alignItems: "center",
+              backgroundColor: "#FFD700",
+            },
+            animatedStyle,
+          ]}
+        >
+          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+            Apply for a Loan
           </Text>
-        </View>
-        <Text style={{ color: "#aaa", marginTop: 5 }}>
-          Get real-time insights and personalized loan options using AI.
-        </Text>
-      </Card>
+        </Animated.View>
+      </TouchableOpacity>
 
       {/* Financial Chart */}
       <Text
@@ -156,27 +198,42 @@ const HomeScreen = () => {
         }}
         style={{ borderRadius: 10 }}
       />
-
-      {/* Apply for Loan Button */}
-      <TouchableOpacity onPress={handlePress} style={{ marginTop: 20 }}>
-        <Animated.View
-          style={[
-            {
-              backgroundColor: "#FFD700",
-              padding: 15,
-              borderRadius: 10,
-              alignItems: "center",
-            },
-            animatedStyle,
-          ]}
-        >
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Apply for a Loan
-          </Text>
-        </Animated.View>
-      </TouchableOpacity>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: "#2E2E2E",
+    padding: 20,
+    borderRadius: 15,
+    overflow: "hidden",
+    position: "relative",
+    marginVertical: 10,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#FFF",
+  },
+  description: {
+    fontSize: 14,
+    color: "#AAA",
+    marginTop: 5,
+  },
+  shineWrapper: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "200%",
+    overflow: "hidden",
+  },
+  shine: {
+    width: "100%",
+    height: "100%",
+    opacity: 0.6,
+  },
+});
 
 export default HomeScreen;
