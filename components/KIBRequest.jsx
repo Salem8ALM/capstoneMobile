@@ -1,23 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import KIBReq from "../assets/svg/KIBReq.svg";
 
-const KIBRequest = ({ isSelected: isAllSelected }) => {
-  const [isSelected, setIsSelected] = useState(false);
-
-  // Update local selection state when allSelected changes
-  useEffect(() => {
-    setIsSelected(isAllSelected);
-  }, [isAllSelected]);
-
-  const handlePress = () => {
-    setIsSelected(!isSelected);
-  };
-
+const KIBRequest = ({ isSelected, onPress }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        onPress={handlePress}
+        onPress={onPress}
         style={[styles.cardContainer, isSelected && styles.cardSelected]}
       >
         <KIBReq />
@@ -41,7 +30,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardSelected: {
-    borderColor: "#FFD700", // Yellow border when selected
+    borderColor: "#FFD700",
     shadowColor: "#FFD700",
     shadowOffset: {
       width: 0,
