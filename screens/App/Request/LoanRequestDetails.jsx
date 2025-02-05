@@ -7,10 +7,11 @@ import * as ImagePicker from "expo-image-picker";
 import UserContext from "../../../context/UserContext";
 import { animateField } from "../../../utils/animations/animations";
 
-const OnboardAddBusiness = () => {
+const OnboardAddLoan = () => {
   const navigation = useNavigation();
 
-  const [businessNickname, setBusinessNickname] = useState("");
+  const [loanTitle, setLoanTitle] = useState("");
+  const [loanPurpose, setLoanPurpose] = useState("");
 
   // use state for focused field
   const [focusedField, setFocusedField] = useState("");
@@ -21,9 +22,9 @@ const OnboardAddBusiness = () => {
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
 
-  const businessNicknameAnim = useRef(new Animated.Value(0)).current;
+  const loanTitleAnim = useRef(new Animated.Value(0)).current;
+  const loanPurposeAnim = useRef(new Animated.Value(0)).current;
 
-  // checking token and whether the user is onboarded
   const checkUserState = async () => {
     const token = await checkToken();
     await checkBusinessEntity(token);
@@ -65,7 +66,6 @@ const OnboardAddBusiness = () => {
           toValue: 1,
           tension: 150,
           friction: 3,
-
           useNativeDriver: true,
         }),
         Animated.spring(bounceAnim, {
@@ -81,8 +81,11 @@ const OnboardAddBusiness = () => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Add Your Business</Text>
-        <Text style={styles.subtitle}>Please fill in all fields </Text>
+        <Text style={styles.title}>Step 1/5: Loan Details</Text>
+        <Text style={styles.subtitle}>
+          Let's start by giving your loan a short nickname for your convenience
+          and a short description to convince the banker why you need it.
+        </Text>
 
         <Animated.View
           style={[
@@ -90,7 +93,7 @@ const OnboardAddBusiness = () => {
             {
               transform: [
                 {
-                  scale: businessNicknameAnim.interpolate({
+                  scale: loanTitleAnim.interpolate({
                     inputRange: [0, 1],
                     outputRange: [1, 1.05],
                   }),
@@ -100,17 +103,17 @@ const OnboardAddBusiness = () => {
           ]}
         >
           <TextInput
-            label="Bussiness Nickname"
-            value={businessNickname}
-            onChangeText={setBusinessNickname}
+            label="Loan Title"
+            value={loanTitle}
+            onChangeText={setLoanTitle}
             mode="outlined"
-            keyboardType="default" // Default keyboard for mixed input
-            textContentType="username" // Hints the type of input to autofill services
+            keyboardType="default"
+            textContentType="none"
             left={
               <TextInput.Icon
-                icon="account-circle-outline"
+                icon="bookmark-outline"
                 color={
-                  focusedField === "businessNickname"
+                  focusedField === "loanTitle"
                     ? "#FFD700"
                     : "rgba(255,255,255,0.2)"
                 }
@@ -119,14 +122,60 @@ const OnboardAddBusiness = () => {
             style={styles.input}
             textColor="white"
             onFocus={() => {
-              setFocusedField("businessNickname");
-              animateField(businessNicknameAnim, 1);
+              setFocusedField("loanTitle");
+              animateField(loanTitleAnim, 1);
             }}
             onBlur={() => {
               setFocusedField("");
-              animateField(businessNicknameAnim, 0);
+              animateField(loanTitleAnim, 0);
             }}
-            theme={{ colors: { primary: "#FFD700" } }} // Dark background
+            theme={{ colors: { primary: "#FFD700" } }}
+          />
+        </Animated.View>
+
+        <Animated.View
+          style={[
+            styles.inputContainer,
+            {
+              transform: [
+                {
+                  scale: loanPurposeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.05],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <TextInput
+            label="Loan Purpose"
+            value={loanPurpose}
+            onChangeText={setLoanPurpose}
+            mode="outlined"
+            keyboardType="default"
+            textContentType="none"
+            left={
+              <TextInput.Icon
+                icon="note-outline"
+                color={
+                  focusedField === "loanPurpose"
+                    ? "#FFD700"
+                    : "rgba(255,255,255,0.2)"
+                }
+              />
+            }
+            style={styles.input}
+            textColor="white"
+            onFocus={() => {
+              setFocusedField("loanPurpose");
+              animateField(loanPurposeAnim, 1);
+            }}
+            onBlur={() => {
+              setFocusedField("");
+              animateField(loanPurposeAnim, 0);
+            }}
+            theme={{ colors: { primary: "#FFD700" } }}
           />
         </Animated.View>
 
@@ -139,7 +188,7 @@ const OnboardAddBusiness = () => {
           <Button
             icon={({ color }) => (
               <MaterialCommunityIcons
-                name="check-circle"
+                name="chevron-right"
                 size={24}
                 color={color}
               />
@@ -160,46 +209,14 @@ const OnboardAddBusiness = () => {
 };
 
 const styles = StyleSheet.create({
-  container2: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  image: {
-    width: 300,
-    height: 300,
-    marginTop: 20,
-  },
-  loadingIndicator: {
-    marginTop: 20,
-  },
   container: {
     flex: 1,
-
     backgroundColor: "#1a1a1a",
-  },
-  input: {
-    marginBottom: 20,
-    backgroundColor: "rgb(8, 8, 8)24)", // Dark background for input
   },
   content: {
     flex: 1,
     padding: 20,
     justifyContent: "center",
-  },
-
-  submit: {
-    backgroundColor: "#FFD700",
-
-    padding: 5,
-    borderRadius: 8,
-
-    marginTop: 40,
-  },
-  iconWrapper: {
-    marginBottom: 20,
-  },
-  icon: {
-    marginBottom: 10,
   },
   title: {
     fontSize: 28,
@@ -215,37 +232,28 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 20,
   },
+  input: {
+    marginBottom: 20,
+    backgroundColor: "rgb(8, 8, 8)",
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
   buttonContainer: {
-    flexDirection: "rows",
+    flexDirection: "row",
     marginBottom: 15,
   },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  button: {
+  submit: {
     backgroundColor: "#FFD700",
+    padding: 5,
     borderRadius: 8,
+    marginTop: 40,
   },
   buttonText: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#000",
   },
-  secondaryButton: {
-    marginTop: 10,
-    borderColor: "#FFD700",
-    borderWidth: 2,
-    borderRadius: 8,
-  },
-  secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFD700",
-    paddingVertical: 10,
-  },
 });
 
-export default OnboardAddBusiness;
+export default OnboardAddLoan;

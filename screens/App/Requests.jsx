@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#1a1a1a",
-    index: -1,
+    zIndex: -1,
   },
 });
 

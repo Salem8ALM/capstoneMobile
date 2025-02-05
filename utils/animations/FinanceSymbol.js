@@ -60,6 +60,7 @@ const FinanceSymbol = ({ icon, size, color }) => {
         top: position.y,
         opacity,
         transform: [{ translateX }, { translateY }],
+        pointerEvents: "none", // Add this line
       }}
     >
       <MaterialCommunityIcons name={icon} size={size} color={color} />
