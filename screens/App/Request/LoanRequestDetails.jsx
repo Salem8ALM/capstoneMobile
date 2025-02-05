@@ -4,8 +4,17 @@ import { Button, Text, TextInput } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NotificationBanner from "../../../components/NotificationBanner";
 import { animateField } from "../../../utils/animations/animations";
+import { useNavigation } from "@react-navigation/native";
+import Routes from "../../../utils/constants/routes";
+import {
+  handlePressIn,
+  handlePressOut,
+} from "../../../utils/animations/buttonAnimations";
 
-const OnboardAddLoan = () => {
+const LoanRequestDetails = () => {
+  const navigation = useNavigation();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
   const [loanTitle, setLoanTitle] = useState("");
   const [loanPurpose, setLoanPurpose] = useState("");
 
@@ -27,8 +36,19 @@ const OnboardAddLoan = () => {
     } else {
       // Proceed if both fields are filled
       console.log("Proceeding to next step");
+      navigation.push(Routes.LoanRequest.LoanRequestAmount);
     }
   };
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [scaleAnim]);
 
   return (
     <View style={styles.container}>
@@ -122,7 +142,7 @@ const OnboardAddLoan = () => {
           />
         </Animated.View>
 
-        <Animated.View style={styles.buttonContainer}>
+        <Animated.View style={[{ transform: [{ scale: scaleAnim }] }]}>
           <Button
             icon={({ color }) => (
               <MaterialCommunityIcons
@@ -133,6 +153,8 @@ const OnboardAddLoan = () => {
             )}
             mode="contained"
             onPress={handleNext}
+            onPressIn={() => handlePressIn(scaleAnim)}
+            onPressOut={() => handlePressOut(scaleAnim)}
             style={styles.submit}
             labelStyle={styles.buttonText}
           >
@@ -182,7 +204,7 @@ const styles = StyleSheet.create({
   },
   submit: {
     backgroundColor: "#FFD700",
-    paddingVertical: 10,
+    paddingVertical: 5,
     paddingHorizontal: 20,
     borderRadius: 8,
   },
@@ -193,4 +215,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OnboardAddLoan;
+export default LoanRequestDetails;
