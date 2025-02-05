@@ -4,6 +4,7 @@ import LoanDetailsCard from "../../components/LoanDetailsCard";
 import { BankList } from "../../components/BankList";
 import LoanRequestNavigator from "../../navigations/LoanRequestNavigator.js";
 import { Text } from "react-native-paper";
+import FinanceSymbol from "../../utils/animations/FinanceSymbol.js";
 
 export function Requests() {
   const [showBankList, setShowBankList] = useState(false);
@@ -13,6 +14,16 @@ export function Requests() {
     setLoanDetails(details);
     setShowBankList(true);
   };
+
+  const symbols = [
+    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.2)" },
+    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.2)" },
+    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.2)" },
+    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.2)" },
+    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.2)" },
+    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.2)" },
+  ];
 
   return (
     <View style={styles.container}>
@@ -26,6 +37,9 @@ export function Requests() {
         )} */}
 
         <LoanRequestNavigator />
+        {symbols.map((symbol, index) => (
+          <FinanceSymbol style={styles.symbols} key={index} {...symbol} />
+        ))}
       </SafeAreaView>
     </View>
   );
@@ -48,6 +62,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 20,
     paddingVertical: height * 0.05, // 5% of screen height padding
+  },
+
+  symbols: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1a1a1a",
   },
 });
 

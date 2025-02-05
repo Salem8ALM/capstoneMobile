@@ -1,10 +1,26 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { useContext } from "react";
+import UserContext from "../../../context/UserContext";
+import AnimatedIntroContent from "../../../utils/animations/AnimatedIntroContent";
 
-export default function LoanRequestDetails() {
+const LoanRequestIntro = () => {
+  const { authenticated, setAuthenticated } = useContext(UserContext);
+
   return (
-    <View>
-      <Text>LoanRequestDetails</Text>
+    <View style={styles.container}>
+      <AnimatedIntroContent />
     </View>
-  )
-}
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1a1a1a",
+  },
+});
+
+export default LoanRequestIntro;

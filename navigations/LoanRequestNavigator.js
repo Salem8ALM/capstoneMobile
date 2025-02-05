@@ -1,14 +1,7 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-// import LoginScreen from "../screens/Auth/LoginScreen";
-// import RegisterScreen from "../screens/Auth/RegisterScreen";
 import Routes from "../utils/constants/routes";
 import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
-// import DiagonalLines from "../utils/animations/DiagonalLines";
-// import OnboardWelcome from "../screens/Onboard/OnboardWelcome";
-// import OnboardAddBusiness from "../screens/Onboard/OnboardAddBusiness";
-// import OnboardAnimations from "../utils/animations/OnboardAnimations";
-// import { Text } from "react-native-paper";
 import LoanRequestIntro from "../screens/App/Request/LoanRequestIntro";
 import LoanRequestDetails from "../screens/App/Request/LoanRequestDetails";
 import LoanRequestAmount from "../screens/App/Request/LoanRequestAmount";
@@ -17,7 +10,6 @@ import LoanRequestReivew from "../screens/App/Request/LoanRequestReivew";
 import LoanRequestSubmission from "../screens/App/Request/LoanRequestSubmission";
 
 const Stack = createNativeStackNavigator();
-const { width, height } = Dimensions.get("window");
 
 const LoanRequestNavigator = () => {
   return (
@@ -85,7 +77,6 @@ const LoanRequestNavigator = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1, // Ensures the container takes up the full screen
-
     backgroundColor: "#1a1a1a",
   },
   logout: {
