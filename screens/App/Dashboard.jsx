@@ -43,6 +43,10 @@ const HomeScreen = () => {
   const [submitText, setSubmitText] = useState("Apply for Loans"); // Default button text
   const theme = useTheme();
 
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const onPress = () => {};
+
   useEffect(() => {
     Animated.timing(scoreWidth, {
       toValue: 80, // Target width (80% in your case)
@@ -154,45 +158,53 @@ const HomeScreen = () => {
         </View>
       </Card>
 
-      <View style={styles.card}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 10,
-          }}
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <TouchableOpacity
+          style={styles.card}
+          activeOpacity={0.3} // Slight dim on press
+          onPress={onPress}
+          onPressIn={() => handlePressIn(scaleAnim)}
+          onPressOut={() => handlePressOut(scaleAnim)}
         >
-          <Text style={styles.title}>AI Financial Analysis</Text>
-          <MaterialCommunityIcons
-            name="chart-bar"
-            size={28}
-            color="white"
-            style={styles.aiIcon}
-          />
-        </View>
-        <Text style={styles.description}>
-          Make smarter decisions with cutting-edge AI-driven reports.
-        </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginBottom: 10,
+            }}
+          >
+            <Text style={styles.title}>AI Financial Analysis</Text>
+            <MaterialCommunityIcons
+              name="chart-bar"
+              size={28}
+              color="white"
+              style={styles.aiIcon}
+            />
+          </View>
+          <Text style={styles.description}>
+            Make smarter decisions with cutting-edge AI-driven reports.
+          </Text>
 
-        {/* Full Coverage Gradient Shine Effect */}
-        <Animated.View
-          style={[
-            styles.shineWrapper,
-            { transform: [{ translateX: translateXButton1 }] },
-          ]}
-        >
-          <LinearGradient
-            colors={[
-              "rgba(255,255,255,0.1)",
-              "rgba(255, 255, 255, 0.4)",
-              "rgba(255,255,255,0.1)",
+          {/* Full Coverage Gradient Shine Effect */}
+          <Animated.View
+            style={[
+              styles.shineWrapper,
+              { transform: [{ translateX: translateXButton1 }] },
             ]}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={styles.shine}
-          />
-        </Animated.View>
-      </View>
+          >
+            <LinearGradient
+              colors={[
+                "rgba(255,255,255,0.1)",
+                "rgba(255, 255, 255, 0.4)",
+                "rgba(255,255,255,0.1)",
+              ]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.shine}
+            />
+          </Animated.View>
+        </TouchableOpacity>
+      </Animated.View>
 
       {/* Apply for Loan Button with Gradient */}
       <Animated.View
