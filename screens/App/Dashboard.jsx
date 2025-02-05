@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -15,32 +15,67 @@ import {
   withTiming,
   Easing,
 } from "react-native-reanimated";
-import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
-import { Card } from "react-native-paper";
+import { Button, Card, useTheme } from "react-native-paper";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons"; // Icons library
+import {
+  handlePressIn,
+  handlePressOut,
+} from "../../utils/animations/buttonAnimations";
 
 const screenWidth = Dimensions.get("window").width;
+import { useNavigation } from "@react-navigation/native";
 
 const HomeScreen = () => {
-  const scale = useSharedValue(1);
+  const navigation = useNavigation();
+
   const iconTranslateY = useSharedValue(0);
-  const translateX = useRef(new Animated.Value(-screenWidth)).current;
+
+  const translateXButton1 = new Animated.Value(-screenWidth);
+  const translateXButton2 = new Animated.Value(-screenWidth);
+
+  const scoreWidth = new Animated.Value(0); // Initial width of 0%
+
+  const buttonAnim = useRef(new Animated.Value(1)).current;
+
+  const [submitText, setSubmitText] = useState("Apply for Loans"); // Default button text
+  const theme = useTheme();
 
   useEffect(() => {
-    translateX.setValue(-screenWidth);
+    Animated.timing(scoreWidth, {
+      toValue: 80, // Target width (80% in your case)
+      duration: 1000, // Duration of the animation in milliseconds
+      useNativeDriver: false, // Since we're animating the width property
+    }).start();
+  }, []);
 
-    const animation = Animated.loop(
-      Animated.timing(translateX, {
+  useEffect(() => {
+    // Animation for Button 1 (faster pace)
+    const animationButton1 = Animated.loop(
+      Animated.timing(translateXButton1, {
         toValue: screenWidth * 2,
-        duration: 2500,
+        duration: 3500, // Faster pace (shorter duration)
         useNativeDriver: true,
       })
     );
-    animation.start();
+    animationButton1.start();
 
-    return () => animation.stop();
+    // Animation for Button 2 (slower pace)
+    const animationButton2 = Animated.loop(
+      Animated.timing(translateXButton2, {
+        toValue: screenWidth * 2,
+        duration: 2000, // Slower pace (longer duration)
+        useNativeDriver: true,
+      })
+    );
+    animationButton2.start();
+
+    return () => {
+      animationButton1.stop();
+      animationButton2.stop();
+    };
   }, []);
 
   useEffect(() => {
@@ -51,18 +86,9 @@ const HomeScreen = () => {
     );
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const iconAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: iconTranslateY.value }],
-  }));
-
-  const handlePress = () => {
-    scale.value = withSpring(1.2, { damping: 2 }, () => {
-      scale.value = withSpring(1);
-    });
+  const handleSubmit = async () => {
+    console.log("apply for a logn");
+    navigation.navigate("Requests");
   };
 
   return (
@@ -79,7 +105,6 @@ const HomeScreen = () => {
         👋 Welcome, User!
       </Text>
 
-      {/* Financial Score */}
       <View>
         <Text style={{ color: "#fff", fontSize: 16 }}>Financial Score:</Text>
         <View
@@ -92,8 +117,15 @@ const HomeScreen = () => {
             marginBottom: 10,
           }}
         >
-          <View
-            style={{ width: "80%", height: "100%", backgroundColor: "#FFD700" }}
+          <Animated.View
+            style={{
+              width: scoreWidth.interpolate({
+                inputRange: [0, 100],
+                outputRange: ["0%", "100%"],
+              }),
+              height: "100%",
+              backgroundColor: "#FFD700",
+            }}
           />
         </View>
       </View>
@@ -123,17 +155,31 @@ const HomeScreen = () => {
       </Card>
 
       <View style={styles.card}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 10,
+          }}
+        >
           <Text style={styles.title}>AI Financial Analysis</Text>
-          {/* AI Icon */}
+          <MaterialCommunityIcons
+            name="chart-bar"
+            size={28}
+            color="white"
+            style={styles.aiIcon}
+          />
         </View>
         <Text style={styles.description}>
-          Gain deep insights with AI-driven reports.
+          Make smarter decisions with cutting-edge AI-driven reports.
         </Text>
 
         {/* Full Coverage Gradient Shine Effect */}
         <Animated.View
-          style={[styles.shineWrapper, { transform: [{ translateX }] }]}
+          style={[
+            styles.shineWrapper,
+            { transform: [{ translateX: translateXButton1 }] },
+          ]}
         >
           <LinearGradient
             colors={[
@@ -149,26 +195,44 @@ const HomeScreen = () => {
       </View>
 
       {/* Apply for Loan Button with Gradient */}
-      <TouchableOpacity
-        onPress={handlePress}
-        style={{ marginTop: 20, marginBottom: 30 }}
+      <Animated.View
+        style={[styles.buttonContainer, { transform: [{ scale: buttonAnim }] }]}
       >
+        <Button
+          icon={({ color }) => (
+            <MaterialCommunityIcons
+              name="currency-usd"
+              size={26}
+              color={color}
+            />
+          )}
+          mode="contained"
+          onPressIn={() => handlePressIn(buttonAnim)}
+          onPressOut={() => handlePressOut(buttonAnim)}
+          style={styles.submit}
+          labelStyle={styles.buttonText}
+          onPress={handleSubmit}
+        >
+          {submitText}
+        </Button>
         <Animated.View
           style={[
-            {
-              padding: 12,
-              borderRadius: 10,
-              alignItems: "center",
-              backgroundColor: "#FFD700",
-            },
-            animatedStyle,
+            styles.shineWrapper,
+            { transform: [{ translateX: translateXButton2 }] },
           ]}
         >
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Apply for a Loan
-          </Text>
+          <LinearGradient
+            colors={[
+              "rgba(255,255,255,0.1)",
+              "rgba(255, 255, 255, 1)",
+              "rgba(255,255,255,0.1)",
+            ]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={Object.assign({}, styles.shine, { opacity: 1 })}
+          />
         </Animated.View>
-      </TouchableOpacity>
+      </Animated.View>
 
       {/* Financial Chart */}
       <Text
@@ -176,7 +240,7 @@ const HomeScreen = () => {
           color: "#fff",
           fontSize: 18,
           fontWeight: "bold",
-          marginBottom: 10,
+          marginBottom: 0,
         }}
       >
         Financial Statement
@@ -196,7 +260,7 @@ const HomeScreen = () => {
           color: (opacity = 1) => `rgba(255, 215, 0, ${opacity})`,
           labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
         }}
-        style={{ borderRadius: 10 }}
+        style={{ borderRadius: 10, paddingTop: 15 }}
       />
     </View>
   );
@@ -225,15 +289,42 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     left: 0,
-    width: "100%",
-    height: "200%",
+    right: 0,
+    bottom: 0,
     overflow: "hidden",
   },
+  aiIcon: {
+    marginLeft: 10, // Space between title and icon
+  },
   shine: {
+    borderRadius: 8, // If you want rounded corners for the gradient
+    position: "absolute", // Make sure the gradient itself doesn't overflow
+
     width: "100%",
     height: "100%",
-    opacity: 0.6,
+    opacity: 0.4,
+    borderRadius: 8, // If you want rounded corners for the gradient
+  },
+  buttonContainer: {
+    marginTop: 10,
+
+    flexDirection: "rows",
+    marginBottom: 15,
+    position: "relative",
+    overflow: "hidden", // Ensures the gradient doesn't overflow
+    borderRadius: 8, // Match the border radius with the button to ensure rounded corners
+  },
+  submit: {
+    backgroundColor: "#FFD700",
+    overflow: "hidden",
+
+    padding: 5,
+    borderRadius: 8,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
   },
 });
-
 export default HomeScreen;
