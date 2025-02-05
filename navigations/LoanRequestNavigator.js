@@ -17,7 +17,6 @@ const LoanRequestNavigator = () => {
       <Stack.Navigator
         detachInactiveScreens={false}
         screenOptions={{
-          cardStyle: { backgroundColor: "transparent" }, // Set the background of the card to transparent
           headerShown: false, // Optional: Hide the header if not needed
         }}
       >

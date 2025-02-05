@@ -1,25 +1,9 @@
 import React, { useRef, useEffect, useContext, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  Animated,
-  Alert,
-  Dimensions,
-  Image,
-} from "react-native";
-import {
-  ActivityIndicator,
-  Button,
-  Text,
-  TextInput,
-  useTheme,
-} from "react-native-paper";
+import { StyleSheet, View, Animated, Alert } from "react-native";
+import { Button, Text, TextInput } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Icons library
 import * as ImagePicker from "expo-image-picker";
-import { Buffer } from "buffer"; // Import the Buffer library
-import axios from "axios";
-import Constants from "expo-constants";
 import UserContext from "../../../context/UserContext";
 import { animateField } from "../../../utils/animations/animations";
 
@@ -27,23 +11,6 @@ const OnboardAddBusiness = () => {
   const navigation = useNavigation();
 
   const [businessNickname, setBusinessNickname] = useState("");
-
-  const [imageUri, setImageUri] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // for financial statement pdf upload
-  const [uploadText, setUploadText] = useState("Attach financial Statement"); // Default button text
-  const [uploadIcon, setUploadIcon] = useState("file-upload"); // Default button text
-  const [selectedDocument, setSelectedDocument] = useState(null);
-
-  // for business License photo
-  const [scanText, setScanText] = useState("Scan Business License"); // Default button text
-  const [scanIcon, setScanIcon] = useState("barcode-scan"); // Default button text
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
-
-  const [submitText, setSubmitText] = useState("Submit"); // Default button text
-
-  const theme = useTheme();
 
   // use state for focused field
   const [focusedField, setFocusedField] = useState("");
@@ -53,9 +20,6 @@ const OnboardAddBusiness = () => {
 
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
-
-  const pdfUploadAnim = useRef(new Animated.Value(1)).current;
-  const scanAnim = useRef(new Animated.Value(1)).current;
 
   const businessNicknameAnim = useRef(new Animated.Value(0)).current;
 
@@ -67,7 +31,7 @@ const OnboardAddBusiness = () => {
 
   const checkToken = async () => {
     const token = await getToken("access");
-    console.log("INside check token " + token);
+    console.log("Inside check token " + token);
 
     if (token) {
       setAuthenticated(true);
@@ -88,202 +52,12 @@ const OnboardAddBusiness = () => {
     }
   };
 
-  // for both financial statement pdf upload and
-  const pickFile = async (
-    setSelected,
-    setButtonText,
-    setButtonIcon,
-    message
-  ) => {
-    try {
-      // Request permission to access the media library
-      const permissionResult =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permissionResult.granted) {
-        Alert.alert(
-          "Permission required",
-          "You need to allow access to the library to pick files."
-        );
-        return;
-      }
-
-      // Launch the image picker
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.mediaTypes, // Specify media type
-        allowsEditing: true,
-        quality: 1,
-        base64: true,
-      });
-
-      if (!result.canceled) {
-        // Extract the file name from the URI
-        const selectedAsset = result.assets[0];
-
-        // Update state
-        setSelected(selectedAsset);
-        setButtonText(message);
-        setButtonIcon("file-check-outline");
-      } else {
-        Alert.alert("Unsuccessful selection", "User canceled file selection.");
-      }
-    } catch (error) {
-      console.log("Error picking file:", error);
-      Alert.alert("Error", "Something went wrong while picking the file.");
-    }
-  };
-
-  const downloadFinancialStatement = async () => {
-    console.log("downloaded");
-    // try {
-    //   const token = await checkToken();
-
-    //   const responseComplete = await getFinancialStatementAPI(token); // Make API request to download the file
-    //   let response = responseComplete.financialStatementPDF;
-    //   console.log(response); // Log the response to verify
-
-    //   if (response && response.data) {
-    //     // Assuming response.data is the byte[] or base64 string
-    //     const byteArray = response.data; // This should be your byte array or base64 string
-
-    //     // Convert byte array to base64 string if needed (ensure your API returns base64 or buffer)
-    //     const base64Data = byteArray; // If response is byte[], convert it to base64 string
-
-    //     // Create file path to save the PDF locally (using react-native-fs)
-    //     const filePath =
-    //       RNFS.DocumentDirectoryPath + "/financial_statement.pdf";
-
-    //     // Write the base64 data to the file path
-    //     await RNFS.writeFile(filePath, base64Data, "base64");
-    //     Alert.alert(
-    //       "Download Successful",
-    //       "Financial statement downloaded to your device."
-    //     );
-
-    //     // Optionally, open the file after download (if you want to automatically open the PDF)
-    //     await RNFS.openFile(filePath);
-    //   } else {
-    //     Alert.alert("Error", "No financial statement available.");
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    //   Alert.alert(
-    //     "Failed to Download",
-    //     "An error occurred while downloading the financial statement."
-    //   );
-    // }
-  };
-
-  const performOCR = async (file) => {
-    let myHeaders = new Headers();
-    myHeaders.append("apikey", Constants.expoConfig.extra.apiKey);
-    myHeaders.append("Content-Type", "multipart/form-data");
-
-    let raw = file;
-    let requestOptions = {
-      method: "POST",
-      redirect: "follow",
-      headers: myHeaders,
-      body: raw,
-    };
-
-    console.log("uploading image");
-    // Return the promise from fetch so that the calling function can wait for it.
-    return fetch(
-      "https://api.apilayer.com/image_to_text/upload",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // Set the extracted text in state (or log it)
-        console.log(result);
-        return result.all_text;
-      })
-      .catch((error) => {
-        console.log("error", error);
-        throw error; // rethrow to allow the caller to handle the error if needed
-      });
-  };
-
-  // logic when "Submit" button is pressed
-  const handleSubmit = async () => {
-    setSubmitText("Submitting");
-
-    // ensure all required fields are filled
-    if (!businessNickname) {
-      Alert.alert(
-        "Business Nickname is Missing",
-        "Please enter a business nickname to distinguish it from your other businesses."
-      );
-      setSubmitText("Submit");
-      return;
-    }
-
-    if (!selectedDocument) {
-      Alert.alert(
-        "Financial Statement Missing",
-        "Please upload your financial statement document."
-      );
-      setSubmitText("Submit");
-      return;
-    }
-
-    if (!selectedPhoto) {
-      Alert.alert(
-        "Business License Missing",
-        "Please scan your business license document."
-      );
-
-      setSubmitText("Submit");
-      return;
-    }
-
-    try {
-      const token = await checkToken();
-
-      // using
-      const formData = new FormData();
-      formData.append("businessNickname", businessNickname); // Send the text parameter
-      formData.append("financialStatementPDF", {
-        uri: selectedDocument.uri, // Path or URI to the file
-        type: "image/jpeg", // Adjust the type based on your file
-        name: "financialStatementPDF.jpeg", // File name
-      });
-      formData.append("businessLicenseImage", {
-        uri: selectedPhoto.uri, // Path or URI to the file
-        type: "image/jpeg", // Adjust the type based on your file
-        name: "businessLicenseImage.jpg", // File name
-      });
-
-      // call the text extraction function here and pass the two images to get the two strings
-      // Note the following two fields are nullable
-
-      // Call OCR with the whole file asset, not just its uri
-      const newFinancialStatementText = await performOCR(selectedDocument);
-      const newBusinessLicenseText = await performOCR(selectedPhoto);
-
-      console.log(newFinancialStatementText, newBusinessLicenseText);
-
-      formData.append("financialStatementText", newFinancialStatementText);
-      formData.append("businessLicenseText", newBusinessLicenseText);
-
-      const response = await addCompanyAPI(token, formData);
-
-      console.log(response);
-      setSubmitText("Submit");
-      await checkBusinessEntity(token);
-      Alert.alert("Success", "added your business");
-    } catch (error) {
-      console.log(error);
-      Alert.alert("Failed Login", "Failed to add your business!");
-      setSubmitText("Submit");
-    }
+  const handleNext = async () => {
+    console.log("next hit");
   };
 
   useEffect(() => {
     checkUserState();
-
-    // checkOnboard();
-
     // Start bouncing animation when the component mounts
     Animated.loop(
       Animated.sequence([
@@ -375,9 +149,9 @@ const OnboardAddBusiness = () => {
             onPressOut={() => handlePressOut(buttonAnim)}
             style={styles.submit}
             labelStyle={styles.buttonText}
-            onPress={handleSubmit}
+            onPress={handleNext}
           >
-            {submitText}
+            Next
           </Button>
         </Animated.View>
       </View>
