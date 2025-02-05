@@ -33,6 +33,7 @@ import { setToken, getToken } from "../../storage/TokenStorage";
 import * as ImagePicker from "expo-image-picker";
 import { Buffer } from "buffer"; // Import the Buffer library
 import axios from "axios";
+import Constants from "expo-constants";
 
 const { width, height } = Dimensions.get("window");
 
@@ -123,7 +124,7 @@ const OnboardAddBusiness = () => {
 
   const checkToken = async () => {
     const token = await getToken("access");
-    console.log("INside check token" + token);
+    console.log("INside check token " + token);
 
     if (token) {
       setAuthenticated(true);
@@ -167,8 +168,8 @@ const OnboardAddBusiness = () => {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.mediaTypes, // Specify media type
         allowsEditing: true,
-        aspect: [4, 3],
         quality: 1,
+        base64: true,
       });
 
       if (!result.canceled) {
@@ -229,6 +230,37 @@ const OnboardAddBusiness = () => {
     // }
   };
 
+  const performOCR = async (file) => {
+    let myHeaders = new Headers();
+    myHeaders.append("apikey", Constants.expoConfig.extra.apiKey);
+    myHeaders.append("Content-Type", "multipart/form-data");
+
+    let raw = file;
+    let requestOptions = {
+      method: "POST",
+      redirect: "follow",
+      headers: myHeaders,
+      body: raw,
+    };
+
+    console.log("uploading image");
+    // Return the promise from fetch so that the calling function can wait for it.
+    return fetch(
+      "https://api.apilayer.com/image_to_text/upload",
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        // Set the extracted text in state (or log it)
+        console.log(result);
+        return result.all_text;
+      })
+      .catch((error) => {
+        console.log("error", error);
+        throw error; // rethrow to allow the caller to handle the error if needed
+      });
+  };
+
   // logic when "Submit" button is pressed
   const handleSubmit = async () => {
     setSubmitText("Submitting");
@@ -281,15 +313,15 @@ const OnboardAddBusiness = () => {
 
       // call the text extraction function here and pass the two images to get the two strings
       // Note the following two fields are nullable
-      formData.append(
-        "financialStatementText",
-        "This is a financial statement Text. It is assumed that will be a long string"
-      );
 
-      formData.append(
-        "businessLicenseText",
-        "This is a business license Text. It is assumed that will be a long string"
-      );
+      // Call OCR with the whole file asset, not just its uri
+      const newFinancialStatementText = await performOCR(selectedDocument);
+      const newBusinessLicenseText = await performOCR(selectedPhoto);
+
+      console.log(newFinancialStatementText, newBusinessLicenseText);
+
+      formData.append("financialStatementText", newFinancialStatementText);
+      formData.append("businessLicenseText", newBusinessLicenseText);
 
       const response = await addCompanyAPI(token, formData);
 
@@ -298,6 +330,7 @@ const OnboardAddBusiness = () => {
       await checkBusinessEntity(token);
       Alert.alert("Success", "added your business");
     } catch (error) {
+      console.log(error);
       Alert.alert("Failed Login", "Failed to add your business!");
       setSubmitText("Submit");
     }
