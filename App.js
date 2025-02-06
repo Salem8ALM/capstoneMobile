@@ -6,7 +6,7 @@ import UserContext from "./context/UserContext";
 import AppNavigator from "./navigations/AppNavigator";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from 'react-native';
+import { StatusBar } from "react-native";
 
 //-------- although not currently in use, they will be used for token storage
 import {
@@ -61,14 +61,11 @@ export default function App() {
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: '#292933',
+        backgroundColor: "#292933",
       }}
       edges={[]}
     >
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#292933"
-      />
+      <StatusBar barStyle="dark-content" backgroundColor="#292933" />
       <PaperProvider>
         <NavigationContainer>
           <UserContext.Provider
@@ -83,10 +80,12 @@ export default function App() {
               onboarded ? (
                 <AppNavigator />
               ) : (
-                <View style={{ 
-                  flex: 1,
-                  backgroundColor: '#fff'
-                }}>
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#fff",
+                  }}
+                >
                   <TouchableOpacity
                     onPress={async () => {
                       setAuthenticated(false);
@@ -110,6 +109,7 @@ export default function App() {
 }
 const styles = StyleSheet.create({
   logout: {
+    color: "white",
     fontSize: 20,
   },
   absoluteTopLeft: {

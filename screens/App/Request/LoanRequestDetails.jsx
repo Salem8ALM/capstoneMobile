@@ -78,14 +78,29 @@ const LoanRequestDetails = () => {
           ]}
         >
           <TextInput
-            label="Loan Title"
+            label={
+              <Text
+                style={{
+                  color:
+                    focusedField === "loanTitle"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.3)",
+                }}
+              >
+                Loan Title
+              </Text>
+            }
             value={loanTitle}
             onChangeText={setLoanTitle}
             mode="outlined"
             left={
               <TextInput.Icon
                 icon="pencil-outline"
-                color={focusedField === "loanTitle" ? "#FFD700" : "#aaa"}
+                color={
+                  focusedField === "loanTitle"
+                    ? "#FFD700"
+                    : "rgba(255, 255, 255, 0.3)"
+                }
               />
             }
             style={styles.input}
@@ -118,14 +133,29 @@ const LoanRequestDetails = () => {
           ]}
         >
           <TextInput
-            label="Loan Purpose"
+            label={
+              <Text
+                style={{
+                  color:
+                    focusedField === "loanPurpose"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.3)",
+                }}
+              >
+                Loan Purpose
+              </Text>
+            }
             value={loanPurpose}
             onChangeText={setLoanPurpose}
             mode="outlined"
             left={
               <TextInput.Icon
                 icon="clipboard-text-outline"
-                color={focusedField === "loanPurpose" ? "#FFD700" : "#aaa"}
+                color={
+                  focusedField === "loanPurpose"
+                    ? "#FFD700"
+                    : "rgba(255, 255, 255, 0.3)"
+                }
               />
             }
             style={styles.input}

@@ -18,7 +18,7 @@ const AnimatedListItem = ({ item, onPress, style }) => {
   useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: 1,
-      duration: 200,
+      duration: 300,
       easing: Easing.out(Easing.ease),
       useNativeDriver: true,
     }).start();
@@ -33,7 +33,7 @@ const AnimatedListItem = ({ item, onPress, style }) => {
             {
               translateY: animatedValue.interpolate({
                 inputRange: [0, 1],
-                outputRange: [20, 0],
+                outputRange: [30, 0],
               }),
             },
           ],
@@ -63,54 +63,68 @@ const LoanRequestAmount = () => {
   const [expandedLoanTerm, setExpandedLoanTerm] = useState(false);
   const [expandedRepaymentPlan, setExpandedRepaymentPlan] = useState(false);
 
+  const [loanAmountValue, setLoanAmountValue] = useState("");
+  const [loanTermValue, setLoanTermValue] = useState("");
+  const [repaymentPlanValue, setRepaymentPlanValue] = useState("");
+
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
 
   const loanAmountList = [
     { label: "$1,000", value: "1000" },
+    { label: "$2,500", value: "2500" },
     { label: "$5,000", value: "5000" },
     { label: "$10,000", value: "10000" },
+    { label: "$15,000", value: "15000" },
+    { label: "$20,000", value: "20000" },
+    { label: "$25,000", value: "25000" },
+    { label: "$50,000", value: "50000" },
+    { label: "$75,000", value: "75000" },
+    { label: "$100,000", value: "100000" },
   ];
 
   const loanTermList = [
-    { label: "1 year", value: "1 year" },
-    { label: "3 years", value: "3 years" },
-    { label: "5 years", value: "5 years" },
-    { label: "6 years", value: "6 years" },
-    { label: "7 years", value: "7 years" },
-    { label: "8 years", value: "8 years" },
-    { label: "9 years", value: "9 years" },
-    { label: "10 years", value: "10 years" },
-    { label: "11 years", value: "11 years" },
-    { label: "12 years", value: "12 years" },
-    { label: "13 years", value: "13 years" },
-    { label: "14 years", value: "14 years" },
+    { label: "6 months", value: "SIX_MONTHS" },
+    { label: "1 year", value: "ONE_YEAR" },
+    { label: "2 years", value: "TWO_YEARS" },
+    { label: "5 years", value: "FIVE_YEARS" },
   ];
 
   const repaymentPlanList = [
-    { label: "Monthly", value: "Monthly" },
-    { label: "Quarterly", value: "Quarterly" },
-    { label: "Annually", value: "Annually" },
+    { label: "Equal Installments", value: "EQUAL_INSTALLMENTS" },
+    { label: "Balloon Payment", value: "BALLOON_PAYMENT" },
+    { label: "Step Up", value: "STEP_UP" },
+    { label: "Step Down", value: "STEP_DOWN" },
+    { label: "Lump Sum", value: "LUMP_SUM" },
+    { label: "Grace Period", value: "GRACE_PERIOD" },
+    { label: "Revenue Based", value: "REVENUE_BASED" },
+    { label: "Lease To Own", value: "LEASE_TO_OWN" },
   ];
 
   const handleNext = async () => {
-    if (!loanAmount || !loanTerm || !repaymentPlan) {
+    if (!loanAmountValue || !loanTermValue || !repaymentPlanValue) {
       setNotificationMessage("Please fill in all fields.");
       setNotificationVisible(true);
       setTimeout(() => {
         setNotificationVisible(false);
       }, 3000);
     } else {
-      console.log(loanAmount);
-      console.log(loanTerm);
-      console.log(repaymentPlan);
+      console.log("Loan Amount (User View):", loanAmount);
+      console.log("Loan Amount (Backend Value):", loanAmountValue);
+
+      console.log("Loan Term (User View):", loanTerm);
+      console.log("Loan Term (Backend Value):", loanTermValue);
+
+      console.log("Repayment Plan (User View):", repaymentPlan);
+      console.log("Repayment Plan (Backend Value):", repaymentPlanValue);
 
       console.log("Proceeding to next step");
+
       navigation.navigate(Routes.LoanRequest.LoanRequestReview);
     }
   };
 
-  const handleOptionPress = (setValue, setExpanded, value) => {
+  const handleOptionPress = (setLabel, setValue, setExpanded, option) => {
     Animated.sequence([
       Animated.timing(scaleAnim, {
         toValue: 0.95,
@@ -124,7 +138,8 @@ const LoanRequestAmount = () => {
       }),
     ]).start();
 
-    setValue(value);
+    setLabel(option.label); // Display value for user
+    setValue(option.value); // Backend value
     setExpanded(false);
   };
 
@@ -148,13 +163,31 @@ const LoanRequestAmount = () => {
             style={[
               styles.dropdown,
               expandedLoanAmount && styles.dropdownExpanded,
+              {
+                borderColor: loanAmount !== "" ? "white" : "rgb(163, 163, 163)",
+              },
             ]}
             titleStyle={[
               styles.dropdownTitle,
               loanAmount && styles.selectedTitle,
             ]}
+            left={(props) => (
+              <View style={styles.iconContainer}>
+                <MaterialCommunityIcons
+                  name="cash-multiple" // You can also try "calendar-check" or "calendar-month"
+                  size={24}
+                  color={
+                    loanAmount !== "" ? "white" : "rgba(255, 255, 255, 0.3)"
+                  }
+                />
+                <View style={styles.separator} />
+              </View>
+            )}
           >
-            <View style={styles.optionsContainer}>
+            <ScrollView
+              style={styles.scrollableOptionsContainer}
+              nestedScrollEnabled={true}
+            >
               {loanAmountList.map((option, index) => (
                 <AnimatedListItem
                   key={option.value}
@@ -162,14 +195,15 @@ const LoanRequestAmount = () => {
                   onPress={() =>
                     handleOptionPress(
                       setLoanAmount,
+                      setLoanAmountValue,
                       setExpandedLoanAmount,
-                      option.label
+                      option
                     )
                   }
                   style={{ delay: index * 100 }}
                 />
               ))}
-            </View>
+            </ScrollView>
           </List.Accordion>
         </View>
 
@@ -181,33 +215,42 @@ const LoanRequestAmount = () => {
             style={[
               styles.dropdown,
               expandedLoanTerm && styles.dropdownExpanded,
+              {
+                borderColor: loanTerm !== "" ? "white" : "rgb(163, 163, 163)",
+              },
             ]}
             titleStyle={[
               styles.dropdownTitle,
               loanTerm && styles.selectedTitle,
             ]}
-          >
-            <ScrollView
-              style={styles.scrollableOptionsContainer}
-              nestedScrollEnabled={true}
-            >
-              <View style={styles.optionsContainer}>
-                {loanTermList.map((option, index) => (
-                  <AnimatedListItem
-                    key={option.value}
-                    item={option}
-                    onPress={() =>
-                      handleOptionPress(
-                        setLoanTerm,
-                        setExpandedLoanTerm,
-                        option.label
-                      )
-                    }
-                    style={{ delay: index * 100 }}
-                  />
-                ))}
+            left={(props) => (
+              <View style={styles.iconContainer}>
+                <MaterialCommunityIcons
+                  name="calendar-clock" // You can also try "calendar-check" or "calendar-month"
+                  size={24}
+                  color={loanTerm !== "" ? "white" : "rgba(255, 255, 255, 0.3)"}
+                />
+                <View style={styles.separator} />
               </View>
-            </ScrollView>
+            )}
+          >
+            <View style={styles.optionsContainer}>
+              {loanTermList.map((option, index) => (
+                <AnimatedListItem
+                  key={option.value}
+                  item={option}
+                  onPress={() =>
+                    handleOptionPress(
+                      setLoanTerm,
+                      setLoanTermValue,
+                      setExpandedLoanTerm,
+                      option
+                    )
+                  }
+                  style={{ delay: index * 100 }}
+                />
+              ))}
+            </View>
           </List.Accordion>
         </View>
 
@@ -219,13 +262,32 @@ const LoanRequestAmount = () => {
             style={[
               styles.dropdown,
               expandedRepaymentPlan && styles.dropdownExpanded,
+              {
+                borderColor:
+                  repaymentPlan !== "" ? "white" : "rgb(163, 163, 163)",
+              },
             ]}
             titleStyle={[
               styles.dropdownTitle,
               repaymentPlan && styles.selectedTitle,
             ]}
+            left={(props) => (
+              <View style={styles.iconContainer}>
+                <MaterialCommunityIcons
+                  name="timeline-clock" // You can also try "calendar-check" or "calendar-month"
+                  size={24}
+                  color={
+                    repaymentPlan !== "" ? "white" : "rgba(255, 255, 255, 0.3)"
+                  }
+                />
+                <View style={styles.separator} />
+              </View>
+            )}
           >
-            <View style={styles.optionsContainer}>
+            <ScrollView
+              style={styles.scrollableOptionsContainer}
+              nestedScrollEnabled={true}
+            >
               {repaymentPlanList.map((option, index) => (
                 <AnimatedListItem
                   key={option.value}
@@ -233,14 +295,15 @@ const LoanRequestAmount = () => {
                   onPress={() =>
                     handleOptionPress(
                       setRepaymentPlan,
+                      setRepaymentPlanValue,
                       setExpandedRepaymentPlan,
-                      option.label
+                      option
                     )
                   }
                   style={{ delay: index * 100 }}
                 />
               ))}
-            </View>
+            </ScrollView>
           </List.Accordion>
         </View>
 
@@ -294,16 +357,28 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 20,
-    borderRadius: 12,
+    borderRadius: 5,
     overflow: "hidden",
   },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 10,
+  },
+
+  separator: {
+    height: "100%",
+    width: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.2)", // Subtle separator line
+    marginLeft: 10, // Adds space between the icon and text
+  },
+
   dropdown: {
     backgroundColor: "#2a2a2a",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 12,
+    borderColor: "rgb(163, 163, 163)",
+    borderRadius: 5,
     overflow: "hidden",
-    marginBottom: 0,
   },
   dropdownExpanded: {
     borderBottomLeftRadius: 0,
@@ -311,11 +386,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   dropdownTitle: {
-    color: "#999",
+    color: "rgba(255, 255, 255, 0.3)",
     fontSize: 16,
   },
   selectedTitle: {
-    color: "#FFD700",
+    color: "white",
     fontWeight: "bold",
   },
   optionsContainer: {
@@ -328,7 +403,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   scrollableOptionsContainer: {
-    maxHeight: 200,
+    maxHeight: 150,
     backgroundColor: "#2a2a2a",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
@@ -342,7 +417,7 @@ const styles = StyleSheet.create({
   },
   listItem: {
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.05)",
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
   },
   submit: {
     backgroundColor: "#FFD700",
