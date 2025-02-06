@@ -27,6 +27,7 @@ import {
 
 const screenWidth = Dimensions.get("window").width;
 import { useNavigation } from "@react-navigation/native";
+import Routes from "../../utils/constants/routes";
 
 const HomeScreen = () => {
   const navigation = useNavigation();

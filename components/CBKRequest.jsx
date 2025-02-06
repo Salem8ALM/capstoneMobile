@@ -17,7 +17,6 @@ const CBKRequest = ({ isSelected, onPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
     alignItems: "center",
     justifyContent: "center",
     width: "100%",

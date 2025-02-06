@@ -8,6 +8,7 @@ import {
   Dimensions,
   Modal,
   Switch,
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import BoubyanRequest from "../components/BoubyanRequest";
@@ -16,6 +17,7 @@ import CBKRequest from "../components/CBKRequest";
 import GBKRequest from "../components/GBKRequest";
 import ABKRequest from "../components/ABKRequest";
 import KIBRequest from "../components/KIBRequest";
+import { Button } from "react-native-paper";
 
 const bankData = [
   { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
@@ -63,6 +65,12 @@ export function BankList({ loanDetails }) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Text style={styles.mainTitle}>Select your Bank</Text>
+      </View>
+      <View style={styles.description}>
+        <Text>Please select the bank you would like to apply with.</Text>
+      </View>
       <View style={styles.banksSection}>
         <View style={styles.header}>
           <Text style={styles.title}>Available Banks:</Text>
@@ -71,6 +79,7 @@ export function BankList({ loanDetails }) {
               style={styles.selectAllButton}
               onPress={handleSelectAll}
             >
+              <Ionicons name="checkmark-outline" size={20} color="white" />
               <Text style={styles.selectAllText}>Select all</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -82,25 +91,20 @@ export function BankList({ loanDetails }) {
           </View>
         </View>
 
-        <TouchableOpacity
-          style={[
-            styles.applyButton,
-            isAnyCardSelected
-              ? styles.applyButtonActive
-              : styles.applyButtonInactive,
-          ]}
-        >
-          <Text
-            style={[
-              styles.applyButtonText,
-              isAnyCardSelected
-                ? styles.applyButtonTextActive
-                : styles.applyButtonTextInactive,
-            ]}
+        <Animated.View style={styles.buttonContainer}>
+          <Button
+            mode="outlined"
+            onPressIn={() => handlePressIn(scaleAnim)}
+            onPressOut={() => handlePressOut(scaleAnim)}
+            style={styles.primaryButton}
+            labelStyle={styles.primaryButtonText}
+            onPress={() =>
+              navigation.push(Routes.LoanRequest.LoanRequestDetails)
+            }
           >
-            Apply
-          </Text>
-        </TouchableOpacity>
+            Get Started
+          </Button>
+        </Animated.View>
 
         <View style={styles.scrollContainer}>
           <ScrollView
@@ -161,7 +165,27 @@ const { width, height } = Dimensions.get("window");
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#292933",
+    backgroundColor: "#1a1a1a",
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  mainTitle: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#ffffff",
+    marginLeft: 10,
+  },
+  description: {
+    fontSize: 16,
+    color: "#ffffff",
+    textAlign: "center",
+    marginHorizontal: 20,
+    marginBottom: 20,
   },
   banksSection: {
     flex: 1,
@@ -171,6 +195,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 15,
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 24,
@@ -187,23 +212,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
+    flexDirection: "row",
+    alignItems: "center",
   },
   selectAllText: {
     color: "#FFD700",
     fontSize: 14,
+    marginLeft: 5,
   },
   filterButton: {
     padding: 5,
   },
   scrollContainer: {
     flex: 1,
-    backgroundColor: "#292933",
+    backgroundColor: "#1a1a1a",
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     padding: 20,
+    paddingBottom: 100, // Increase bottom padding to ensure full visibility
   },
   applyButton: {
     marginHorizontal: 20,
@@ -211,6 +240,8 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 25,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
   },
   applyButtonActive: {
     backgroundColor: "#FFD700",
@@ -223,6 +254,7 @@ const styles = StyleSheet.create({
   applyButtonText: {
     fontSize: 18,
     fontWeight: "600",
+    marginLeft: 10,
   },
   applyButtonTextActive: {
     color: "#292933",
@@ -233,6 +265,7 @@ const styles = StyleSheet.create({
   cardWrapper: {
     marginBottom: 15,
     width: "100%",
+    height: "200",
   },
   modalContainer: {
     flex: 1,

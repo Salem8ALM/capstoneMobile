@@ -19,7 +19,7 @@ const Routes = {
     LoanRequestIntro: "Loan Request Intro",
     LoanRequestDetails: "Loan Request Details",
     LoanRequestAmount: "Loan Request Amount",
-    LoanRequestBankSelection: "Loan RequestBank Selection",
+    LoanRequestBankSelection: "LoanRequestBankSelection",
     LoanRequestReview: "Loan Request Review",
     LoanRequestSubmission: "Loan Request Submission",
   },

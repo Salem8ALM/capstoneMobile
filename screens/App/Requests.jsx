@@ -5,10 +5,15 @@ import { BankList } from "../../components/BankList";
 import LoanRequestNavigator from "../../navigations/LoanRequestNavigator.js";
 import { Text } from "react-native-paper";
 import FinanceSymbol from "../../utils/animations/FinanceSymbol.js";
+import { useNavigation } from "@react-navigation/native";
+import Routes from "../../utils/constants/routes.js";
+import LoanRequestBankSelection from "./Request/LoanRequestBankSelection.jsx";
 
 export function Requests() {
   const [showBankList, setShowBankList] = useState(false);
   const [loanDetails, setLoanDetails] = useState(null);
+
+  const navigation = useNavigation();
 
   const handleLoanDetailsSubmit = (details) => {
     setLoanDetails(details);
@@ -57,7 +62,8 @@ export function Requests() {
           <BankList loanDetails={loanDetails} />
         )} */}
 
-        <LoanRequestNavigator />
+        {/* <LoanRequestNavigator /> */}
+        <LoanRequestBankSelection />
         {symbols.map((symbol, index) => (
           <FinanceSymbol style={styles.symbols} key={index} {...symbol} />
         ))}

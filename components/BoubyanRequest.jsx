@@ -17,7 +17,6 @@ const BoubyanRequest = ({ isSelected, onPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
@@ -28,7 +27,6 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
     alignSelf: "center",
     alignItems: "center",
-    padding: 20,
     backgroundColor: "rgba(41, 41, 51, 0.7)", // Match app's dark theme
   },
   cardSelected: {

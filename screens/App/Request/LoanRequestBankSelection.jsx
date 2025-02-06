@@ -3,6 +3,7 @@ import { View, StyleSheet, SafeAreaView, Dimensions } from "react-native";
 import { Text } from "react-native-paper";
 import BankList from "../../../components/BankList";
 import LoanDetailsCard from "../../../components/LoanDetailsCard";
+import { useNavigation } from "@react-navigation/native";
 
 export default function LoanRequestBankSelection() {
   const [showBankList, setShowBankList] = useState(false);
