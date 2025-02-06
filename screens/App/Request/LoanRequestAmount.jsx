@@ -1,5 +1,7 @@
-import React, { useRef, useEffect, useState } from "react";
-import { View, Animated, StyleSheet, Easing } from "react-native";
+"use client";
+
+import { useRef, useEffect, useState } from "react";
+import { View, Animated, StyleSheet, Easing, ScrollView } from "react-native";
 import { Button, Text, List } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NotificationBanner from "../../../components/NotificationBanner";
@@ -20,7 +22,7 @@ const AnimatedListItem = ({ item, onPress, style }) => {
       easing: Easing.out(Easing.ease),
       useNativeDriver: true,
     }).start();
-  }, [animatedValue]); // Added animatedValue to dependencies
+  }, [animatedValue]);
 
   return (
     <Animated.View
@@ -74,6 +76,15 @@ const LoanRequestAmount = () => {
     { label: "1 year", value: "1 year" },
     { label: "3 years", value: "3 years" },
     { label: "5 years", value: "5 years" },
+    { label: "6 years", value: "6 years" },
+    { label: "7 years", value: "7 years" },
+    { label: "8 years", value: "8 years" },
+    { label: "9 years", value: "9 years" },
+    { label: "10 years", value: "10 years" },
+    { label: "11 years", value: "11 years" },
+    { label: "12 years", value: "12 years" },
+    { label: "13 years", value: "13 years" },
+    { label: "14 years", value: "14 years" },
   ];
 
   const repaymentPlanList = [
@@ -90,6 +101,10 @@ const LoanRequestAmount = () => {
         setNotificationVisible(false);
       }, 3000);
     } else {
+      console.log(loanAmount);
+      console.log(loanTerm);
+      console.log(repaymentPlan);
+
       console.log("Proceeding to next step");
       navigation.navigate(Routes.LoanRequest.LoanRequestReview);
     }
@@ -172,22 +187,27 @@ const LoanRequestAmount = () => {
               loanTerm && styles.selectedTitle,
             ]}
           >
-            <View style={styles.optionsContainer}>
-              {loanTermList.map((option, index) => (
-                <AnimatedListItem
-                  key={option.value}
-                  item={option}
-                  onPress={() =>
-                    handleOptionPress(
-                      setLoanTerm,
-                      setExpandedLoanTerm,
-                      option.label
-                    )
-                  }
-                  style={{ delay: index * 100 }}
-                />
-              ))}
-            </View>
+            <ScrollView
+              style={styles.scrollableOptionsContainer}
+              nestedScrollEnabled={true}
+            >
+              <View style={styles.optionsContainer}>
+                {loanTermList.map((option, index) => (
+                  <AnimatedListItem
+                    key={option.value}
+                    item={option}
+                    onPress={() =>
+                      handleOptionPress(
+                        setLoanTerm,
+                        setExpandedLoanTerm,
+                        option.label
+                      )
+                    }
+                    style={{ delay: index * 100 }}
+                  />
+                ))}
+              </View>
+            </ScrollView>
           </List.Accordion>
         </View>
 
@@ -306,6 +326,15 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
     overflow: "hidden",
+  },
+  scrollableOptionsContainer: {
+    maxHeight: 200,
+    backgroundColor: "#2a2a2a",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderTopWidth: 0,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
   },
   optionText: {
     color: "#FFFFFF",
