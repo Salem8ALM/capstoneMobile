@@ -1,12 +1,21 @@
-import { useState } from "react"
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Modal, Switch } from "react-native"
-import { Ionicons } from "@expo/vector-icons"
-import BoubyanRequest from "../components/BoubyanRequest"
-import NBKRequest from "../components/NBKRequest"
-import CBKRequest from "../components/CBKRequest"
-import GBKRequest from "../components/GBKRequest"
-import ABKRequest from "../components/ABKRequest"
-import KIBRequest from "../components/KIBRequest"
+import { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+  Modal,
+  Switch,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import BoubyanRequest from "../components/BoubyanRequest";
+import NBKRequest from "../components/NBKRequest";
+import CBKRequest from "../components/CBKRequest";
+import GBKRequest from "../components/GBKRequest";
+import ABKRequest from "../components/ABKRequest";
+import KIBRequest from "../components/KIBRequest";
 
 const bankData = [
   { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
@@ -15,36 +24,42 @@ const bankData = [
   { name: "GBK", component: GBKRequest, isIslamic: false },
   { name: "ABK", component: ABKRequest, isIslamic: false },
   { name: "KIB", component: KIBRequest, isIslamic: true },
-]
+];
 
 export function BankList({ loanDetails }) {
-  const [selectedCards, setSelectedCards] = useState(Object.fromEntries(bankData.map((bank) => [bank.name, false])))
-  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false)
-  const [isIslamicFilterOn, setIsIslamicFilterOn] = useState(false)
+  const [selectedCards, setSelectedCards] = useState(
+    Object.fromEntries(bankData.map((bank) => [bank.name, false]))
+  );
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+  const [isIslamicFilterOn, setIsIslamicFilterOn] = useState(false);
 
   const handleSelectAll = () => {
-    const newValue = !Object.values(selectedCards).every((v) => v)
-    setSelectedCards(Object.fromEntries(bankData.map((bank) => [bank.name, newValue])))
-  }
+    const newValue = !Object.values(selectedCards).every((v) => v);
+    setSelectedCards(
+      Object.fromEntries(bankData.map((bank) => [bank.name, newValue]))
+    );
+  };
 
   const handleCardSelect = (bankName) => {
     setSelectedCards((prev) => ({
       ...prev,
       [bankName]: !prev[bankName],
-    }))
-  }
+    }));
+  };
 
   const toggleFilterModal = () => {
-    setIsFilterModalVisible(!isFilterModalVisible)
-  }
+    setIsFilterModalVisible(!isFilterModalVisible);
+  };
 
   const toggleIslamicFilter = () => {
-    setIsIslamicFilterOn(!isIslamicFilterOn)
-  }
+    setIsIslamicFilterOn(!isIslamicFilterOn);
+  };
 
-  const filteredBanks = isIslamicFilterOn ? bankData.filter((bank) => bank.isIslamic) : bankData
+  const filteredBanks = isIslamicFilterOn
+    ? bankData.filter((bank) => bank.isIslamic)
+    : bankData;
 
-  const isAnyCardSelected = Object.values(selectedCards).some((value) => value)
+  const isAnyCardSelected = Object.values(selectedCards).some((value) => value);
 
   return (
     <View style={styles.container}>
@@ -52,22 +67,35 @@ export function BankList({ loanDetails }) {
         <View style={styles.header}>
           <Text style={styles.title}>Available Banks:</Text>
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.selectAllButton} onPress={handleSelectAll}>
+            <TouchableOpacity
+              style={styles.selectAllButton}
+              onPress={handleSelectAll}
+            >
               <Text style={styles.selectAllText}>Select all</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.filterButton} onPress={toggleFilterModal}>
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={toggleFilterModal}
+            >
               <Ionicons name="options-outline" size={24} color="white" />
             </TouchableOpacity>
           </View>
         </View>
 
         <TouchableOpacity
-          style={[styles.applyButton, isAnyCardSelected ? styles.applyButtonActive : styles.applyButtonInactive]}
+          style={[
+            styles.applyButton,
+            isAnyCardSelected
+              ? styles.applyButtonActive
+              : styles.applyButtonInactive,
+          ]}
         >
           <Text
             style={[
               styles.applyButtonText,
-              isAnyCardSelected ? styles.applyButtonTextActive : styles.applyButtonTextInactive,
+              isAnyCardSelected
+                ? styles.applyButtonTextActive
+                : styles.applyButtonTextInactive,
             ]}
           >
             Apply
@@ -82,18 +110,26 @@ export function BankList({ loanDetails }) {
             showsVerticalScrollIndicator={false}
           >
             {filteredBanks.map((bank) => {
-              const BankComponent = bank.component
+              const BankComponent = bank.component;
               return (
                 <View key={bank.name} style={styles.cardWrapper}>
-                  <BankComponent isSelected={selectedCards[bank.name]} onPress={() => handleCardSelect(bank.name)} />
+                  <BankComponent
+                    isSelected={selectedCards[bank.name]}
+                    onPress={() => handleCardSelect(bank.name)}
+                  />
                 </View>
-              )
+              );
             })}
           </ScrollView>
         </View>
       </View>
 
-      <Modal animationType="slide" transparent={true} visible={isFilterModalVisible} onRequestClose={toggleFilterModal}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isFilterModalVisible}
+        onRequestClose={toggleFilterModal}
+      >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Filter Options</Text>
@@ -107,17 +143,20 @@ export function BankList({ loanDetails }) {
                 value={isIslamicFilterOn}
               />
             </View>
-            <TouchableOpacity style={styles.closeButton} onPress={toggleFilterModal}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={toggleFilterModal}
+            >
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
     </View>
-  )
+  );
 }
 
-const { width, height } = Dimensions.get("window")
+const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
@@ -126,7 +165,6 @@ const styles = StyleSheet.create({
   },
   banksSection: {
     flex: 1,
-    paddingHorizontal: 20,
   },
   header: {
     flexDirection: "row",
@@ -244,7 +282,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
-})
+});
 
-export default BankList
-
+export default BankList;

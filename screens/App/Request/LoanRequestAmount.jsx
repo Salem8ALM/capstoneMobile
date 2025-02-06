@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { View, Animated, StyleSheet, Easing, ScrollView } from "react-native";
 import { Button, Text, List } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import NotificationBanner from "../../../components/NotificationBanner";
+import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import { useNavigation } from "@react-navigation/native";
 import Routes from "../../../utils/constants/routes";
 import {
@@ -54,6 +54,7 @@ const AnimatedListItem = ({ item, onPress, style }) => {
 const LoanRequestAmount = () => {
   const navigation = useNavigation();
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const nextAnim = useRef(new Animated.Value(1)).current;
 
   const [loanAmount, setLoanAmount] = useState("");
   const [loanTerm, setLoanTerm] = useState("");
@@ -120,7 +121,7 @@ const LoanRequestAmount = () => {
 
       console.log("Proceeding to next step");
 
-      navigation.navigate(Routes.LoanRequest.LoanRequestReview);
+      navigation.navigate(Routes.LoanRequest.LoanRequestBankSelection);
     }
   };
 
@@ -307,7 +308,7 @@ const LoanRequestAmount = () => {
           </List.Accordion>
         </View>
 
-        <Animated.View style={[{ transform: [{ scale: scaleAnim }] }]}>
+        <Animated.View style={[{ transform: [{ scale: nextAnim }] }]}>
           <Button
             icon={({ color }) => (
               <MaterialCommunityIcons
@@ -318,8 +319,8 @@ const LoanRequestAmount = () => {
             )}
             mode="contained"
             onPress={handleNext}
-            onPressIn={() => handlePressIn(scaleAnim)}
-            onPressOut={() => handlePressOut(scaleAnim)}
+            onPressIn={() => handlePressIn(nextAnim)}
+            onPressOut={() => handlePressOut(nextAnim)}
             style={styles.submit}
             labelStyle={styles.buttonText}
           >

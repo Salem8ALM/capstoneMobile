@@ -95,6 +95,8 @@ const HomeScreen = () => {
     navigation.navigate("Requests");
   };
 
+  //    backgroundColor: "#292933",
+
   return (
     <View style={{ flex: 1, backgroundColor: "#1C1C1E", padding: 20 }}>
       {/* Welcome Message */}
@@ -108,6 +110,30 @@ const HomeScreen = () => {
       >
         👋 Welcome, User!
       </Text>
+
+      {/* Business Card */}
+      <View
+        style={{
+          backgroundColor: "#1C1C1E",
+          padding: 15,
+          borderRadius: 10,
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Image
+            source={{ uri: "https://via.placeholder.com/50" }}
+            style={{ width: 50, height: 50, borderRadius: 25, marginRight: 15 }}
+          />
+          <View>
+            <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
+              Your Business
+            </Text>
+            <Text style={{ color: "#aaa" }}>
+              Business License ID: #12345678
+            </Text>
+          </View>
+        </View>
+      </View>
 
       <View>
         <Text style={{ color: "#fff", fontSize: 16 }}>Financial Score:</Text>
@@ -133,30 +159,6 @@ const HomeScreen = () => {
           />
         </View>
       </View>
-
-      {/* Business Card */}
-      <Card
-        style={{
-          backgroundColor: "#2A2A2E",
-          padding: 15,
-          borderRadius: 10,
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Image
-            source={{ uri: "https://via.placeholder.com/50" }}
-            style={{ width: 50, height: 50, borderRadius: 25, marginRight: 15 }}
-          />
-          <View>
-            <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
-              Your Business
-            </Text>
-            <Text style={{ color: "#aaa" }}>
-              Business License ID: #12345678
-            </Text>
-          </View>
-        </View>
-      </Card>
 
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
         <TouchableOpacity

@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useState } from "react";
 import { View, Animated, StyleSheet, Alert } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import NotificationBanner from "../../../components/NotificationBanner";
 import { animateField } from "../../../utils/animations/animations";
 import { useNavigation } from "@react-navigation/native";
 import Routes from "../../../utils/constants/routes";
@@ -10,6 +9,7 @@ import {
   handlePressIn,
   handlePressOut,
 } from "../../../utils/animations/buttonAnimations";
+import NotificationBanner from "../../../utils/animations/NotificationBanner";
 
 const LoanRequestDetails = () => {
   const navigation = useNavigation();
