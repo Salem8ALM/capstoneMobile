@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -12,10 +12,25 @@ import {
   handlePressIn,
   handlePressOut,
 } from "../../../utils/animations/buttonAnimations";
+import { useNavigation } from "@react-navigation/native";
+import Routes from "../../../utils/constants/routes";
+import ProcessModal from "../../../components/ProcessModal";
 
 export default function LoanRequestReview() {
+  const navigation = useNavigation();
+
   const reviewAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+  };
 
   useEffect(() => {
     Animated.timing(reviewAnim, {
@@ -26,7 +41,8 @@ export default function LoanRequestReview() {
   }, []);
 
   const handleReview = () => {
-    console.log("review button pressed");
+    console.log("send button pressed");
+    navigation.navigate(Routes.LoanRequest.LoanRequestSubmission);
   };
 
   useEffect(() => {
@@ -107,7 +123,7 @@ export default function LoanRequestReview() {
                 <MaterialCommunityIcons name="send" size={24} color={color} />
               )}
               mode="contained"
-              onPress={handleReview}
+              onPress={handleOpenModal}
               onPressIn={() => handlePressIn(reviewAnim)}
               onPressOut={() => handlePressOut(reviewAnim)}
               style={styles.submit}
@@ -118,6 +134,12 @@ export default function LoanRequestReview() {
           </View>
         </Animated.View>
       </View>
+      {/* ProcessModal Component */}
+      <ProcessModal
+        visible={isModalVisible}
+        onClose={handleCloseModal}
+        navigation={navigation}
+      />
     </View>
   );
 }

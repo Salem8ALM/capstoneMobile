@@ -11,6 +11,7 @@ import {
   handlePressIn,
   handlePressOut,
 } from "../../../utils/animations/buttonAnimations";
+import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
 
 const AnimatedListItem = ({ item, onPress, style }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -70,6 +71,31 @@ const LoanRequestAmount = () => {
 
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
+
+  const symbols = [
+    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.1)" },
+    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.07)" },
+    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.1)" },
+    { icon: "calculator", size: 60, color: "rgba(255, 204, 0, 0.02)" },
+    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.1)" },
+    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.05)" },
+    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.07)" },
+    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.1)" },
+    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.02)" },
+    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.07)" },
+    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    { icon: "chart-line", size: 60, color: "rgba(255, 223, 0, 0.05)" },
+    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.07)" },
+    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.1)" },
+    { icon: "calculator", size: 60, color: "rgba(255, 204, 0, 0.02)" },
+    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.07)" },
+    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+  ];
 
   const loanAmountList = [
     { label: "$1,000", value: "1000" },
@@ -328,6 +354,9 @@ const LoanRequestAmount = () => {
           </Button>
         </Animated.View>
       </View>
+      {symbols.map((symbol, index) => (
+        <FinanceSymbol style={styles.symbols} key={index} {...symbol} />
+      ))}
     </View>
   );
 };

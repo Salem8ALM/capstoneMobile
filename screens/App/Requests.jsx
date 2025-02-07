@@ -54,18 +54,7 @@ export function Requests() {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.content}>
-        {/* {!showBankList ? (
-          <View style={styles.cardContainer}>
-            <LoanDetailsCard onSubmit={handleLoanDetailsSubmit} />
-          </View>
-        ) : (
-          <BankList loanDetails={loanDetails} />
-        )} */}
-
         <LoanRequestNavigator />
-        {/* {symbols.map((symbol, index) => (
-          <FinanceSymbol style={styles.symbols} key={index} {...symbol} />
-        ))} */}
       </SafeAreaView>
     </View>
   );

@@ -7,7 +7,6 @@ import LoanRequestDetails from "../screens/App/Request/LoanRequestDetails";
 import LoanRequestAmount from "../screens/App/Request/LoanRequestAmount";
 import LoanRequestBankSelection from "../screens/App/Request/LoanRequestBankSelection";
 import LoanRequestReivew from "../screens/App/Request/LoanRequestReivew";
-import LoanRequestSubmission from "../screens/App/Request/LoanRequestSubmission";
 
 const Stack = createNativeStackNavigator();
 
@@ -55,14 +54,6 @@ const LoanRequestNavigator = () => {
         <Stack.Screen
           name={Routes.LoanRequest.LoanRequestReview}
           component={LoanRequestReivew}
-          options={{
-            animation: "fade", // Apply the slide transition to all screens
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name={Routes.LoanRequest.LoanRequestSubmission}
-          component={LoanRequestSubmission}
           options={{
             animation: "fade", // Apply the slide transition to all screens
             headerShown: false,

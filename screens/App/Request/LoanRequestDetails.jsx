@@ -10,6 +10,7 @@ import {
   handlePressOut,
 } from "../../../utils/animations/buttonAnimations";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
+import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
 
 const LoanRequestDetails = () => {
   const navigation = useNavigation();
@@ -24,6 +25,28 @@ const LoanRequestDetails = () => {
 
   const loanTitleAnim = useRef(new Animated.Value(0)).current;
   const loanPurposeAnim = useRef(new Animated.Value(0)).current;
+
+  const symbols = [
+    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "minus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "minus", size: 20, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.2)" },
+  ];
 
   const handleNext = async () => {
     if (!loanTitle || !loanPurpose) {
@@ -192,6 +215,9 @@ const LoanRequestDetails = () => {
           </Button>
         </Animated.View>
       </View>
+      {symbols.map((symbol, index) => (
+        <FinanceSymbol style={styles.symbols} key={index} {...symbol} />
+      ))}
     </View>
   );
 };
