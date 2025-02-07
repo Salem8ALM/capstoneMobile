@@ -16,9 +16,13 @@ import {
   handlePressOut,
 } from "../../../utils/animations/buttonAnimations";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import NotificationBanner from "../../../utils/animations/NotificationBanner";
 
 export default function LoanRequestBankSelection() {
   const [banksSelected, setBanksSelected] = useState(null);
+
+  const [notificationVisible, setNotificationVisible] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
 
   const handleReview = () => {
     console.log("review button pressed");
@@ -38,13 +42,15 @@ export default function LoanRequestBankSelection() {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.content}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.mainTitle}>Select your Bank</Text>
-        </View>
-        <View style={styles.description}>
-          <Text>Please select the bank you would like to apply with.</Text>
-        </View>
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
+      <View style={styles.content}>
+        <Text style={styles.title}>Step 4/5: Select Banks</Text>
+        <Text style={styles.subtitle}>
+          Select all the banks you wish to request this to.
+        </Text>
         <BankList setBanksSelected={setBanksSelected} />
 
         <Animated.View style={[{ transform: [{ scale: reviewAnim }] }]}>
@@ -66,7 +72,7 @@ export default function LoanRequestBankSelection() {
             Next
           </Button>
         </Animated.View>
-      </SafeAreaView>
+      </View>
     </View>
   );
 }
@@ -77,10 +83,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1a1a1a",
+    justifyContent: "center",
+    marginBottom: 50,
   },
   content: {
     flex: 1,
     width: "100%",
+    justifyContent: "center",
   },
   cardContainer: {
     flex: 1,
@@ -89,7 +98,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: height * 0.05, // 5% of screen height padding
   },
-
+  subtitle: {
+    fontSize: 16,
+    color: "#ccc",
+    textAlign: "center",
+    marginBottom: 10,
+  },
   symbols: {
     flex: 1,
     justifyContent: "center",
@@ -98,9 +112,11 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#ffffff",
+    color: "#fff",
+    textAlign: "center",
+    marginBottom: 10,
   },
   titleContainer: {
     flexDirection: "row",
@@ -128,7 +144,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 8,
     margin: 10,
-    marginTop: 25,
+    marginTop: 20,
   },
   buttonText: {
     fontSize: 16,
