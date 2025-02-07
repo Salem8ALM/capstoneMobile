@@ -8,9 +8,14 @@ import {
 } from "react-native";
 import { Text, Button, Card, Divider } from "react-native-paper";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import {
+  handlePressIn,
+  handlePressOut,
+} from "../../../utils/animations/buttonAnimations";
 
 export default function LoanRequestReview() {
   const reviewAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.timing(reviewAnim, {
@@ -20,14 +25,28 @@ export default function LoanRequestReview() {
     }).start();
   }, []);
 
+  const handleReview = () => {
+    console.log("review button pressed");
+  };
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [scaleAnim]);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Animated.View style={[styles.header, { opacity: reviewAnim }]}>
         <Ionicons name="document-text-outline" size={40} color="#FFD700" />
         <Text style={styles.title}>Review Loan Request</Text>
       </Animated.View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <View contentContainerStyle={styles.content}>
         <Card style={styles.card}>
           <Card.Content>
             {[
@@ -81,11 +100,25 @@ export default function LoanRequestReview() {
           </Card.Content>
         </Card>
 
-        <Button mode="contained" style={styles.submitButton}>
-          Submit Request
-        </Button>
-      </ScrollView>
-    </SafeAreaView>
+        <Animated.View style={[{ transform: [{ scale: reviewAnim }] }]}>
+          <View style={{ width: "100%" }}>
+            <Button
+              icon={({ color }) => (
+                <MaterialCommunityIcons name="send" size={24} color={color} />
+              )}
+              mode="contained"
+              onPress={handleReview}
+              onPressIn={() => handlePressIn(reviewAnim)}
+              onPressOut={() => handlePressOut(reviewAnim)}
+              style={styles.submit}
+              labelStyle={styles.buttonText}
+            >
+              Send
+            </Button>
+          </View>
+        </Animated.View>
+      </View>
+    </View>
   );
 }
 
@@ -98,6 +131,8 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   header: {
+    paddingTop: 30,
+
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -141,9 +176,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: "#444",
   },
-  submitButton: {
-    marginTop: 20,
+
+  submit: {
     backgroundColor: "#FFD700",
-    width: "100%",
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
   },
 });
