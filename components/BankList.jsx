@@ -35,12 +35,58 @@ export function BankList({ setBanksSelected }) {
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
   const [isIslamicFilterOn, setIsIslamicFilterOn] = useState(false);
 
+  const [selectAllAnim] = useState(new Animated.Value(0));
+
+  const selectAllTextColor = selectAllAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["white", "black"], // White when unselected, black when selected
+  });
+
   const handleSelectAll = () => {
-    const newValue = !Object.values(selectedCards).every((v) => v);
-    setSelectedCards(
-      Object.fromEntries(bankData.map((bank) => [bank.name, newValue]))
-    );
+    // Determine if all currently selectable banks are selected
+    const allRelevantSelected = bankData
+      .filter((bank) => (isIslamicFilterOn ? bank.isIslamic : true)) // Consider only Islamic banks if filter is on
+      .every((bank) => selectedCards[bank.name]); // Check if all relevant banks are already selected
+
+    const newValue = !allRelevantSelected; // Toggle selection state
+
+    setSelectedCards((prev) => {
+      const updatedState = Object.fromEntries(
+        bankData.map((bank) => {
+          // Only toggle Islamic banks if the filter is on, otherwise toggle all banks
+          const shouldSelect = isIslamicFilterOn ? bank.isIslamic : true;
+          return [bank.name, shouldSelect ? newValue : prev[bank.name]];
+        })
+      );
+
+      const bankMappings = {
+        ABK: "ABK_BANK",
+        Boubyan: "BOUBYAN_BANK",
+        Burgan: "BURGAN_BANK",
+        KFH: "KUWAIT_FINANCE_HOUSE",
+        NBK: "NBK_BANK",
+        Warba: "WARBA_BANK",
+      };
+
+      const selectedBanksList = Object.entries(updatedState)
+        .filter(([_, isSelected]) => isSelected) // Only selected banks
+        .map(([name]) => bankMappings[name]); // Map to identifiers
+
+      setBanksSelected(selectedBanksList);
+
+      return updatedState;
+    });
+    Animated.timing(selectAllAnim, {
+      toValue: newValue ? 1 : 0,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
   };
+
+  const selectAllBg = selectAllAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["rgba(255, 255, 255, 0.1)", "#FFD700"], // From normal to yellow
+  });
 
   const handleCardSelect = (bankName) => {
     setSelectedCards((prev) => {
@@ -71,6 +117,10 @@ export function BankList({ setBanksSelected }) {
 
   const toggleIslamicFilter = () => {
     setIsIslamicFilterOn(!isIslamicFilterOn);
+    setSelectedCards(
+      Object.fromEntries(bankData.map((bank) => [bank.name, false]))
+    );
+    setBanksSelected(null);
   };
 
   const filteredBanks = isIslamicFilterOn
@@ -85,12 +135,25 @@ export function BankList({ setBanksSelected }) {
         <View style={styles.header}>
           <Text style={styles.title}>Available Banks:</Text>
           <View style={styles.headerRight}>
-            <TouchableOpacity
-              style={styles.selectAllButton}
-              onPress={handleSelectAll}
-            >
-              <Ionicons name="checkmark-outline" size={20} color="white" />
-              <Text style={styles.selectAllText}>Select all</Text>
+            <TouchableOpacity onPress={handleSelectAll}>
+              <Animated.View
+                style={[
+                  styles.selectAllButton,
+                  { backgroundColor: selectAllBg },
+                ]}
+              >
+                {selectAllAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 0],
+                }) > 0.5 && (
+                  <Ionicons name="checkmark-outline" size={20} color="white" />
+                )}
+                <Animated.Text
+                  style={[styles.selectAllText, { color: selectAllTextColor }]}
+                >
+                  Select all
+                </Animated.Text>
+              </Animated.View>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.filterButton}
@@ -203,13 +266,14 @@ const styles = StyleSheet.create({
   },
   selectAllButton: {
     marginRight: 15,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
     flexDirection: "row",
     alignItems: "center",
+    transition: "background-color 0.3s ease-in-out",
   },
+
   selectAllText: {
     color: "#FFD700",
     fontSize: 14,
