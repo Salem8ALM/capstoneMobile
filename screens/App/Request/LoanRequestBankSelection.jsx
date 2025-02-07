@@ -18,27 +18,23 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function LoanRequestBankSelection() {
-  const [loanDetails, setLoanDetails] = useState(null);
+  const [banksSelected, setBanksSelected] = useState(null);
 
-  const handleNext = () => {
-    console.log("Next button pressed");
+  const handleReview = () => {
+    console.log("review button pressed");
+    console.log(banksSelected);
   };
 
-  const handleLoanDetailsSubmit = (details) => {
-    setLoanDetails(details);
-    setShowBankList(true);
-  };
-
-  const nextAnim = useRef(new Animated.Value(1)).current;
+  const reviewAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.timing(nextAnim, {
+    Animated.timing(reviewAnim, {
       toValue: 1,
       duration: 300,
       easing: Easing.out(Easing.ease),
       useNativeDriver: true,
     }).start();
-  }, [nextAnim]);
+  }, [reviewAnim]);
 
   return (
     <View style={styles.container}>
@@ -49,9 +45,9 @@ export default function LoanRequestBankSelection() {
         <View style={styles.description}>
           <Text>Please select the bank you would like to apply with.</Text>
         </View>
-        <BankList loanDetails={loanDetails} />
+        <BankList setBanksSelected={setBanksSelected} />
 
-        <Animated.View style={[{ transform: [{ scale: nextAnim }] }]}>
+        <Animated.View style={[{ transform: [{ scale: reviewAnim }] }]}>
           <Button
             icon={({ color }) => (
               <MaterialCommunityIcons
@@ -61,9 +57,9 @@ export default function LoanRequestBankSelection() {
               />
             )}
             mode="contained"
-            onPress={handleNext}
-            onPressIn={() => handlePressIn(nextAnim)}
-            onPressOut={() => handlePressOut(nextAnim)}
+            onPress={handleReview}
+            onPressIn={() => handlePressIn(reviewAnim)}
+            onPressOut={() => handlePressOut(reviewAnim)}
             style={styles.submit}
             labelStyle={styles.buttonText}
           >
@@ -131,7 +127,8 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 20,
     borderRadius: 8,
-    marginTop: 20,
+    margin: 10,
+    marginTop: 25,
   },
   buttonText: {
     fontSize: 16,

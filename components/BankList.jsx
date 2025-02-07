@@ -25,10 +25,10 @@ const bankData = [
   { name: "KFH", component: KFHRequest, isIslamic: true },
   { name: "ABK", component: ABKRequest, isIslamic: false },
   { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
-  { name: "Burgan", component: BurganRequest, isIslamic: true },
+  { name: "Burgan", component: BurganRequest, isIslamic: false },
 ];
 
-export function BankList({ loanDetails }) {
+export function BankList({ setBanksSelected }) {
   const [selectedCards, setSelectedCards] = useState(
     Object.fromEntries(bankData.map((bank) => [bank.name, false]))
   );
@@ -43,10 +43,26 @@ export function BankList({ loanDetails }) {
   };
 
   const handleCardSelect = (bankName) => {
-    setSelectedCards((prev) => ({
-      ...prev,
-      [bankName]: !prev[bankName],
-    }));
+    setSelectedCards((prev) => {
+      const updatedState = { ...prev, [bankName]: !prev[bankName] };
+
+      const bankMappings = {
+        ABK: "ABK_BANK",
+        Boubyan: "BOUBYAN_BANK",
+        Burgan: "BURGAN_BANK",
+        KFH: "KUWAIT_FINANCE_HOUSE",
+        NBK: "NBK_BANK",
+        Warba: "WARBA_BANK",
+      };
+
+      const selectedBanksList = Object.entries(updatedState)
+        .filter(([bankName, isSelected]) => isSelected) // Only keep selected banks
+        .map(([bankName]) => bankMappings[bankName]); // Map to corresponding identifier
+
+      setBanksSelected(selectedBanksList);
+
+      return updatedState;
+    });
   };
 
   const toggleFilterModal = () => {
@@ -62,10 +78,6 @@ export function BankList({ loanDetails }) {
     : bankData;
 
   const isAnyCardSelected = Object.values(selectedCards).some((value) => value);
-
-  const handleNext = () => {
-    console.log("Next button pressed");
-  };
 
   return (
     <View style={styles.container}>
@@ -147,7 +159,7 @@ const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    height: 460, // Fixed height
     backgroundColor: "#1a1a1a",
   },
   titleContainer: {
@@ -171,7 +183,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   banksSection: {
-    flex: 1,
+    height: 460, // Ensure this section also has a fixed height
   },
   header: {
     flexDirection: "row",
@@ -212,10 +224,12 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: "rgba(119, 119, 119, 0.52)",
   },
   scrollContent: {
     padding: 10,
-    paddingBottom: 100, // Increase bottom padding to ensure full visibility
   },
   applyButton: {
     marginHorizontal: 20,

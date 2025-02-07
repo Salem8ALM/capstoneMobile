@@ -38,16 +38,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(192, 192, 192, 0.3)", // Match app's dark theme
-
     width: "100%", // Adjust this width as needed to fit the design
+
     position: "relative", // Needed for overlay positioning
   },
   image: {
     height: "100%", // Image will fill 100% of the card height, or use contain
+    width: "100%", // Image will fill 100% of the card height, or use contain
   },
   overlay: {
     ...StyleSheet.absoluteFillObject, // Fills the entire TouchableOpacity
-    backgroundColor: "rgba(255, 255, 255, 0.1)", // White tint with transparency
+    backgroundColor: "rgba(255, 255, 255, 0.25)", // White tint with transparency
 
     borderRadius: 21,
   },
