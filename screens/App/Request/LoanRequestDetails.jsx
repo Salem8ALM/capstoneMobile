@@ -11,10 +11,14 @@ import {
 } from "../../../utils/animations/buttonAnimations";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
+import { useData } from "../../../context/DataContext";
 
-const LoanRequestDetails = () => {
-  const navigation = useNavigation();
+const LoanRequestDetails = ({ navigation }) => {
+  // const navigation = useNavigation();
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const { updateData } = useData(); // Destructure the update function
+  const [input, setInput] = useState("");
 
   const [loanTitle, setLoanTitle] = useState("");
   const [loanPurpose, setLoanPurpose] = useState("");
@@ -46,6 +50,63 @@ const LoanRequestDetails = () => {
     { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.2)" },
     { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
     { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "minus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "minus", size: 20, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "minus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "minus", size: 20, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "minus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "minus", size: 20, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.2)" },
+    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.1)" },
+    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.1)" },
   ];
 
   const handleNext = async () => {
@@ -59,6 +120,10 @@ const LoanRequestDetails = () => {
     } else {
       // Proceed if both fields are filled
       console.log("Proceeding to next step");
+
+      updateData("loanTitle", loanTitle); // Add new key-value pair to the body
+      updateData("loanPurpose", loanPurpose); // Add new key-value pair to the body
+
       navigation.push(Routes.LoanRequest.LoanRequestAmount);
     }
   };

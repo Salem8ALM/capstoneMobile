@@ -12,6 +12,7 @@ import {
   handlePressOut,
 } from "../../../utils/animations/buttonAnimations";
 import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
+import { useData } from "../../../context/DataContext";
 
 const AnimatedListItem = ({ item, onPress, style }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -52,8 +53,14 @@ const AnimatedListItem = ({ item, onPress, style }) => {
   );
 };
 
-const LoanRequestAmount = () => {
-  const navigation = useNavigation();
+const LoanRequestAmount = ({ navigation }) => {
+  // const navigation = useNavigation();
+
+  const { updateData } = useData(); // Destructure the update function
+  const [input, setInput] = useState("");
+
+  const { data } = useData(); // Access the accumulated data
+
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const nextAnim = useRef(new Animated.Value(1)).current;
 
@@ -73,28 +80,168 @@ const LoanRequestAmount = () => {
   const [notificationMessage, setNotificationMessage] = useState("");
 
   const symbols = [
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.02)" },
-    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.1)" },
+    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    {
+      icon: "calendar-month-outline",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
     { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.07)" },
-    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.1)" },
-    { icon: "calculator", size: 60, color: "rgba(255, 204, 0, 0.02)" },
-    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.1)" },
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.02)" },
-    { icon: "chart-line", size: 40, color: "rgba(255, 223, 0, 0.05)" },
-    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.07)" },
-    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.1)" },
-    { icon: "calculator", size: 25, color: "rgba(255, 204, 0, 0.02)" },
-    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.07)" },
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.02)" },
-    { icon: "chart-line", size: 60, color: "rgba(255, 223, 0, 0.05)" },
-    { icon: "bank", size: 35, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "credit-card", size: 30, color: "rgba(255, 165, 0, 0.07)" },
-    { icon: "currency-usd", size: 35, color: "rgba(255, 99, 0, 0.1)" },
-    { icon: "calculator", size: 60, color: "rgba(255, 204, 0, 0.02)" },
-    { icon: "chart-areaspline", size: 40, color: "rgba(255, 255, 0, 0.07)" },
-    { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    {
+      icon: "swap-horizontal-circle",
+      size: 30,
+      color: "rgba(255, 215, 0, 0.02)",
+    },
+    {
+      icon: "wallet",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "chart-line", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    {
+      icon: "calendar-month-outline",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    {
+      icon: "swap-horizontal-circle",
+      size: 30,
+      color: "rgba(255, 215, 0, 0.02)",
+    },
+    {
+      icon: "wallet",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "chart-line", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    {
+      icon: "calendar-month-outline",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    {
+      icon: "swap-horizontal-circle",
+      size: 60,
+      color: "rgba(255, 215, 0, 0.05)",
+    },
+    {
+      icon: "wallet",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.05)",
+    },
+    { icon: "chart-line", size: 30, color: "rgba(255, 230, 0, 0.2)" },
+    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    {
+      icon: "calendar-month-outline",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    {
+      icon: "swap-horizontal-circle",
+      size: 30,
+      color: "rgba(255, 215, 0, 0.02)",
+    },
+    {
+      icon: "wallet",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "chart-line", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    {
+      icon: "calendar-month-outline",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    {
+      icon: "swap-horizontal-circle",
+      size: 30,
+      color: "rgba(255, 215, 0, 0.02)",
+    },
+    {
+      icon: "wallet",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "chart-line", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    {
+      icon: "calendar-month-outline",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    {
+      icon: "swap-horizontal-circle",
+      size: 60,
+      color: "rgba(255, 215, 0, 0.05)",
+    },
+    {
+      icon: "wallet",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.05)",
+    },
+    { icon: "chart-line", size: 30, color: "rgba(255, 230, 0, 0.2)" },
+    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    {
+      icon: "calendar-month-outline",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    {
+      icon: "swap-horizontal-circle",
+      size: 30,
+      color: "rgba(255, 215, 0, 0.02)",
+    },
+    {
+      icon: "wallet",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "chart-line", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    {
+      icon: "calendar-month-outline",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    {
+      icon: "swap-horizontal-circle",
+      size: 30,
+      color: "rgba(255, 215, 0, 0.02)",
+    },
+    {
+      icon: "wallet",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "chart-line", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    {
+      icon: "calendar-month-outline",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.1)",
+    },
+    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    {
+      icon: "swap-horizontal-circle",
+      size: 60,
+      color: "rgba(255, 215, 0, 0.05)",
+    },
+    {
+      icon: "wallet",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.05)",
+    },
+    { icon: "chart-line", size: 30, color: "rgba(255, 230, 0, 0.2)" },
   ];
 
   const loanAmountList = [
@@ -129,6 +276,8 @@ const LoanRequestAmount = () => {
   ];
 
   const handleNext = async () => {
+    console.log("Submitting data:", data);
+
     if (!loanAmountValue || !loanTermValue || !repaymentPlanValue) {
       setNotificationMessage("Please fill in all fields.");
       setNotificationVisible(true);
@@ -146,6 +295,8 @@ const LoanRequestAmount = () => {
       console.log("Repayment Plan (Backend Value):", repaymentPlanValue);
 
       console.log("Proceeding to next step");
+
+      // updateData('field2', input); // Add new key-value pair to the body
 
       navigation.navigate(Routes.LoanRequest.LoanRequestBankSelection);
     }
