@@ -151,7 +151,7 @@ const LoanRequestAmount = () => {
         visible={notificationVisible}
       />
       <View style={styles.content}>
-        <Text style={styles.title}>Step 2/5: Loan Amount & Terms</Text>
+        <Text style={styles.title}>Step 2/3: Loan Amount & Terms</Text>
         <Text style={styles.subtitle}>
           Provide the loan details and repayment plan.
         </Text>
@@ -324,7 +324,7 @@ const LoanRequestAmount = () => {
             style={styles.submit}
             labelStyle={styles.buttonText}
           >
-            Next
+            Choose Banks
           </Button>
         </Animated.View>
       </View>

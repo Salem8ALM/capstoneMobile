@@ -188,7 +188,7 @@ const LoanRequestDetails = () => {
             style={styles.submit}
             labelStyle={styles.buttonText}
           >
-            Next
+            Loan Amount
           </Button>
         </Animated.View>
       </View>

@@ -62,8 +62,7 @@ export function Requests() {
           <BankList loanDetails={loanDetails} />
         )} */}
 
-        {/* <LoanRequestNavigator /> */}
-        <LoanRequestBankSelection />
+        <LoanRequestNavigator />
         {/* {symbols.map((symbol, index) => (
           <FinanceSymbol style={styles.symbols} key={index} {...symbol} />
         ))} */}

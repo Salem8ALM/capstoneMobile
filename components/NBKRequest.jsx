@@ -6,7 +6,7 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import NBKReq from "../assets/svg/revisedCards/NBKReq.png";
+import NBKReq from "../assets/svg/revisedCards/NBKreq.png";
 
 const NBKRequest = ({ isSelected, onPress }) => {
   return (

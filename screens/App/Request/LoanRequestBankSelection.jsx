@@ -17,8 +17,11 @@ import {
 } from "../../../utils/animations/buttonAnimations";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
+import Routes from "../../../utils/constants/routes";
 
 export default function LoanRequestBankSelection() {
+  const navigation = useNavigation();
+
   const [banksSelected, setBanksSelected] = useState(null);
 
   const [notificationVisible, setNotificationVisible] = useState(false);
@@ -26,7 +29,17 @@ export default function LoanRequestBankSelection() {
 
   const handleReview = () => {
     console.log("review button pressed");
-    console.log(banksSelected);
+
+    if (!banksSelected) {
+      setNotificationMessage("Please fill in all fields.");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000);
+    } else {
+      console.log(banksSelected);
+      navigation.navigate(Routes.LoanRequest.LoanRequestReview);
+    }
   };
 
   const reviewAnim = useRef(new Animated.Value(1)).current;
@@ -47,7 +60,7 @@ export default function LoanRequestBankSelection() {
         visible={notificationVisible}
       />
       <View style={styles.content}>
-        <Text style={styles.title}>Step 4/5: Select Banks</Text>
+        <Text style={styles.title}>Step 3/3: Select Banks</Text>
         <Text style={styles.subtitle}>
           Select all the banks you wish to request this to.
         </Text>
@@ -69,7 +82,7 @@ export default function LoanRequestBankSelection() {
             style={styles.submit}
             labelStyle={styles.buttonText}
           >
-            Next
+            Review
           </Button>
         </Animated.View>
       </View>
@@ -84,7 +97,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1a1a1a",
     justifyContent: "center",
-    marginBottom: 50,
+    marginBottom: 30,
   },
   content: {
     flex: 1,
@@ -145,6 +158,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     margin: 10,
     marginTop: 20,
+    marginBottom: 40,
   },
   buttonText: {
     fontSize: 16,

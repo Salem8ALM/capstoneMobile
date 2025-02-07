@@ -1,398 +1,149 @@
-"use client";
-
-import { useRef, useEffect, useState } from "react";
-import { View, Animated, StyleSheet, Easing, ScrollView } from "react-native";
-import { Button, Text, List } from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import NotificationBanner from "../../../utils/animations/NotificationBanner";
-import { useNavigation } from "@react-navigation/native";
-import Routes from "../../../utils/constants/routes";
+import React, { useRef, useEffect } from "react";
 import {
-  handlePressIn,
-  handlePressOut,
-} from "../../../utils/animations/buttonAnimations";
+  View,
+  StyleSheet,
+  SafeAreaView,
+  Animated,
+  ScrollView,
+} from "react-native";
+import { Text, Button, Card, Divider } from "react-native-paper";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 
-const LoanRequestAmount = () => {
-  const navigation = useNavigation();
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const nextAnim = useRef(new Animated.Value(1)).current;
+export default function LoanRequestReview() {
+  const reviewAnim = useRef(new Animated.Value(0)).current;
 
-  const [loanAmount, setLoanAmount] = useState("");
-  const [loanTerm, setLoanTerm] = useState("");
-  const [repaymentPlan, setRepaymentPlan] = useState("");
-
-  const [expandedLoanAmount, setExpandedLoanAmount] = useState(false);
-  const [expandedLoanTerm, setExpandedLoanTerm] = useState(false);
-  const [expandedRepaymentPlan, setExpandedRepaymentPlan] = useState(false);
-
-  const [loanAmountValue, setLoanAmountValue] = useState("");
-  const [loanTermValue, setLoanTermValue] = useState("");
-  const [repaymentPlanValue, setRepaymentPlanValue] = useState("");
-
-  const [notificationVisible, setNotificationVisible] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState("");
-
-  const loanAmountList = [
-    { label: "$1,000", value: "1000" },
-    { label: "$2,500", value: "2500" },
-    { label: "$5,000", value: "5000" },
-    { label: "$10,000", value: "10000" },
-    { label: "$15,000", value: "15000" },
-    { label: "$20,000", value: "20000" },
-    { label: "$25,000", value: "25000" },
-    { label: "$50,000", value: "50000" },
-    { label: "$75,000", value: "75000" },
-    { label: "$100,000", value: "100000" },
-  ];
-
-  const loanTermList = [
-    { label: "6 months", value: "SIX_MONTHS" },
-    { label: "1 year", value: "ONE_YEAR" },
-    { label: "2 years", value: "TWO_YEARS" },
-    { label: "5 years", value: "FIVE_YEARS" },
-  ];
-
-  const repaymentPlanList = [
-    { label: "Equal Installments", value: "EQUAL_INSTALLMENTS" },
-    { label: "Balloon Payment", value: "BALLOON_PAYMENT" },
-    { label: "Step Up", value: "STEP_UP" },
-    { label: "Step Down", value: "STEP_DOWN" },
-    { label: "Lump Sum", value: "LUMP_SUM" },
-    { label: "Grace Period", value: "GRACE_PERIOD" },
-    { label: "Revenue Based", value: "REVENUE_BASED" },
-    { label: "Lease To Own", value: "LEASE_TO_OWN" },
-  ];
-
-  const handleNext = async () => {
-    if (!loanAmountValue || !loanTermValue || !repaymentPlanValue) {
-      setNotificationMessage("Please fill in all fields.");
-      setNotificationVisible(true);
-      setTimeout(() => {
-        setNotificationVisible(false);
-      }, 3000);
-    } else {
-      console.log("Loan Amount (User View):", loanAmount);
-      console.log("Loan Amount (Backend Value):", loanAmountValue);
-
-      console.log("Loan Term (User View):", loanTerm);
-      console.log("Loan Term (Backend Value):", loanTermValue);
-
-      console.log("Repayment Plan (User View):", repaymentPlan);
-      console.log("Repayment Plan (Backend Value):", repaymentPlanValue);
-
-      console.log("Proceeding to next step");
-
-      navigation.navigate(Routes.LoanRequest.LoanRequestReview);
-    }
-  };
-
-  const handleOptionPress = (setLabel, setValue, setExpanded, option) => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    setLabel(option.label); // Display value for user
-    setValue(option.value); // Backend value
-    setExpanded(false);
-  };
+  useEffect(() => {
+    Animated.timing(reviewAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <NotificationBanner
-        message={notificationMessage}
-        visible={notificationVisible}
-      />
-      <View style={styles.content}>
-        <Text style={styles.title}>Step 2/5: Loan Amount & Terms</Text>
-        <Text style={styles.subtitle}>
-          Provide the loan details and repayment plan.
-        </Text>
+    <SafeAreaView style={styles.container}>
+      <Animated.View style={[styles.header, { opacity: reviewAnim }]}>
+        <Ionicons name="document-text-outline" size={40} color="#FFD700" />
+        <Text style={styles.title}>Review Loan Request</Text>
+      </Animated.View>
 
-        <View style={styles.inputContainer}>
-          <List.Accordion
-            title={loanAmount || "Select Loan Amount"}
-            expanded={expandedLoanAmount}
-            onPress={() => setExpandedLoanAmount(!expandedLoanAmount)}
-            style={[
-              styles.dropdown,
-              expandedLoanAmount && styles.dropdownExpanded,
+      <ScrollView contentContainerStyle={styles.content}>
+        <Card style={styles.card}>
+          <Card.Content>
+            {[
               {
-                borderColor: loanAmount !== "" ? "white" : "rgb(163, 163, 163)",
+                icon: "tag",
+                label: "Loan Nickname",
+                value: "Personal Growth Loan",
               },
-            ]}
-            titleStyle={[
-              styles.dropdownTitle,
-              loanAmount && styles.selectedTitle,
-            ]}
-            left={(props) => (
-              <View style={styles.iconContainer}>
-                <MaterialCommunityIcons
-                  name="cash-multiple" // You can also try "calendar-check" or "calendar-month"
-                  size={24}
-                  color={
-                    loanAmount !== "" ? "white" : "rgba(255, 255, 255, 0.3)"
-                  }
-                />
-                <View style={styles.separator} />
-              </View>
-            )}
-          >
-            <ScrollView
-              style={styles.scrollableOptionsContainer}
-              nestedScrollEnabled={true}
-            >
-              {loanAmountList.map((option, index) => (
-                <AnimatedListItem
-                  key={option.value}
-                  item={option}
-                  onPress={() =>
-                    handleOptionPress(
-                      setLoanAmount,
-                      setLoanAmountValue,
-                      setExpandedLoanAmount,
-                      option
-                    )
-                  }
-                  style={{ delay: index * 100 }}
-                />
-              ))}
-            </ScrollView>
-          </List.Accordion>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <List.Accordion
-            title={loanTerm || "Select Loan Term"}
-            expanded={expandedLoanTerm}
-            onPress={() => setExpandedLoanTerm(!expandedLoanTerm)}
-            style={[
-              styles.dropdown,
-              expandedLoanTerm && styles.dropdownExpanded,
               {
-                borderColor: loanTerm !== "" ? "white" : "rgb(163, 163, 163)",
+                icon: "file-document",
+                label: "Loan Description",
+                value: "For tuition and personal development expenses.",
               },
-            ]}
-            titleStyle={[
-              styles.dropdownTitle,
-              loanTerm && styles.selectedTitle,
-            ]}
-            left={(props) => (
-              <View style={styles.iconContainer}>
-                <MaterialCommunityIcons
-                  name="calendar-clock" // You can also try "calendar-check" or "calendar-month"
-                  size={24}
-                  color={loanTerm !== "" ? "white" : "rgba(255, 255, 255, 0.3)"}
-                />
-                <View style={styles.separator} />
-              </View>
-            )}
-          >
-            <View style={styles.optionsContainer}>
-              {loanTermList.map((option, index) => (
-                <AnimatedListItem
-                  key={option.value}
-                  item={option}
-                  onPress={() =>
-                    handleOptionPress(
-                      setLoanTerm,
-                      setLoanTermValue,
-                      setExpandedLoanTerm,
-                      option
-                    )
-                  }
-                  style={{ delay: index * 100 }}
-                />
-              ))}
-            </View>
-          </List.Accordion>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <List.Accordion
-            title={repaymentPlan || "Select Repayment Plan"}
-            expanded={expandedRepaymentPlan}
-            onPress={() => setExpandedRepaymentPlan(!expandedRepaymentPlan)}
-            style={[
-              styles.dropdown,
-              expandedRepaymentPlan && styles.dropdownExpanded,
               {
-                borderColor:
-                  repaymentPlan !== "" ? "white" : "rgb(163, 163, 163)",
+                icon: "cash",
+                label: "Loan Amount",
+                value: "$10,000",
               },
-            ]}
-            titleStyle={[
-              styles.dropdownTitle,
-              repaymentPlan && styles.selectedTitle,
-            ]}
-            left={(props) => (
-              <View style={styles.iconContainer}>
-                <MaterialCommunityIcons
-                  name="timeline-clock" // You can also try "calendar-check" or "calendar-month"
-                  size={24}
-                  color={
-                    repaymentPlan !== "" ? "white" : "rgba(255, 255, 255, 0.3)"
-                  }
-                />
-                <View style={styles.separator} />
+              {
+                icon: "calendar",
+                label: "Loan Term",
+                value: "5 Years",
+              },
+              {
+                icon: "credit-card",
+                label: "Repayment Plan",
+                value: "Monthly Installments",
+              },
+              {
+                icon: "bank",
+                label: "Selected Banks",
+                value: "Bank of America, Chase, CitiBank",
+              },
+            ].map((item, index) => (
+              <View key={index}>
+                <View style={styles.row}>
+                  <MaterialCommunityIcons
+                    name={item.icon}
+                    size={24}
+                    color="#FFD700"
+                    style={styles.icon}
+                  />
+                  <View>
+                    <Text style={styles.label}>{item.label}</Text>
+                    <Text style={styles.value}>{item.value}</Text>
+                  </View>
+                </View>
+                {index < 5 && <Divider style={styles.divider} />}
               </View>
-            )}
-          >
-            <ScrollView
-              style={styles.scrollableOptionsContainer}
-              nestedScrollEnabled={true}
-            >
-              {repaymentPlanList.map((option, index) => (
-                <AnimatedListItem
-                  key={option.value}
-                  item={option}
-                  onPress={() =>
-                    handleOptionPress(
-                      setRepaymentPlan,
-                      setRepaymentPlanValue,
-                      setExpandedRepaymentPlan,
-                      option
-                    )
-                  }
-                  style={{ delay: index * 100 }}
-                />
-              ))}
-            </ScrollView>
-          </List.Accordion>
-        </View>
+            ))}
+          </Card.Content>
+        </Card>
 
-        <Animated.View style={[{ transform: [{ scale: nextAnim }] }]}>
-          <Button
-            icon={({ color }) => (
-              <MaterialCommunityIcons
-                name="arrow-right"
-                size={24}
-                color={color}
-              />
-            )}
-            mode="contained"
-            onPress={handleNext}
-            onPressIn={() => handlePressIn(nextAnim)}
-            onPressOut={() => handlePressOut(nextAnim)}
-            style={styles.submit}
-            labelStyle={styles.buttonText}
-          >
-            Next
-          </Button>
-        </Animated.View>
-      </View>
-    </View>
+        <Button mode="contained" style={styles.submitButton}>
+          Submit Request
+        </Button>
+      </ScrollView>
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1a1a1a",
-    justifyContent: "center",
     paddingHorizontal: 20,
+
+    paddingTop: 20,
   },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#ccc",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  inputContainer: {
-    marginBottom: 20,
-    borderRadius: 5,
-    overflow: "hidden",
-  },
-  iconContainer: {
+  header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
     marginLeft: 10,
   },
-
-  separator: {
-    height: "100%",
-    width: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.2)", // Subtle separator line
-    marginLeft: 10, // Adds space between the icon and text
+  content: {
+    alignItems: "center",
+    paddingBottom: 40,
   },
-
-  dropdown: {
+  card: {
+    width: "100%",
     backgroundColor: "#2a2a2a",
-    borderWidth: 1,
-    borderColor: "rgb(163, 163, 163)",
-    borderRadius: 5,
-    overflow: "hidden",
-  },
-  dropdownExpanded: {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    borderBottomWidth: 0,
-  },
-  dropdownTitle: {
-    color: "rgba(255, 255, 255, 0.3)",
-    fontSize: 16,
-  },
-  selectedTitle: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  optionsContainer: {
-    backgroundColor: "#2a2a2a",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    borderTopWidth: 0,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-    overflow: "hidden",
-  },
-  scrollableOptionsContainer: {
-    maxHeight: 150,
-    backgroundColor: "#2a2a2a",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    borderTopWidth: 0,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-  optionText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-  },
-  listItem: {
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
-  },
-  submit: {
-    backgroundColor: "#FFD700",
-    paddingVertical: 5,
-    paddingHorizontal: 20,
     borderRadius: 8,
-    marginTop: 20,
+    paddingVertical: 15,
   },
-  buttonText: {
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  icon: {
+    marginRight: 10,
+  },
+  label: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#000",
+    color: "#FFD700",
+    marginBottom: 2,
+  },
+  value: {
+    fontSize: 16,
+    color: "#fff",
+  },
+  divider: {
+    marginBottom: 10,
+    backgroundColor: "#444",
+  },
+  submitButton: {
+    marginTop: 20,
+    backgroundColor: "#FFD700",
+    width: "100%",
   },
 });
-
-export default LoanRequestAmount;
