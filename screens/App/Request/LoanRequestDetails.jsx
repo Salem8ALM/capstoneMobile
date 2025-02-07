@@ -18,6 +18,7 @@ const LoanRequestDetails = ({ navigation }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const { updateData } = useData(); // Destructure the update function
+
   const [input, setInput] = useState("");
 
   const [loanTitle, setLoanTitle] = useState("");
@@ -124,7 +125,7 @@ const LoanRequestDetails = ({ navigation }) => {
       updateData("loanTitle", loanTitle); // Add new key-value pair to the body
       updateData("loanPurpose", loanPurpose); // Add new key-value pair to the body
 
-      navigation.push(Routes.LoanRequest.LoanRequestAmount);
+      navigation.navigate(Routes.LoanRequest.LoanRequestAmount);
     }
   };
 

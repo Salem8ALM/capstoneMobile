@@ -18,14 +18,18 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import Routes from "../../../utils/constants/routes";
+import { useData } from "../../../context/DataContext";
 
-export default function LoanRequestBankSelection() {
-  const navigation = useNavigation();
+export default function LoanRequestBankSelection({ navigation, route }) {
+  const { loanAmount, loanTerm, repaymentPlan } = route.params; // Accessing passed params
 
   const [banksSelected, setBanksSelected] = useState(null);
 
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
+
+  const { updateData } = useData(); // Destructure the update function
+  const { data } = useData(); // Destructure the update function
 
   const handleReview = () => {
     console.log("review button pressed");
@@ -37,7 +41,14 @@ export default function LoanRequestBankSelection() {
         setNotificationVisible(false);
       }, 3000);
     } else {
-      console.log(banksSelected);
+      updateData("selectedBanks", banksSelected); // Add new key-value pair to the body
+
+      // for verification
+      console.log(`loan Amount: ${loanAmount}`);
+      console.log(`loan Term: ${loanTerm}`);
+      console.log(`repayment Plan: ${repaymentPlan}`);
+      console.log(`Data stored: ${JSON.stringify(data)}`);
+
       navigation.navigate(Routes.LoanRequest.LoanRequestReview);
     }
   };

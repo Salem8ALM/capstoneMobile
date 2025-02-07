@@ -59,8 +59,6 @@ const LoanRequestAmount = ({ navigation }) => {
   const { updateData } = useData(); // Destructure the update function
   const [input, setInput] = useState("");
 
-  const { data } = useData(); // Access the accumulated data
-
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const nextAnim = useRef(new Animated.Value(1)).current;
 
@@ -275,9 +273,7 @@ const LoanRequestAmount = ({ navigation }) => {
     { label: "Lease To Own", value: "LEASE_TO_OWN" },
   ];
 
-  const handleNext = async () => {
-    console.log("Submitting data:", data);
-
+  const handleNext = () => {
     if (!loanAmountValue || !loanTermValue || !repaymentPlanValue) {
       setNotificationMessage("Please fill in all fields.");
       setNotificationVisible(true);
@@ -296,9 +292,15 @@ const LoanRequestAmount = ({ navigation }) => {
 
       console.log("Proceeding to next step");
 
-      // updateData('field2', input); // Add new key-value pair to the body
+      updateData("amount", loanAmountValue); // Add new key-value pair to the body
+      updateData("loanTerm", loanTermValue); // Add new key-value pair to the body
+      updateData("repaymentPlan", repaymentPlanValue); // Add new key-value pair to the body
 
-      navigation.navigate(Routes.LoanRequest.LoanRequestBankSelection);
+      navigation.navigate(Routes.LoanRequest.LoanRequestBankSelection, {
+        loanAmount: loanAmount,
+        loanTerm: loanTerm,
+        repaymentPlan: repaymentPlan,
+      });
     }
   };
 
