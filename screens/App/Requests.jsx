@@ -64,9 +64,9 @@ export function Requests() {
 
         {/* <LoanRequestNavigator /> */}
         <LoanRequestBankSelection />
-        {symbols.map((symbol, index) => (
+        {/* {symbols.map((symbol, index) => (
           <FinanceSymbol style={styles.symbols} key={index} {...symbol} />
-        ))}
+        ))} */}
       </SafeAreaView>
     </View>
   );

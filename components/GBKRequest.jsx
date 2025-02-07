@@ -1,6 +1,11 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
-import GBKReq from "../assets/svg/GBKReq.svg";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from "react-native";
 
 const GBKRequest = ({ isSelected, onPress }) => {
   return (
@@ -8,9 +13,7 @@ const GBKRequest = ({ isSelected, onPress }) => {
       <TouchableOpacity
         onPress={onPress}
         style={[styles.cardContainer, isSelected && styles.cardSelected]}
-      >
-        <GBKReq />
-      </TouchableOpacity>
+      ></TouchableOpacity>
     </View>
   );
 };
@@ -19,17 +22,22 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
-    width: "100%",
   },
   cardContainer: {
-    borderRadius: 20,
+    borderRadius: 25,
     borderWidth: 2,
     borderColor: "transparent",
     alignSelf: "center",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(41, 41, 51, 0.7)", // Match app's dark theme
+    width: "100%", // Adjust this width as needed to fit the design
+    // height: "100%", // Adjust this width as needed to fit the design
+
+    paddingHorizontal: 0, // Remove any side padding
   },
   cardSelected: {
-    borderColor: "#FFD700",
+    borderColor: "#FFD700", // Yellow border when selected
     shadowColor: "#FFD700",
     shadowOffset: {
       width: 0,
@@ -38,6 +46,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 5,
     elevation: 5,
+  },
+  image: {
+    height: "100%", // Image will fill 100% of the card height, or use contain
   },
 });
 

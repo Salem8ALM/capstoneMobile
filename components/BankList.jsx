@@ -13,19 +13,19 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import BoubyanRequest from "../components/BoubyanRequest";
 import NBKRequest from "../components/NBKRequest";
-import CBKRequest from "../components/CBKRequest";
-import GBKRequest from "../components/GBKRequest";
 import ABKRequest from "../components/ABKRequest";
-import KIBRequest from "../components/KIBRequest";
 import { Button } from "react-native-paper";
+import KFHRequest from "./KFHRequest";
+import WarbaRequest from "./WarbaRequest";
+import BurganRequest from "./BurganRequest";
 
 const bankData = [
-  { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
+  { name: "Warba", component: WarbaRequest, isIslamic: true },
   { name: "NBK", component: NBKRequest, isIslamic: false },
-  { name: "CBK", component: CBKRequest, isIslamic: false },
-  { name: "GBK", component: GBKRequest, isIslamic: false },
+  { name: "KFH", component: KFHRequest, isIslamic: true },
   { name: "ABK", component: ABKRequest, isIslamic: false },
-  { name: "KIB", component: KIBRequest, isIslamic: true },
+  { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
+  { name: "Burgan", component: BurganRequest, isIslamic: true },
 ];
 
 export function BankList({ loanDetails }) {
@@ -63,14 +63,12 @@ export function BankList({ loanDetails }) {
 
   const isAnyCardSelected = Object.values(selectedCards).some((value) => value);
 
+  const handleNext = () => {
+    console.log("Next button pressed");
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.mainTitle}>Select your Bank</Text>
-      </View>
-      <View style={styles.description}>
-        <Text>Please select the bank you would like to apply with.</Text>
-      </View>
       <View style={styles.banksSection}>
         <View style={styles.header}>
           <Text style={styles.title}>Available Banks:</Text>
@@ -90,21 +88,6 @@ export function BankList({ loanDetails }) {
             </TouchableOpacity>
           </View>
         </View>
-
-        <Animated.View style={styles.buttonContainer}>
-          <Button
-            mode="outlined"
-            onPressIn={() => handlePressIn(scaleAnim)}
-            onPressOut={() => handlePressOut(scaleAnim)}
-            style={styles.primaryButton}
-            labelStyle={styles.primaryButtonText}
-            onPress={() =>
-              navigation.push(Routes.LoanRequest.LoanRequestDetails)
-            }
-          >
-            Get Started
-          </Button>
-        </Animated.View>
 
         <View style={styles.scrollContainer}>
           <ScrollView
@@ -231,7 +214,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 20,
+    padding: 10,
     paddingBottom: 100, // Increase bottom padding to ensure full visibility
   },
   applyButton: {
@@ -298,7 +281,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: 20,
+    marginBottom: 40,
   },
   filterOptionText: {
     fontSize: 16,
