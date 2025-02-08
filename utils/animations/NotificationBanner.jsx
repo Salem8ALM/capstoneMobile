@@ -1,20 +1,28 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, Animated } from "react-native";
 
 const NotificationBanner = ({ message, visible, duration = 3000 }) => {
-  const slideAnim = new Animated.Value(-100); // Start off-screen
+  const slideAnim = useRef(new Animated.Value(-100)).current; // Start off-screen
+  const timeoutRef = useRef(null);
 
-  // Slide down animation
   useEffect(() => {
     if (visible) {
+      // Clear any existing timeout
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      // Slide down animation
       Animated.timing(slideAnim, {
         toValue: -10, // Move the banner to the top of the screen
         duration: 300,
         useNativeDriver: true,
       }).start();
 
-      // After the given duration, slide it back up
-      setTimeout(() => {
+      // Set timeout to slide back up
+      timeoutRef.current = setTimeout(() => {
         Animated.timing(slideAnim, {
           toValue: -100, // Move the banner off-screen
           duration: 300,
@@ -22,18 +30,33 @@ const NotificationBanner = ({ message, visible, duration = 3000 }) => {
         }).start();
       }, duration);
     } else {
-      // If not visible, reset to off-screen immediately
+      // If not visible, clear timeout and slide up immediately
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current);
+      }
       Animated.timing(slideAnim, {
         toValue: -100,
         duration: 300,
         useNativeDriver: true,
       }).start();
     }
-  }, [visible, duration]);
+
+    // Cleanup function
+    return () => {
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [visible, duration, slideAnim]);
 
   return (
     <Animated.View
-      style={[styles.banner, { transform: [{ translateY: slideAnim }] }]}
+      style={[
+        styles.banner,
+        {
+          transform: [{ translateY: slideAnim }],
+        },
+      ]}
     >
       <Text style={styles.text}>{message}</Text>
     </Animated.View>
@@ -57,6 +80,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
+    elevation: 5, // for Android shadow
   },
   text: {
     color: "black",

@@ -14,10 +14,10 @@ import { Ionicons } from "@expo/vector-icons";
 import BoubyanRequest from "../components/BoubyanRequest";
 import NBKRequest from "../components/NBKRequest";
 import ABKRequest from "../components/ABKRequest";
-import { Button } from "react-native-paper";
 import KFHRequest from "./KFHRequest";
 import WarbaRequest from "./WarbaRequest";
 import BurganRequest from "./BurganRequest";
+import KIBRequest from "./KIBRequest";
 
 const bankData = [
   { name: "Warba", component: WarbaRequest, isIslamic: true },
@@ -26,6 +26,7 @@ const bankData = [
   { name: "ABK", component: ABKRequest, isIslamic: false },
   { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
   { name: "Burgan", component: BurganRequest, isIslamic: false },
+  { name: "KIB", component: KIBRequest, isIslamic: true },
 ];
 
 export function BankList({ setBanksSelected }) {
@@ -66,6 +67,7 @@ export function BankList({ setBanksSelected }) {
         KFH: "KUWAIT_FINANCE_HOUSE",
         NBK: "NBK_BANK",
         Warba: "WARBA_BANK",
+        KIB: "KUWAIT_INTERNATIONAL_BANK",
       };
 
       const selectedBanksList = Object.entries(updatedState)

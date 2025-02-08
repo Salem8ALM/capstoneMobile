@@ -3,8 +3,6 @@ import instance from "./index";
 const controller = "/loan";
 
 const sendLoanRequest = async (token, request) => {
-  console.log(`token: ${token}`);
-
   try {
     const response = await instance.post(controller + "/request", request, {
       headers: {

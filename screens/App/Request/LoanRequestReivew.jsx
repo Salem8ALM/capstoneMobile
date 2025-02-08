@@ -19,6 +19,7 @@ import { useData } from "../../../context/DataContext";
 import { getToken } from "../../../storage/TokenStorage";
 import { sendLoanRequest } from "../../../api/LoanRequest";
 import UserContext from "../../../context/UserContext";
+import NotificationBanner from "../../../utils/animations/NotificationBanner";
 
 export default function LoanRequestReview({ navigation, route }) {
   const { loanAmount, loanTerm, repaymentPlan } = route.params; // Accessing passed params
@@ -34,6 +35,9 @@ export default function LoanRequestReview({ navigation, route }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const [notificationVisible, setNotificationVisible] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
 
   const checkToken = async () => {
     const token = await getToken("access");
@@ -57,8 +61,14 @@ export default function LoanRequestReview({ navigation, route }) {
       console.log(response);
       setIsModalVisible(true);
     } catch (error) {
+      setNotificationMessage("Error Sending loan Request. Please try again");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000);
+
       console.log(error);
-      setSubmitText("Submit");
+      setSend("Send");
     }
 
     setSend("Send");
@@ -88,6 +98,10 @@ export default function LoanRequestReview({ navigation, route }) {
 
   return (
     <View style={styles.container}>
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
       <Animated.View style={[styles.header, { opacity: reviewAnim }]}>
         <Ionicons name="document-text-outline" size={40} color="#FFD700" />
         <Text style={styles.title}>Review Loan Request</Text>
