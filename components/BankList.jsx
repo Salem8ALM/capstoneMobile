@@ -75,6 +75,7 @@ export function BankList({ setBanksSelected }) {
         .map(([name]) => bankMappings[name]); // Map to identifiers
 
       setBanksSelected(selectedBanksList);
+      console.log(selectedBanksList);
 
       return updatedState;
     });
@@ -106,6 +107,8 @@ export function BankList({ setBanksSelected }) {
       const selectedBanksList = Object.entries(updatedState)
         .filter(([bankName, isSelected]) => isSelected) // Only keep selected banks
         .map(([bankName]) => bankMappings[bankName]); // Map to corresponding identifier
+
+      console.log(selectedBanksList);
 
       setBanksSelected(selectedBanksList);
 

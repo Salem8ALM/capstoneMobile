@@ -20,6 +20,7 @@ import { getToken } from "../../../storage/TokenStorage";
 import { sendLoanRequest } from "../../../api/LoanRequest";
 import UserContext from "../../../context/UserContext";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
+import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
 
 export default function LoanRequestReview({ navigation, route }) {
   const { loanAmount, loanTerm, repaymentPlan } = route.params; // Accessing passed params
@@ -39,6 +40,32 @@ export default function LoanRequestReview({ navigation, route }) {
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
 
+  const symbols = [
+    { icon: "check-circle", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    { icon: "clipboard-check", size: 40, color: "rgba(255, 223, 0, 0.1)" },
+    { icon: "file-check", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "account-check", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    { icon: "check-decagram", size: 40, color: "rgba(255, 223, 0, 0.1)" },
+    { icon: "calendar-check", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "note-check", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    { icon: "bookmark-check", size: 40, color: "rgba(255, 223, 0, 0.1)" },
+    {
+      icon: "checkbox-marked-circle",
+      size: 60,
+      color: "rgba(255, 230, 0, 0.02)",
+    },
+    { icon: "shield-check", size: 40, color: "rgba(255, 223, 0, 0.1)" },
+    { icon: "lock-check", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "certificate", size: 30, color: "rgba(255, 215, 0, 0.02)" },
+    { icon: "clipboard-check", size: 60, color: "rgba(255, 230, 0, 0.02)" },
+    { icon: "signature", size: 60, color: "rgba(255, 215, 0, 0.05)" },
+    {
+      icon: "file-check",
+      size: 40,
+      color: "rgba(255, 223, 0, 0.05)",
+    },
+    { icon: "form-select", size: 30, color: "rgba(255, 230, 0, 0.2)" },
+  ];
   const checkToken = async () => {
     const token = await getToken("access");
     console.log("INside check token " + token);
@@ -147,7 +174,7 @@ export default function LoanRequestReview({ navigation, route }) {
                         .replace(/_/g, " ") // Replace underscores with spaces
                         .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize first letter
                   )
-                  .join(", "),
+                  .join(", "), // Join the transformed strings into a single string
               },
             ].map((item, index) => (
               <View key={index}>
@@ -193,6 +220,9 @@ export default function LoanRequestReview({ navigation, route }) {
         onClose={handleCloseModal}
         navigation={navigation}
       />
+      {symbols.map((symbol, index) => (
+        <FinanceSymbol style={styles.symbols} key={index} {...symbol} />
+      ))}
     </View>
   );
 }
