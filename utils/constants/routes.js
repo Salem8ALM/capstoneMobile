@@ -16,12 +16,13 @@ const Routes = {
     Settings: "SettingsScreen",
   },
   LoanRequest: {
+    LoanDashboard: "Loan dashboard",
     LoanRequestIntro: "Loan Request Intro",
     LoanRequestDetails: "Loan Request Details",
     LoanRequestAmount: "Loan Request Amount",
     LoanRequestBankSelection: "LoanRequestBankSelection",
     LoanRequestReview: "Loan Request Review",
-    LoanRequestSubmission: "Loan Request Submission",
+    LoanResponseViewAll: "Loan Response View All",
   },
 };
 

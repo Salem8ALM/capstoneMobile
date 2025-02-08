@@ -28,6 +28,7 @@ import {
 const screenWidth = Dimensions.get("window").width;
 import { useNavigation } from "@react-navigation/native";
 import Routes from "../../utils/constants/routes";
+import LoanRequestIntro from "./Request/LoanRequestIntro";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -93,7 +94,9 @@ const HomeScreen = () => {
 
   const handleSubmit = async () => {
     console.log("apply for a logn");
-    navigation.navigate("Requests");
+    navigation.navigate("Requests", {
+      screen: Routes.LoanRequest.LoanRequestIntro,
+    });
   };
 
   //    backgroundColor: "#292933",
