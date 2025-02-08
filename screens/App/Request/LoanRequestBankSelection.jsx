@@ -1,16 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  SafeAreaView,
-  Dimensions,
-  Animated,
-  Easing,
-} from "react-native";
+import { View, StyleSheet, Dimensions, Animated, Easing } from "react-native";
 import { Button, Text } from "react-native-paper";
 import BankList from "../../../components/BankList";
-import LoanDetailsCard from "../../../components/LoanDetailsCard";
-import { useNavigation } from "@react-navigation/native";
 import {
   handlePressIn,
   handlePressOut,
@@ -19,6 +10,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import Routes from "../../../utils/constants/routes";
 import { useData } from "../../../context/DataContext";
+
+const { height } = Dimensions.get("window");
 
 export default function LoanRequestBankSelection({ navigation, route }) {
   const { loanAmount, loanTerm, repaymentPlan } = route.params; // Accessing passed params
@@ -105,8 +98,6 @@ export default function LoanRequestBankSelection({ navigation, route }) {
     </View>
   );
 }
-
-const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {

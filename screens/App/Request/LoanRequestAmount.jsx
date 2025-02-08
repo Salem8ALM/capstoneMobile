@@ -1,11 +1,8 @@
-"use client";
-
 import { useRef, useEffect, useState } from "react";
 import { View, Animated, StyleSheet, Easing, ScrollView } from "react-native";
 import { Button, Text, List } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
-import { useNavigation } from "@react-navigation/native";
 import Routes from "../../../utils/constants/routes";
 import {
   handlePressIn,
@@ -54,10 +51,7 @@ const AnimatedListItem = ({ item, onPress, style }) => {
 };
 
 const LoanRequestAmount = ({ navigation }) => {
-  // const navigation = useNavigation();
-
   const { updateData } = useData(); // Destructure the update function
-  const [input, setInput] = useState("");
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const nextAnim = useRef(new Animated.Value(1)).current;

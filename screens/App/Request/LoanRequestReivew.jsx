@@ -1,19 +1,11 @@
 import React, { useRef, useEffect, useState, useContext } from "react";
-import {
-  View,
-  StyleSheet,
-  SafeAreaView,
-  Animated,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet, Animated } from "react-native";
 import { Text, Button, Card, Divider } from "react-native-paper";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import {
   handlePressIn,
   handlePressOut,
 } from "../../../utils/animations/buttonAnimations";
-import { useNavigation } from "@react-navigation/native";
-import Routes from "../../../utils/constants/routes";
 import ProcessModal from "../../../components/ProcessModal";
 import { useData } from "../../../context/DataContext";
 import { getToken } from "../../../storage/TokenStorage";
@@ -79,13 +71,16 @@ export default function LoanRequestReview({ navigation, route }) {
     }
   };
 
+  /* TODO: It would be nice to also check if the token is expired 
+   when the user tries to send a loan request, 
+   as opposed to giving a generic "Error Sending loan request".
+   It's a plus to logout the user to login again and store new token */
   const handleOpenModal = async () => {
     setSend("Sending Loan Request ...");
 
     try {
       const token = await checkToken();
       const response = await sendLoanRequest(token, data);
-      console.log(response);
       setIsModalVisible(true);
     } catch (error) {
       setNotificationMessage("Error Sending loan Request. Please try again");
@@ -94,7 +89,6 @@ export default function LoanRequestReview({ navigation, route }) {
         setNotificationVisible(false);
       }, 3000);
       console.log(error);
-      setSend("Send");
     }
 
     setSend("Send");

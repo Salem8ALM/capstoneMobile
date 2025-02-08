@@ -1,13 +1,9 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { useContext } from "react";
-import UserContext from "../../../context/UserContext";
 import AnimatedIntroContent from "../../../utils/animations/AnimatedIntroContent";
 import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
 
 const LoanRequestIntro = () => {
-  const { authenticated, setAuthenticated } = useContext(UserContext);
-
   const symbols = [
     { icon: "cash", size: 30, color: "rgba(255, 215, 0, 0.2)" },
     { icon: "cash", size: 40, color: "rgba(255, 215, 0, 0.2)" },

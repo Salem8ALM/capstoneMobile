@@ -1,9 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
-import { View, Animated, StyleSheet, Alert } from "react-native";
+import { View, Animated, StyleSheet } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { animateField } from "../../../utils/animations/animations";
-import { useNavigation } from "@react-navigation/native";
 import Routes from "../../../utils/constants/routes";
 import {
   handlePressIn,
@@ -14,12 +13,9 @@ import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
 import { useData } from "../../../context/DataContext";
 
 const LoanRequestDetails = ({ navigation }) => {
-  // const navigation = useNavigation();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const { updateData } = useData(); // Destructure the update function
-
-  const [input, setInput] = useState("");
 
   const [loanTitle, setLoanTitle] = useState("");
   const [loanPurpose, setLoanPurpose] = useState("");
