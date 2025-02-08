@@ -93,7 +93,6 @@ export default function LoanRequestReview({ navigation, route }) {
       setTimeout(() => {
         setNotificationVisible(false);
       }, 3000);
-
       console.log(error);
       setSend("Send");
     }

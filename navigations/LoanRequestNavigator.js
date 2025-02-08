@@ -1,7 +1,7 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Routes from "../utils/constants/routes";
-import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
+import { View, StyleSheet } from "react-native";
 import LoanRequestIntro from "../screens/App/Request/LoanRequestIntro";
 import LoanRequestDetails from "../screens/App/Request/LoanRequestDetails";
 import LoanRequestAmount from "../screens/App/Request/LoanRequestAmount";
@@ -13,6 +13,7 @@ const Stack = createNativeStackNavigator();
 
 const LoanRequestNavigator = () => {
   return (
+    // DataProvider is better practice to form json body along each screen when filling loan request form
     <DataProvider>
       <View style={styles.container}>
         <Stack.Navigator

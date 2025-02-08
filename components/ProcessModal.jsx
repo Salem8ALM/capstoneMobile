@@ -1,52 +1,88 @@
-import React, { useState, useRef, useEffect } from "react";
-import { View, StyleSheet, Animated, Text, Modal } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import {
+  View,
+  StyleSheet,
+  Animated,
+  Text,
+  Modal,
+  Dimensions,
+} from "react-native";
+import { ActivityIndicator, Surface } from "react-native-paper";
+import LottieView from "lottie-react-native";
+
+const { width } = Dimensions.get("window");
 
 export default function ProcessModal({ visible, onClose, navigation }) {
-  const [process, setProcess] = useState("processing"); // Track current process state
-  const [dots, setDots] = useState(""); // Track dots animation
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Fade animation
-  const scaleAnim = useRef(new Animated.Value(0.5)).current; // Scale animation
+  const [process, setProcess] = useState("processing");
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.5)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
+
+  const lottieRef = useRef(null);
 
   useEffect(() => {
     if (visible) {
       handleProcess();
+      startRotationAnimation();
     }
   }, [visible]);
 
   const handleProcess = () => {
-    setTimeout(() => {
-      setProcess("sending");
-      setDots("");
-    }, 1000);
-
-    setTimeout(() => {
-      setProcess("processing");
-      setDots("...");
-      Animated.timing(fadeAnim, {
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 5,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.timing(progressAnim, {
         toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
+        duration: 5000,
+        useNativeDriver: false,
+      }),
+    ]).start();
 
+    setTimeout(() => setProcess("sending"), 3000);
+    setTimeout(() => {
+      onClose();
       setTimeout(() => {
-        setProcess("sending");
-      }, 2000);
-
-      setTimeout(() => {
-        setProcess("confirmation");
-        setTimeout(() => {
-          onClose(); // Close modal after confirmation
-          setTimeout(() => {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Dashboard" }],
-            });
-          }, 0);
-        }, 2000); // Keep confirmation for 2 seconds before navigating
-      }, 4000);
-    }, 2000); // Delay before starting processing
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "Dashboard" }],
+        });
+      }, 0);
+    }, 6000);
   };
+
+  const startRotationAnimation = () => {
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: true,
+      })
+    ).start();
+  };
+
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
+  const progressWidth = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, width - 80],
+  });
 
   return (
     <Modal
@@ -56,45 +92,46 @@ export default function ProcessModal({ visible, onClose, navigation }) {
       onRequestClose={onClose}
     >
       <View style={styles.container}>
-        {/* Background Animation or Visuals */}
-        <View style={styles.backgroundContainer}>
-          <Text style={styles.backgroundText}>Processing Your Request...</Text>
-        </View>
-
-        {/* Animated processing screen */}
-        <Animated.View
-          style={[
-            styles.centered,
-            { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
-          ]}
-        >
-          {process === "processing" && (
-            <View style={styles.processContainer}>
-              <MaterialCommunityIcons
-                name="loading"
-                size={100}
-                color="#FFD700"
+        <Surface style={styles.surface}>
+          <Animated.View
+            style={[
+              styles.centered,
+              { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
+            ]}
+          >
+            {process === "processing" && (
+              <Animated.View
+                style={[
+                  styles.iconContainer,
+                  { transform: [{ rotate: spin }] },
+                ]}
+              >
+                <ActivityIndicator size={80} color="#FFD700" />
+              </Animated.View>
+            )}
+            {process === "sending" && (
+              <LottieView
+                ref={lottieRef}
+                source={require("../assets/confirmation-animation.json")}
+                autoPlay
+                loop={false}
+                style={styles.lottieAnimation}
+                colorFilters={[
+                  {
+                    keypath: "**",
+                    color: "#FFD700",
+                  },
+                ]}
               />
-              <Text style={styles.processText}>Processing{dots}</Text>
-            </View>
-          )}
-          {process === "sending" && (
-            <View style={styles.processContainer}>
-              <MaterialCommunityIcons name="send" size={100} color="#FFD700" />
-              <Text style={styles.processText}>Sending...</Text>
-            </View>
-          )}
-          {process === "confirmation" && (
-            <View style={styles.processContainer}>
-              <MaterialCommunityIcons
-                name="check-circle"
-                size={100}
-                color="#FFD700"
-              />
-              <Text style={styles.processText}>Confirmation</Text>
-            </View>
-          )}
-        </Animated.View>
+            )}
+            <Text style={styles.processText}>
+              {process === "processing" ? "Processing" : "Sending Confirmation"}
+            </Text>
+            <Animated.View
+              style={[styles.progressBar, { width: progressWidth }]}
+            />
+          </Animated.View>
+        </Surface>
       </View>
     </Modal>
   );
@@ -105,40 +142,38 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.7)", // Semi-transparent background
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
-  backgroundContainer: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    justifyContent: "center",
+  surface: {
+    padding: 20,
+    height: 300,
+    width: width - 40,
     alignItems: "center",
-    backgroundColor: "#333",
-    opacity: 0.5, // Add some transparency
-    borderRadius: 10,
-    zIndex: -1, // Send the background behind the animated content
-  },
-  backgroundText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#FFD700",
-    textAlign: "center",
+    justifyContent: "center",
+    borderRadius: 15,
+    backgroundColor: "#1E1E1E",
   },
   centered: {
     alignItems: "center",
     justifyContent: "center",
   },
-  processContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+  iconContainer: {
     marginBottom: 20,
   },
   processText: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#FFD700",
-    marginTop: 10,
+    marginTop: 20,
+  },
+  lottieAnimation: {
+    width: 200,
+    height: 200,
+  },
+  progressBar: {
+    height: 4,
+    backgroundColor: "#FFD700",
+    borderRadius: 2,
+    marginTop: 20,
   },
 });
