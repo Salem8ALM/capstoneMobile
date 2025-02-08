@@ -10,6 +10,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LoanRequestCard } from "../../../components/LoanRequestCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRef } from "react";
+import Routes from "../../../utils/constants/routes";
 
 // Sample data
 const loanRequests = [
@@ -64,7 +65,7 @@ export default function LoanDashboard({ navigation }) {
       toValue: 1,
       duration: 150,
       useNativeDriver: true,
-    }).start(() => navigation.navigate("NewLoanRequest"));
+    }).start(() => navigation.navigate(Routes.LoanRequest.LoanRequestIntro));
   };
 
   return (
@@ -97,7 +98,10 @@ export default function LoanDashboard({ navigation }) {
           <LoanRequestCard
             key={loan.id}
             {...loan}
-            onPress={() => console.log("Pressed loan:", loan.id)}
+            onPress={() => {
+              // navigation.navigate(Routes.LoanRequest.LoanResponseViewAll);
+              console.log("Pressed loan:", loan.id);
+            }}
           />
         ))}
       </ScrollView>
@@ -107,6 +111,7 @@ export default function LoanDashboard({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 20,
     flex: 1,
     backgroundColor: "#1a1a1a",
   },
@@ -128,6 +133,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+    paddingBottom: 100,
   },
   addButton: {
     width: 50,

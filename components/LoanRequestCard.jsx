@@ -60,6 +60,12 @@ export const LoanRequestCard = ({
           <Card.Content>
             <View style={styles.header}>
               <View style={styles.titleContainer}>
+                <MaterialCommunityIcons
+                  name="file-document"
+                  size={20}
+                  color="#FFD700"
+                />
+
                 <Text variant="titleMedium" style={styles.title}>
                   {title}
                 </Text>
@@ -85,14 +91,8 @@ export const LoanRequestCard = ({
                   Loan Amount
                 </Text>
                 <View style={styles.amountContainer}>
-                  <MaterialCommunityIcons
-                    name="currency-usd"
-                    size={16}
-                    color="#FFD700"
-                    style={styles.animatedIcon}
-                  />
                   <Text variant="bodyMedium" style={styles.value}>
-                    {amount.toLocaleString()}
+                    {amount.toLocaleString() + " KWD"}
                   </Text>
                 </View>
               </View>
@@ -141,6 +141,20 @@ export const LoanRequestCard = ({
   );
 };
 
+const DetailItem = ({ icon, label, value }) => (
+  <View style={styles.detailItem}>
+    <View style={styles.iconLabelContainer}>
+      <MaterialCommunityIcons name={icon} size={16} color="#FFD700" />
+      <Text variant="bodySmall" style={styles.label}>
+        {label}
+      </Text>
+    </View>
+    <Text variant="bodyMedium" style={styles.value}>
+      {value}
+    </Text>
+  </View>
+);
+
 const styles = StyleSheet.create({
   animatedContainer: {
     overflow: "hidden",
@@ -166,6 +180,7 @@ const styles = StyleSheet.create({
   title: {
     color: "white",
     marginRight: 8,
+    marginLeft: 8,
   },
   newBadge: {
     backgroundColor: "#FFD700",
