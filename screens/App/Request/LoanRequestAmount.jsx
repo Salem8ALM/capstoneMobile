@@ -243,16 +243,16 @@ const LoanRequestAmount = ({ navigation }) => {
   ];
 
   const loanAmountList = [
-    { label: "$1,000", value: "1000" },
-    { label: "$2,500", value: "2500" },
-    { label: "$5,000", value: "5000" },
-    { label: "$10,000", value: "10000" },
-    { label: "$15,000", value: "15000" },
-    { label: "$20,000", value: "20000" },
-    { label: "$25,000", value: "25000" },
-    { label: "$50,000", value: "50000" },
-    { label: "$75,000", value: "75000" },
-    { label: "$100,000", value: "100000" },
+    { label: "1,000 KWD", value: "1000" },
+    { label: "2,500 KWD", value: "2500" },
+    { label: "5,000 KWD", value: "5000" },
+    { label: "10,000 KWD", value: "10000" },
+    { label: "15,000 KWD", value: "15000" },
+    { label: "20,000 KWD", value: "20000" },
+    { label: "25,000 KWD", value: "25000" },
+    { label: "50,000 KWD", value: "50000" },
+    { label: "75,000 KWD", value: "75000" },
+    { label: "100,000 KWD", value: "100000" },
   ];
 
   const loanTermList = [

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useContext } from "react";
 import {
   View,
   StyleSheet,
@@ -15,17 +15,53 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import Routes from "../../../utils/constants/routes";
 import ProcessModal from "../../../components/ProcessModal";
+import { useData } from "../../../context/DataContext";
+import { getToken } from "../../../storage/TokenStorage";
+import { sendLoanRequest } from "../../../api/LoanRequest";
+import UserContext from "../../../context/UserContext";
 
-export default function LoanRequestReview() {
-  const navigation = useNavigation();
+export default function LoanRequestReview({ navigation, route }) {
+  const { loanAmount, loanTerm, repaymentPlan } = route.params; // Accessing passed params
+
+  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
+    useContext(UserContext);
+
+  const [Send, setSend] = useState("Send");
+
+  const { data } = useData(); // Destructure the update function
 
   const reviewAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const handleOpenModal = () => {
-    setIsModalVisible(true);
+  const checkToken = async () => {
+    const token = await getToken("access");
+    console.log("INside check token " + token);
+
+    if (token) {
+      setAuthenticated(true);
+
+      return token;
+    } else {
+      Alert.alert("Please log in again", "The session has timed out");
+    }
+  };
+
+  const handleOpenModal = async () => {
+    setSend("Sending Loan Request ...");
+
+    try {
+      const token = await checkToken();
+      const response = await sendLoanRequest(token, data);
+      console.log(response);
+      setIsModalVisible(true);
+    } catch (error) {
+      console.log(error);
+      setSubmitText("Submit");
+    }
+
+    setSend("Send");
   };
 
   const handleCloseModal = () => {
@@ -39,11 +75,6 @@ export default function LoanRequestReview() {
       useNativeDriver: true,
     }).start();
   }, []);
-
-  const handleReview = () => {
-    console.log("send button pressed");
-    navigation.navigate(Routes.LoanRequest.LoanRequestSubmission);
-  };
 
   useEffect(() => {
     Animated.parallel([
@@ -69,32 +100,40 @@ export default function LoanRequestReview() {
               {
                 icon: "tag",
                 label: "Loan Nickname",
-                value: "Personal Growth Loan",
+                value: data.loanTitle,
               },
               {
                 icon: "file-document",
                 label: "Loan Description",
-                value: "For tuition and personal development expenses.",
+                value: data.loanPurpose,
               },
               {
                 icon: "cash",
                 label: "Loan Amount",
-                value: "$10,000",
+                value: loanAmount,
               },
               {
                 icon: "calendar",
                 label: "Loan Term",
-                value: "5 Years",
+                value: loanTerm,
               },
               {
                 icon: "credit-card",
                 label: "Repayment Plan",
-                value: "Monthly Installments",
+                value: repaymentPlan,
               },
               {
                 icon: "bank",
                 label: "Selected Banks",
-                value: "Bank of America, Chase, CitiBank",
+                value: data.selectedBanks
+                  .map(
+                    (bank) =>
+                      bank
+                        .toLowerCase() // Convert to lowercase
+                        .replace(/_/g, " ") // Replace underscores with spaces
+                        .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize first letter
+                  )
+                  .join(", "),
               },
             ].map((item, index) => (
               <View key={index}>
@@ -129,7 +168,7 @@ export default function LoanRequestReview() {
               style={styles.submit}
               labelStyle={styles.buttonText}
             >
-              Send
+              {Send}
             </Button>
           </View>
         </Animated.View>

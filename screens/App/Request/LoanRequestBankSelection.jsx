@@ -48,8 +48,13 @@ export default function LoanRequestBankSelection({ navigation, route }) {
       console.log(`loan Term: ${loanTerm}`);
       console.log(`repayment Plan: ${repaymentPlan}`);
       console.log(`Data stored: ${JSON.stringify(data)}`);
+      console.log(`Data stored: ${data.loanTitle}`);
 
-      navigation.navigate(Routes.LoanRequest.LoanRequestReview);
+      navigation.navigate(Routes.LoanRequest.LoanRequestReview, {
+        loanAmount: loanAmount,
+        loanTerm: loanTerm,
+        repaymentPlan: repaymentPlan,
+      });
     }
   };
 

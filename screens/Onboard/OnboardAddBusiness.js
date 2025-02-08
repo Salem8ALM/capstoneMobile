@@ -162,47 +162,6 @@ const OnboardAddBusiness = () => {
     }
   };
 
-  const downloadFinancialStatement = async () => {
-    console.log("downloaded");
-    // try {
-    //   const token = await checkToken();
-
-    //   const responseComplete = await getFinancialStatementAPI(token); // Make API request to download the file
-    //   let response = responseComplete.financialStatementPDF;
-    //   console.log(response); // Log the response to verify
-
-    //   if (response && response.data) {
-    //     // Assuming response.data is the byte[] or base64 string
-    //     const byteArray = response.data; // This should be your byte array or base64 string
-
-    //     // Convert byte array to base64 string if needed (ensure your API returns base64 or buffer)
-    //     const base64Data = byteArray; // If response is byte[], convert it to base64 string
-
-    //     // Create file path to save the PDF locally (using react-native-fs)
-    //     const filePath =
-    //       RNFS.DocumentDirectoryPath + "/financial_statement.pdf";
-
-    //     // Write the base64 data to the file path
-    //     await RNFS.writeFile(filePath, base64Data, "base64");
-    //     Alert.alert(
-    //       "Download Successful",
-    //       "Financial statement downloaded to your device."
-    //     );
-
-    //     // Optionally, open the file after download (if you want to automatically open the PDF)
-    //     await RNFS.openFile(filePath);
-    //   } else {
-    //     Alert.alert("Error", "No financial statement available.");
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    //   Alert.alert(
-    //     "Failed to Download",
-    //     "An error occurred while downloading the financial statement."
-    //   );
-    // }
-  };
-
   const performOCR = async (file) => {
     let myHeaders = new Headers();
     myHeaders.append("apikey", Constants.expoConfig.extra.apiKey);
