@@ -89,33 +89,6 @@ const OnboardAddBusiness = () => {
 
   const businessNicknameAnim = useRef(new Animated.Value(0)).current;
 
-  const fetchImage = async () => {
-    try {
-      setIsLoading(true);
-      const fileId = 1; // Replace with the actual file ID you want to fetch
-      const token =
-        "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJjNDMwMzRmZi1iYzYxLTRiZDMtYjRjYi0xNTMxNzE3NDU5NzgiLCJzdWIiOiJlbmdyaWJyYWhpbWFkbmFuIiwicm9sZXMiOiJCVVNJTkVTU19PV05FUiIsImJhbmsiOiJOT1RfQkFOSyIsImNpdmlsSWQiOiIwMDAwMDAwMDAwMDAiLCJ0eXBlIjoiQUNDRVNTIiwiaWF0IjoxNzM4MDg2MjE3LCJleHAiOjE3MzgwODk4MTd9.k4c6g206nFGJj2sqX7LAzBkZ02Cc63bKM8cwL5y4gBI"; // Replace with your actual token
-
-      // Construct the URL to fetch the image
-      const url = `http://192.168.2.143:8080/api/files/${4}`;
-
-      // Fetch the base64 string of the imag
-      const base64Data = await getBase64(url, token);
-
-      // Update the URI to show the image from base64 data
-      setImageUri(`data:image/png;base64,${base64Data}`);
-    } catch (error) {
-      console.error("Error fetching image:", error);
-      // Show an error message to the user
-      Alert.alert(
-        "Error",
-        error.message || "There was an error fetching the image."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // checking token and whether the user is onboarded
   const checkUserState = async () => {
     const token = await checkToken();
@@ -187,47 +160,6 @@ const OnboardAddBusiness = () => {
       console.log("Error picking file:", error);
       Alert.alert("Error", "Something went wrong while picking the file.");
     }
-  };
-
-  const downloadFinancialStatement = async () => {
-    console.log("downloaded");
-    // try {
-    //   const token = await checkToken();
-
-    //   const responseComplete = await getFinancialStatementAPI(token); // Make API request to download the file
-    //   let response = responseComplete.financialStatementPDF;
-    //   console.log(response); // Log the response to verify
-
-    //   if (response && response.data) {
-    //     // Assuming response.data is the byte[] or base64 string
-    //     const byteArray = response.data; // This should be your byte array or base64 string
-
-    //     // Convert byte array to base64 string if needed (ensure your API returns base64 or buffer)
-    //     const base64Data = byteArray; // If response is byte[], convert it to base64 string
-
-    //     // Create file path to save the PDF locally (using react-native-fs)
-    //     const filePath =
-    //       RNFS.DocumentDirectoryPath + "/financial_statement.pdf";
-
-    //     // Write the base64 data to the file path
-    //     await RNFS.writeFile(filePath, base64Data, "base64");
-    //     Alert.alert(
-    //       "Download Successful",
-    //       "Financial statement downloaded to your device."
-    //     );
-
-    //     // Optionally, open the file after download (if you want to automatically open the PDF)
-    //     await RNFS.openFile(filePath);
-    //   } else {
-    //     Alert.alert("Error", "No financial statement available.");
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    //   Alert.alert(
-    //     "Failed to Download",
-    //     "An error occurred while downloading the financial statement."
-    //   );
-    // }
   };
 
   const performOCR = async (file) => {

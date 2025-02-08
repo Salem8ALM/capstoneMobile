@@ -15,6 +15,14 @@ const Routes = {
     OnboardAddBusiness: "OnboardAddBusiness",
     Settings: "SettingsScreen",
   },
+  LoanRequest: {
+    LoanRequestIntro: "Loan Request Intro",
+    LoanRequestDetails: "Loan Request Details",
+    LoanRequestAmount: "Loan Request Amount",
+    LoanRequestBankSelection: "LoanRequestBankSelection",
+    LoanRequestReview: "Loan Request Review",
+    LoanRequestSubmission: "Loan Request Submission",
+  },
 };
 
 export default Routes;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Image,
@@ -6,10 +6,10 @@ import {
   ActivityIndicator,
   Alert,
   Button,
-} from 'react-native';
-import axios from 'axios';
-import { Buffer } from 'buffer';
-import { getToken } from '../storage/TokenStorage';
+} from "react-native";
+import axios from "axios";
+import { Buffer } from "buffer";
+import { getToken } from "../storage/TokenStorage";
 
 function getBase64(url, token) {
   return axios
@@ -17,12 +17,12 @@ function getBase64(url, token) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      responseType: 'arraybuffer',
+      responseType: "arraybuffer",
     })
-    .then((response) => Buffer.from(response.data, 'binary').toString('base64'))
+    .then((response) => Buffer.from(response.data, "binary").toString("base64"))
     .catch((error) => {
-      console.error('Error fetching the image:', error);
-      throw new Error('Error fetching image. Please try again later.');
+      console.error("Error fetching the image:", error);
+      throw new Error("Error fetching image. Please try again later.");
     });
 }
 
@@ -33,14 +33,14 @@ export function ImageFetcher({ fileId = 2, style }) {
   const fetchImage = async () => {
     try {
       setIsLoading(true);
-      const token = await getToken('access');
-      const url = `http://192.168.8.6:8080/api/files/${fileId}`;
+      const token = await getToken("access");
+      const url = `http://192.168.2.143:8080/api/files/${fileId}`;
       const base64Data = await getBase64(url, token);
       setImageUri(`data:image/png;base64,${base64Data}`);
     } catch (error) {
       Alert.alert(
-        'Error',
-        error.message || 'There was an error fetching the image.'
+        "Error",
+        error.message || "There was an error fetching the image."
       );
     } finally {
       setIsLoading(false);
@@ -50,7 +50,7 @@ export function ImageFetcher({ fileId = 2, style }) {
   return (
     <View style={styles.container}>
       <Button title="Fetch Image" onPress={fetchImage} disabled={isLoading} />
-      
+
       {isLoading && (
         <ActivityIndicator
           size="large"
@@ -60,10 +60,7 @@ export function ImageFetcher({ fileId = 2, style }) {
       )}
 
       {imageUri && (
-        <Image 
-          source={{ uri: imageUri }} 
-          style={[styles.image, style]} 
-        />
+        <Image source={{ uri: imageUri }} style={[styles.image, style]} />
       )}
     </View>
   );
@@ -71,7 +68,7 @@ export function ImageFetcher({ fileId = 2, style }) {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   image: {
     width: 300,
@@ -83,4 +80,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ImageFetcher; 
+export default ImageFetcher;

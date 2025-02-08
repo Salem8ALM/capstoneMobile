@@ -1,17 +1,12 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import LoginScreen from "../screens/Auth/LoginScreen";
-import RegisterScreen from "../screens/Auth/RegisterScreen";
 import Routes from "../utils/constants/routes";
-import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
-import DiagonalLines from "../utils/animations/DiagonalLines";
+import { View, StyleSheet } from "react-native";
 import OnboardWelcome from "../screens/Onboard/OnboardWelcome";
 import OnboardAddBusiness from "../screens/Onboard/OnboardAddBusiness";
 import OnboardAnimations from "../utils/animations/OnboardAnimations";
-import { Text } from "react-native-paper";
 
 const Stack = createNativeStackNavigator();
-const { width, height } = Dimensions.get("window");
 
 const OnboardingNavigator = () => {
   return (
@@ -51,8 +46,6 @@ const OnboardingNavigator = () => {
     </View>
   );
 };
-
-// options={{
 
 const styles = StyleSheet.create({
   container: {
