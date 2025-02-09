@@ -1,33 +1,67 @@
-import React, { useContext } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import ImageFetcher from "../../components/ImageFetcher";
-import { deleteToken } from "../../storage/TokenStorage";
-import UserContext from "../../context/UserContext";
+"use client"
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native"
+import AnimatedScreen from "../../components/AnimatedScreen"
+import ImageFetcher from "../../components/ImageFetcher"
+import { Feather } from "@expo/vector-icons"
+import { useContext } from "react"
+import UserContext from "../../context/UserContext"
+import { deleteToken } from "../../storage/TokenStorage"
 
 export function Profile() {
-  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
-    useContext(UserContext);
+  const { setAuthenticated } = useContext(UserContext)
+
+  const handleLogout = async () => {
+    try {
+      await deleteToken("access")
+      setAuthenticated(false)
+    } catch (error) {
+      console.error("Error during logout:", error)
+    }
+  }
 
   return (
-    <View style={styles.container}>
-      <ImageFetcher
-        fileId={1}
-        style={styles.profileImage} // Optional custom styling
-      />
-      <View style={styles.infoContainer}>
-        <TouchableOpacity
-          onPress={async () => {
-            setAuthenticated(false);
-            await deleteToken("access");
-          }}
-          style={[styles.container, styles.absoluteTopLeft]}
-        >
-          <Text style={styles.logout}>Logout</Text>
-        </TouchableOpacity>
+    <AnimatedScreen>
+      <View style={styles.container}>
+        <ImageFetcher fileId={2} style={styles.profileImage} />
+        <View style={styles.infoContainer}>
+          <Text style={styles.name}>firstName lastName</Text>
+          <Text style={styles.phone}>+965 9234 9321</Text>
+        </View>
 
-        <Text>Name</Text>
-        <Text>Email</Text>
-        <Text>Phone</Text>
+        <View style={styles.buttonSection}>
+          <TouchableOpacity style={styles.button}>
+            <View style={styles.buttonContent}>
+              <Feather name="file-text" size={24} color="#FFD700" />
+              <View style={styles.buttonTextContainer}>
+                <Text style={styles.buttonText}>Business License</Text>
+                <Text style={styles.buttonSubtext}>View your business documents</Text>
+              </View>
+            </View>
+            <Feather name="chevron-right" size={24} color="#FFD700" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.button}>
+            <View style={styles.buttonContent}>
+              <Feather name="bar-chart-2" size={24} color="#FFD700" />
+              <View style={styles.buttonTextContainer}>
+                <Text style={styles.buttonText}>Financial Statement</Text>
+                <Text style={styles.buttonSubtext}>View your financial records</Text>
+              </View>
+            </View>
+            <Feather name="chevron-right" size={24} color="#FFD700" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+            <View style={styles.buttonContent}>
+              <Feather name="log-out" size={24} color="#FF4444" />
+              <View style={styles.buttonTextContainer}>
+                <Text style={[styles.buttonText, { color: "#FF4444" }]}>Logout</Text>
+                <Text style={styles.buttonSubtext}>Sign out of your account</Text>
+              </View>
+            </View>
+            <Feather name="chevron-right" size={24} color="#FF4444" />
+          </TouchableOpacity>
+        </View>
       </View>
     </AnimatedScreen>
   )
