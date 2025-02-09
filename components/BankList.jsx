@@ -29,6 +29,16 @@ const bankData = [
   { name: "KIB", component: KIBRequest, isIslamic: true },
 ];
 
+const bankMappings = {
+  ABK: "ABK_BANK",
+  Boubyan: "BOUBYAN_BANK",
+  Burgan: "BURGAN_BANK",
+  KFH: "KUWAIT_FINANCE_HOUSE",
+  NBK: "NBK_BANK",
+  Warba: "WARBA_BANK",
+  KIB: "KUWAIT_INTERNATIONAL_BANK",
+};
+
 export function BankList({ setBanksSelected }) {
   const [selectedCards, setSelectedCards] = useState(
     Object.fromEntries(bankData.map((bank) => [bank.name, false]))
@@ -60,16 +70,6 @@ export function BankList({ setBanksSelected }) {
         })
       );
 
-      const bankMappings = {
-        ABK: "ABK_BANK",
-        Boubyan: "BOUBYAN_BANK",
-        Burgan: "BURGAN_BANK",
-        KFH: "KUWAIT_FINANCE_HOUSE",
-        NBK: "NBK_BANK",
-        Warba: "WARBA_BANK",
-        KIB: "KUWAIT_INTERNATIONAL_BANK",
-      };
-
       const selectedBanksList = Object.entries(updatedState)
         .filter(([_, isSelected]) => isSelected) // Only selected banks
         .map(([name]) => bankMappings[name]); // Map to identifiers
@@ -94,15 +94,6 @@ export function BankList({ setBanksSelected }) {
   const handleCardSelect = (bankName) => {
     setSelectedCards((prev) => {
       const updatedState = { ...prev, [bankName]: !prev[bankName] };
-
-      const bankMappings = {
-        ABK: "ABK_BANK",
-        Boubyan: "BOUBYAN_BANK",
-        Burgan: "BURGAN_BANK",
-        KFH: "KUWAIT_FINANCE_HOUSE",
-        NBK: "NBK_BANK",
-        Warba: "WARBA_BANK",
-      };
 
       const selectedBanksList = Object.entries(updatedState)
         .filter(([bankName, isSelected]) => isSelected) // Only keep selected banks
