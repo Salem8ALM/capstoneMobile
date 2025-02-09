@@ -111,10 +111,12 @@ const styles = StyleSheet.create({
   logout: {
     color: "white",
     fontSize: 20,
+    color: '#fff',
+    fontWeight: 'bold',
   },
   absoluteTopLeft: {
     position: "absolute",
-    top: 40, // Adjust to your desired distance from the top
+    top: 50, // Adjust to your desired distance from the top
     left: 20, // Adjust to your desired distance from the left
     zIndex: 1, // Ensure it appears above other components if overlapping
   },

@@ -29,8 +29,8 @@ export function Profile() {
         <Text>Email</Text>
         <Text>Phone</Text>
       </View>
-    </View>
-  );
+    </AnimatedScreen>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -40,12 +40,59 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profileImage: {
-    // Custom image styling if needed
-    width: 300,
-    height: 300,
-    borderRadius: 150, // Optional: makes the image circular
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignSelf: "center",
+    marginTop: 40,
+    borderWidth: 2,
+    borderColor: "#FFD700",
   },
   infoContainer: {
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 40,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    marginBottom: 8,
+  },
+  phone: {
+    fontSize: 16,
+    color: "#A1A1AA",
+  },
+  buttonSection: {
+    gap: 16,
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "rgba(255, 215, 0, 0.1)",
+    padding: 16,
+    borderRadius: 12,
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  buttonTextContainer: {
+    gap: 4,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+  buttonSubtext: {
+    fontSize: 12,
+    color: "#A1A1AA",
+  },
+  logoutButton: {
+    backgroundColor: "rgba(255, 68, 68, 0.1)",
     marginTop: 20,
     alignItems: "center",
   },
@@ -61,4 +108,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Profile;
+export default Profile
+

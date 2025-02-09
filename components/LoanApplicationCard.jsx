@@ -43,8 +43,8 @@ const styles = StyleSheet.create({
     height: 170,
     backgroundColor: '#3D3D47',
      borderRadius: 24,
-    borderWidth: 2,
-    borderColor: '#FFD700', // Optional for styling,
+    borderWidth: 1,
+    borderColor: '#505059', // Optional for styling,
   },
   title: {
     fontSize: 24,
