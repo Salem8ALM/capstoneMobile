@@ -20,14 +20,24 @@ import BurganRequest from "./BurganRequest";
 import KIBRequest from "./KIBRequest";
 
 const bankData = [
-  { name: "Warba", component: WarbaRequest, isIslamic: true },
+  { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
   { name: "NBK", component: NBKRequest, isIslamic: false },
   { name: "KFH", component: KFHRequest, isIslamic: true },
   { name: "ABK", component: ABKRequest, isIslamic: false },
-  { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
+  { name: "Warba", component: WarbaRequest, isIslamic: true },
   { name: "Burgan", component: BurganRequest, isIslamic: false },
   { name: "KIB", component: KIBRequest, isIslamic: true },
 ];
+
+const bankMappings = {
+  ABK: "ABK_BANK",
+  Boubyan: "BOUBYAN_BANK",
+  Burgan: "BURGAN_BANK",
+  KFH: "KUWAIT_FINANCE_HOUSE",
+  NBK: "NBK_BANK",
+  Warba: "WARBA_BANK",
+  KIB: "KUWAIT_INTERNATIONAL_BANK",
+};
 
 export function BankList({ setBanksSelected }) {
   const [selectedCards, setSelectedCards] = useState(
@@ -60,16 +70,6 @@ export function BankList({ setBanksSelected }) {
         })
       );
 
-      const bankMappings = {
-        ABK: "ABK_BANK",
-        Boubyan: "BOUBYAN_BANK",
-        Burgan: "BURGAN_BANK",
-        KFH: "KUWAIT_FINANCE_HOUSE",
-        NBK: "NBK_BANK",
-        Warba: "WARBA_BANK",
-        KIB: "KUWAIT_INTERNATIONAL_BANK",
-      };
-
       const selectedBanksList = Object.entries(updatedState)
         .filter(([_, isSelected]) => isSelected) // Only selected banks
         .map(([name]) => bankMappings[name]); // Map to identifiers
@@ -94,15 +94,6 @@ export function BankList({ setBanksSelected }) {
   const handleCardSelect = (bankName) => {
     setSelectedCards((prev) => {
       const updatedState = { ...prev, [bankName]: !prev[bankName] };
-
-      const bankMappings = {
-        ABK: "ABK_BANK",
-        Boubyan: "BOUBYAN_BANK",
-        Burgan: "BURGAN_BANK",
-        KFH: "KUWAIT_FINANCE_HOUSE",
-        NBK: "NBK_BANK",
-        Warba: "WARBA_BANK",
-      };
 
       const selectedBanksList = Object.entries(updatedState)
         .filter(([bankName, isSelected]) => isSelected) // Only keep selected banks
