@@ -311,6 +311,7 @@ const OnboardAddBusiness = () => {
         name: "businessLicenseImage.jpg", // File name
       });
 
+      console.log("extracting text");
       // call the text extraction function here and pass the two images to get the two strings
       // Note the following two fields are nullable
       // Call OCR with the whole file asset, not just its uri

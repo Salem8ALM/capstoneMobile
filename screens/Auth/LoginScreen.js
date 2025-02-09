@@ -74,6 +74,7 @@ const LoginScreen = () => {
     }
 
     try {
+      console.log("civil id: " + civilId, password);
       const response = await loginAPI(civilId, password);
       setData(response); // Save the response data
 
