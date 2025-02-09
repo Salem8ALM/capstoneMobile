@@ -27,7 +27,8 @@ export default function LoanRequestBankSelection({ navigation, route }) {
   const handleReview = () => {
     console.log("review button pressed");
 
-    if (!banksSelected) {
+    // ensure the bank selection is not empty
+    if (!banksSelected || banksSelected.length === 0) {
       setNotificationMessage("Please fill in all fields.");
       setNotificationVisible(true);
       setTimeout(() => {
