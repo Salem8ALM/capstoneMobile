@@ -20,11 +20,11 @@ import BurganRequest from "./BurganRequest";
 import KIBRequest from "./KIBRequest";
 
 const bankData = [
-  { name: "Warba", component: WarbaRequest, isIslamic: true },
+  { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
   { name: "NBK", component: NBKRequest, isIslamic: false },
   { name: "KFH", component: KFHRequest, isIslamic: true },
   { name: "ABK", component: ABKRequest, isIslamic: false },
-  { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
+  { name: "Warba", component: WarbaRequest, isIslamic: true },
   { name: "Burgan", component: BurganRequest, isIslamic: false },
   { name: "KIB", component: KIBRequest, isIslamic: true },
 ];
