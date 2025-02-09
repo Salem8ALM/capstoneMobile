@@ -58,17 +58,8 @@ export default function App() {
   }, []);
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: '#292933',
-      }}
-      edges={[]}
-    >
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#292933"
-      />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#292933' }} edges={[]}>
+      <StatusBar barStyle="light-content" backgroundColor="#292933" />
       <PaperProvider>
         <NavigationContainer>
           <UserContext.Provider
@@ -79,29 +70,7 @@ export default function App() {
               setOnboarded,
             }}
           >
-            {authenticated ? (
-              onboarded ? (
-                <AppNavigator />
-              ) : (
-                <View style={{ 
-                  flex: 1,
-                  backgroundColor: '#fff'
-                }}>
-                  <TouchableOpacity
-                    onPress={async () => {
-                      setAuthenticated(false);
-                      await deleteToken("access");
-                    }}
-                    style={[styles.container, styles.absoluteTopLeft]}
-                  >
-                    <Text style={styles.logout}>Logout</Text>
-                  </TouchableOpacity>
-                  <OnboardingNavigator />
-                </View>
-              )
-            ) : (
-              <AuthNavigator />
-            )}
+            <AppNavigator />
           </UserContext.Provider>
         </NavigationContainer>
       </PaperProvider>
@@ -111,10 +80,12 @@ export default function App() {
 const styles = StyleSheet.create({
   logout: {
     fontSize: 20,
+    color: '#fff',
+    fontWeight: 'bold',
   },
   absoluteTopLeft: {
     position: "absolute",
-    top: 40, // Adjust to your desired distance from the top
+    top: 50, // Adjust to your desired distance from the top
     left: 20, // Adjust to your desired distance from the left
     zIndex: 1, // Ensure it appears above other components if overlapping
   },

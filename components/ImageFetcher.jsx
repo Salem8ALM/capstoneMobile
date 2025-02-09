@@ -34,7 +34,7 @@ export function ImageFetcher({ fileId = 2, style }) {
     try {
       setIsLoading(true);
       const token = await getToken('access');
-      const url = `http://192.168.8.6:8080/api/files/${fileId}`;
+      const url = `http://172.20.10.2:8080/api/files/${fileId}`;
       const base64Data = await getBase64(url, token);
       setImageUri(`data:image/png;base64,${base64Data}`);
     } catch (error) {
