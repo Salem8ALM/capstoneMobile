@@ -402,17 +402,6 @@ const OnboardAddBusiness = () => {
           </Button>
         </Animated.View>
 
-        <Button
-          icon={({ color }) => (
-            <MaterialCommunityIcons name="triangle" size={24} color={color} />
-          )}
-          mode="outlined"
-          style={styles.secondaryButton}
-          labelStyle={styles.secondaryButtonText}
-          onPress={downloadFinancialStatement}
-        >
-          download
-        </Button>
 
         <Animated.View
           style={[
