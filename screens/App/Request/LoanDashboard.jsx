@@ -14,42 +14,19 @@ import Routes from "../../../utils/constants/routes";
 import { getToken } from "../../../storage/TokenStorage";
 import { getAllRequestsAPI } from "../../../api/LoanRequest";
 
-// Sample data
-// const loanRequests = [
-//   {
-//     id: 1,
-//     title: "Business Expansion Loan",
-//     purpose: "Purchase new equipment",
-//     status: "Pending",
-//     amount: 50000,
-//     term: "36 months",
-//     repaymentPlan: "Monthly",
-//     dateUpdated: "2024-02-08",
-//     isNew: true,
-//   },
-//   {
-//     id: 2,
-//     title: "Working Capital Loan",
-//     purpose: "Inventory purchase",
-//     status: "Await Response",
-//     amount: 25000,
-//     term: "24 months",
-//     repaymentPlan: "Monthly",
-//     dateUpdated: "2024-02-07",
-//     isNew: true,
-//   },
-//   {
-//     id: 3,
-//     title: "Emergency Fund Loan",
-//     purpose: "Cash flow management",
-//     status: "Pending",
-//     amount: 15000,
-//     term: "12 months",
-//     repaymentPlan: "Monthly",
-//     dateUpdated: "2024-02-05",
-//     isNew: false,
-//   },
-// ];
+const loanTermMap = {
+  SIX_MONTHS: "6 Months",
+  ONE_YEAR: "1 Year",
+  TWO_YEARS: "2 Years",
+  FIVE_YEARS: "5 Years",
+};
+
+const formatRepaymentPlan = (plan) => {
+  return plan
+    .toLowerCase() // Convert to lowercase
+    .replace(/_/g, " ") // Replace underscores with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize each word
+};
 
 export default function LoanDashboard({ navigation }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -76,20 +53,25 @@ export default function LoanDashboard({ navigation }) {
     try {
       const token = await getToken("access");
 
+      
       try {
         const response = await getAllRequestsAPI(token);
         if (response?.allRequests) {
           const updatedRequests = response.allRequests.map((request) => ({
             ...request,
+            loanTerm: loanTermMap[request.loanTerm] || "Unknown", // Convert backend term to user-friendly text
+            repaymentPlan: formatRepaymentPlan(request.repaymentPlan), // Format repayment plan
+            status: request.status.replace(/_/g, " "), // Format repayment plan
+
             isNew: true, // Default to true as required
           }));
           setLoanRequests(updatedRequests);
         }
       } catch (error) {
-        console.log("Unable to retrieve loan requests", error);
+        console.error("Unable to retrieve loan requests:", error);
       }
     } catch (error) {
-      console.log("Unable to retrieve token", error);
+      console.error("Unable to retrieve token:", error);
     }
   };
 
@@ -97,13 +79,13 @@ export default function LoanDashboard({ navigation }) {
     // Fetch initially
     getAllRequests();
 
-    // Set up interval to fetch every 3 seconds
-    const interval = setInterval(() => {
-      getAllRequests();
-    }, 3000);
+    // // Set up interval to fetch every 3 seconds
+    // const interval = setInterval(() => {
+    //   getAllRequests();
+    // }, 3000);
 
-    // Cleanup function to clear interval on unmount
-    return () => clearInterval(interval);
+    // // Cleanup function to clear interval on unmount
+    // return () => clearInterval(interval);
   }, []);
 
   return (

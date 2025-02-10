@@ -3,6 +3,11 @@ import { View, StyleSheet, Animated, Pressable } from "react-native";
 import { Card, Text, Badge } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
+const formatDateTime = (dateTimeString) => {
+  const date = new Date(dateTimeString);
+  return date.toLocaleString(); // Formats to local date & time
+};
+
 export const LoanRequestCard = ({
   loanTitle,
   loanPurpose,
@@ -120,7 +125,7 @@ export const LoanRequestCard = ({
                   Last Updated
                 </Text>
                 <Text variant="bodyMedium" style={styles.value}>
-                  {new Date(statusDate).toLocaleDateString()}
+                  {formatDateTime(statusDate)}
                 </Text>
               </View>
             </View>
