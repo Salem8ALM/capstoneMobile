@@ -6,6 +6,7 @@ import {
   Alert,
   Dimensions,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import {
   ActivityIndicator,
@@ -93,6 +94,29 @@ const OnboardAddBusiness = () => {
 
   const businessNicknameAnim = useRef(new Animated.Value(0)).current;
 
+  const [avatarText, setAvatarText] = useState("camera-plus");
+  const [avatarIcon, setAvatarIcon] = useState("camera-plus");
+  const [avatar, setAvatar] = useState(null);
+
+  const avatarAnim = useRef(new Animated.Value(0)).current;
+
+  const handleChooseAvatar = () => {
+    if (true) {
+      // setAvatar(result.assets[0].uri);
+      Animated.sequence([
+        Animated.timing(avatarAnim, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(avatarAnim, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  };
   const checkBusinessEntity = async () => {
     const token = await getToken("access");
     try {
@@ -135,7 +159,7 @@ const OnboardAddBusiness = () => {
         const selectedAsset = result.assets[0];
 
         // Update state
-        setSelected(selectedAsset);
+        setSelected(selectedAsset.uri);
         setButtonText(message);
         setButtonIcon("file-check-outline");
       } else {
@@ -191,16 +215,18 @@ const OnboardAddBusiness = () => {
       }, 3000); // Hide the banner after 3 seconds
     } else {
       if (!selectedDocument) {
-        Alert.alert(
-          "Financial Statement Missing",
-          "Please upload your financial statement document."
-        );
+        setNotificationMessage("Don't forget to add a financial statement!");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       } else {
         if (!selectedPhoto) {
-          Alert.alert(
-            "Business License Missing",
-            "Please scan your business license document."
-          );
+          setNotificationMessage("Don't forget to add your business license!");
+          setNotificationVisible(true);
+          setTimeout(() => {
+            setNotificationVisible(false);
+          }, 3000); // Hide the banner after 3 seconds
         } else {
           try {
             const token = await getToken("access");
@@ -241,8 +267,11 @@ const OnboardAddBusiness = () => {
             await checkBusinessEntity(token);
             Alert.alert("Success", "added your business");
           } catch (error) {
-            console.log(error);
-            Alert.alert("Failed Login", "Failed to add your business!");
+            setNotificationMessage("Failed to add your business.");
+            setNotificationVisible(true);
+            setTimeout(() => {
+              setNotificationVisible(false);
+            }, 3000); // Hide the banner after 3 seconds
           }
         }
       }
@@ -280,7 +309,47 @@ const OnboardAddBusiness = () => {
 
       <View style={styles.content}>
         <Text style={styles.title}>Add Your Business</Text>
-        <Text style={styles.subtitle}>Please fill in all fields </Text>
+        {/* <Text style={styles.subtitle}>Please fill in all fields </Text> */}
+
+        <Animated.View
+          style={[
+            styles.avatarContainer,
+            {
+              transform: [
+                {
+                  scale: avatarAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <TouchableOpacity
+            onPress={() =>
+              pickFile(
+                setAvatar,
+                setUploadText,
+                setUploadIcon,
+                "Document Successfully Uploaded"
+              )
+            }
+            style={styles.avatarButton}
+          >
+            {avatar ? (
+              <Image source={{ uri: avatar }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <MaterialCommunityIcons
+                  name={avatarIcon}
+                  size={40}
+                  color="#FFD700"
+                />
+              </View>
+            )}
+          </TouchableOpacity>
+        </Animated.View>
 
         <Animated.View
           style={[
@@ -517,6 +586,37 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#FFD700",
     paddingVertical: 10,
+  },
+  avatarContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  avatarButton: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "rgba(255, 215, 0, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#FFD700",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+  },
+  avatarPlaceholder: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 215, 0, 0.1)",
+  },
+  avatarText: {
+    marginTop: 10,
+    color: "#FFD700",
+    fontSize: 16,
   },
 });
 

@@ -49,14 +49,16 @@ const OnboardAnimations = ({
       style={[
         StyleSheet.absoluteFillObject,
         {
-          opacity: 0.03,
+          opacity: 0.02,
           zIndex: 1,
           transform: [{ rotate }],
           pointerEvents: "none",
+          left: -width / 2, // Centering the lines
+          top: -height / 2, // Centering the lines
         },
       ]}
     >
-      {Array.from({ length: 100 }).map((_, i) => (
+      {Array.from({ length: 70 }).map((_, i) => (
         <View
           key={i}
           style={[styles.diagonalLine, { left: i * lineSpacing + lineOffset }]}
@@ -69,8 +71,8 @@ const OnboardAnimations = ({
 const styles = StyleSheet.create({
   diagonalLine: {
     position: "absolute",
-    width: 1000,
-    height: height * 2, // Ensures lines cover the entire height of the screen
+    width: width * 2.5, // Extend width to cover rotated corners
+    height: height * 2.5, // Extend height to ensure full coverage
     backgroundColor: "#FFD700", // Golden color for the lines
   },
 });

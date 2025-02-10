@@ -4,18 +4,11 @@ import AuthNavigator from "./navigations/AuthNavigator";
 import { useState, useEffect } from "react";
 import UserContext from "./context/UserContext";
 import AppNavigator from "./navigations/AppNavigator";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "react-native";
-
-//-------- although not currently in use, they will be used for token storage
-import {
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
 import OnboardingNavigator from "./navigations/OnboardingNavigator";
-import { deleteToken, getToken } from "./storage/TokenStorage";
+import { getToken } from "./storage/TokenStorage";
 import { getCompanyAPI } from "./api/Business";
 //----------
 
