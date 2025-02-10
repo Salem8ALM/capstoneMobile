@@ -15,6 +15,8 @@ import { getCompanyAPI } from "./api/Business";
 export default function App() {
   const [authenticated, setAuthenticated] = useState(false); // User authentication status
   const [onboarded, setOnboarded] = useState(false); // User onboarding status
+  const [business, setBusiness] = useState(null); // Company data
+  const [businessAvatar, setBusinessAvatar] = useState(null); // Company data
 
   // checking token and whether the user is onboarded
   const checkUserState = async () => {
@@ -23,11 +25,14 @@ export default function App() {
 
   const checkToken = async () => {
     const token = await getToken("access");
-    
-    await checkBusinessEntity(token);
-    console.log("INside check token" + token);
+
+    const businessData = await checkBusinessEntity(token);
+    console.log("Inside check token" + token);
     if (token) {
       setAuthenticated(true);
+      if (businessData) {
+        setBusiness(businessData); // Store business data in state
+      }
       return token;
     } else {
       Alert.alert("Please log in again", "The session has timed out");
@@ -36,11 +41,13 @@ export default function App() {
 
   const checkBusinessEntity = async (token) => {
     try {
-      await getCompanyAPI(token);
+      const response = await getCompanyAPI(token);
       setOnboarded(true);
+      return response; // Return the company data
     } catch (error) {
       setOnboarded(false);
       console.log(error);
+      return null; // Return null if no company data found
     }
   };
 
@@ -65,6 +72,10 @@ export default function App() {
               setAuthenticated,
               onboarded,
               setOnboarded,
+              business, // Provide company data here
+              setBusiness, // You can provide a setter function for modifying the company data
+              businessAvatar,
+              setBusinessAvatar,
             }}
           >
             {authenticated ? (

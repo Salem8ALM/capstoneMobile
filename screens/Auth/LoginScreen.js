@@ -42,8 +42,14 @@ const LoginScreen = () => {
   const [focusedField, setFocusedField] = useState("");
 
   // Used to change from AuthNavigator to AppNavigator after authenticatino
-  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
-    useContext(UserContext);
+  const {
+    authenticated,
+    setAuthenticated,
+    onboarded,
+    setOnboarded,
+    business,
+    setBusiness,
+  } = useContext(UserContext);
 
   const [data, setData] = useState(null);
 
@@ -52,25 +58,38 @@ const LoginScreen = () => {
   const passwordAnim = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(1)).current;
 
-  const checkBusinessEntity = async (token) => {
-    console.log(token);
-    try {
-      await getCompanyAPI(token);
-      setOnboarded(true);
-    } catch (error) {
-      setOnboarded(false);
-      console.log(error);
-    }
-  };
-
   // check if token exists
   const checkToken = async () => {
     const token = await getToken("access");
 
-    await checkBusinessEntity(token);
+    const businessData = await checkBusinessEntity(token);
 
-    if (token) setAuthenticated(true);
+    console.log("How about here" + businessData);
+
+    console.log("Inside check token" + token);
+    if (token) {
+      setAuthenticated(true);
+      if (businessData) {
+        setBusiness(businessData); // Store business data in state
+      }
+      return token;
+    }
   };
+
+  const checkBusinessEntity = async (token) => {
+    console.log(token);
+    try {
+      const response = await getCompanyAPI(token);
+      console.log("business: " + response);
+      setOnboarded(true);
+      return response;
+    } catch (error) {
+      setOnboarded(false);
+      console.log(error);
+      return null; // Return null if no company data found
+    }
+  };
+
   useEffect(() => {
     checkToken();
   });

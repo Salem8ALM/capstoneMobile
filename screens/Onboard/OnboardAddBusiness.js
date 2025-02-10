@@ -1,4 +1,10 @@
-import React, { useRef, useEffect, useContext, useState } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useContext,
+  useState,
+  useCallback,
+} from "react";
 import {
   StyleSheet,
   View,
@@ -37,23 +43,12 @@ import axios from "axios";
 import Constants from "expo-constants";
 import NotificationBanner from "../../utils/animations/NotificationBanner";
 
-const { width, height } = Dimensions.get("window");
+import waitingAnimation from "../../assets/waiting.json";
+import successAnimation from "../../assets/success.json";
+import failureAnimation from "../../assets/failure.json";
+import LottieAnimation from "../../components/LottieAnimation";
 
-function getBase64(url, token) {
-  return axios
-    .get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Attach the token in the headers
-      },
-      responseType: "arraybuffer", // Fetch the image as binary data
-    })
-    .then((response) => Buffer.from(response.data, "binary").toString("base64")) // Convert binary to base64
-    .catch((error) => {
-      // Log the error for debugging
-      console.error("Error fetching the image:", error);
-      throw new Error("Error fetching image. Please try again later.");
-    });
-}
+const { width, height } = Dimensions.get("window");
 
 const OnboardAddBusiness = () => {
   const navigation = useNavigation();
@@ -80,11 +75,21 @@ const OnboardAddBusiness = () => {
   // use state for focused field
   const [focusedField, setFocusedField] = useState("");
 
-  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
-    useContext(UserContext);
+  const {
+    authenticated,
+    setAuthenticated,
+    onboarded,
+    setOnboarded,
+    business,
+    setBusiness,
+    businessAvatar,
+    setBusinessAvatar,
+  } = useContext(UserContext);
 
   const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
   const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
+
+  const inputRef = useRef(null);
 
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
@@ -99,6 +104,14 @@ const OnboardAddBusiness = () => {
   const [avatar, setAvatar] = useState(null);
 
   const avatarAnim = useRef(new Animated.Value(0)).current;
+
+  const [animationState, setAnimationState] = useState("idle");
+
+  const handleAnimationFinish = useCallback(() => {
+    if (animationState === "success" || animationState === "failure") {
+      setAnimationState("idle");
+    }
+  }, [animationState]);
 
   const pressIn = () => {
     Animated.sequence([
@@ -122,10 +135,13 @@ const OnboardAddBusiness = () => {
   const checkBusinessEntity = async () => {
     const token = await getToken("access");
     try {
-      const business = await getCompanyAPI(token);
+      const response = await getCompanyAPI(token);
       setOnboarded(true);
+      return response;
     } catch (error) {
+      setOnboarded(false);
       console.log(error);
+      return null;
     }
   };
 
@@ -136,6 +152,11 @@ const OnboardAddBusiness = () => {
     setButtonIcon,
     message
   ) => {
+    setFocusedField("");
+    if (inputRef.current) {
+      inputRef.current.blur(); // Unfocus the TextInput
+    }
+
     try {
       // Request permission to access the media library
       const permissionResult =
@@ -205,79 +226,100 @@ const OnboardAddBusiness = () => {
   // logic when "Submit" button is pressed
   const handleSubmit = async () => {
     setSubmitText("Submitting");
-
     // ensure all required fields are filled
-    if (!businessNickname) {
-      setNotificationMessage("Don't forget to add a Business Nickname!");
+    if (!avatar) {
+      setNotificationMessage("Don't forget to add an avatar!");
       setNotificationVisible(true);
       setTimeout(() => {
         setNotificationVisible(false);
       }, 3000); // Hide the banner after 3 seconds
     } else {
-      if (!selectedDocument) {
-        setNotificationMessage("Don't forget to add a financial statement!");
+      if (!businessNickname) {
+        setNotificationMessage("Don't forget to add a Business Nickname!");
         setNotificationVisible(true);
         setTimeout(() => {
           setNotificationVisible(false);
         }, 3000); // Hide the banner after 3 seconds
       } else {
-        if (!selectedPhoto) {
-          setNotificationMessage("Don't forget to add your business license!");
+        if (!selectedDocument) {
+          setNotificationMessage("Don't forget to add a financial statement!");
           setNotificationVisible(true);
           setTimeout(() => {
             setNotificationVisible(false);
           }, 3000); // Hide the banner after 3 seconds
         } else {
-          try {
-            const token = await getToken("access");
-
-            // using
-            const formData = new FormData();
-
-            formData.append("businessAvatar", {
-              uri: avatar, // Path or URI to the file
-              type: "image/jpeg", // Adjust the type based on your file
-              name: "businessAvatar.jpeg", // File name
-            });
-            formData.append("businessNickname", businessNickname); // Send the text parameter
-            formData.append("financialStatementPDF", {
-              uri: selectedDocument, // Path or URI to the file
-              type: "image/jpeg", // Adjust the type based on your file
-              name: "financialStatementPDF.jpeg", // File name
-            });
-            formData.append("businessLicenseImage", {
-              uri: selectedPhoto, // Path or URI to the file
-              type: "image/jpeg", // Adjust the type based on your file
-              name: "businessLicenseImage.jpg", // File name
-            });
-
-            // call the text extraction function here and pass the two images to get the two strings
-            // Note the following two fields are nullable
-
-            // Call OCR with the whole file asset, not just its uri
-            const newFinancialStatementText = await performOCR(
-              selectedDocument
+          if (!selectedPhoto) {
+            setNotificationMessage(
+              "Don't forget to add your business license!"
             );
-            const newBusinessLicenseText = await performOCR(selectedPhoto);
-
-            console.log(newFinancialStatementText, newBusinessLicenseText);
-
-            formData.append(
-              "financialStatementText",
-              newFinancialStatementText
-            );
-            formData.append("businessLicenseText", newBusinessLicenseText);
-
-            const response = await addCompanyAPI(token, formData);
-
-            await checkBusinessEntity(token);
-            Alert.alert("Success", "added your business");
-          } catch (error) {
-            setNotificationMessage("Failed to add your business.");
             setNotificationVisible(true);
             setTimeout(() => {
               setNotificationVisible(false);
             }, 3000); // Hide the banner after 3 seconds
+          } else {
+            try {
+              setAnimationState("waiting");
+
+              const token = await getToken("access");
+
+              // using
+              const formData = new FormData();
+
+              formData.append("businessAvatar", {
+                uri: avatar, // Path or URI to the file
+                type: "image/jpeg", // Adjust the type based on your file
+                name: "businessAvatar.jpeg", // File name
+              });
+              formData.append("businessNickname", businessNickname); // Send the text parameter
+              formData.append("financialStatementPDF", {
+                uri: selectedDocument, // Path or URI to the file
+                type: "image/jpeg", // Adjust the type based on your file
+                name: "financialStatementPDF.jpeg", // File name
+              });
+              formData.append("businessLicenseImage", {
+                uri: selectedPhoto, // Path or URI to the file
+                type: "image/jpeg", // Adjust the type based on your file
+                name: "businessLicenseImage.jpg", // File name
+              });
+
+              // call the text extraction function here and pass the two images to get the two strings
+              // Note the following two fields are nullable
+
+              // Call OCR with the whole file asset, not just its uri
+              const newFinancialStatementText = await performOCR(
+                selectedDocument
+              );
+              const newBusinessLicenseText = await performOCR(selectedPhoto);
+
+              console.log(newFinancialStatementText, newBusinessLicenseText);
+
+              formData.append(
+                "financialStatementText",
+                newFinancialStatementText
+              );
+              formData.append("businessLicenseText", newBusinessLicenseText);
+
+              const response = await addCompanyAPI(token, formData);
+
+              const businessData = await checkBusinessEntity(token);
+              setBusiness(businessData); // Store business data in state
+
+              setAnimationState("success");
+              setTimeout(() => setAnimationState("idle"), 2000);
+
+              Alert.alert("Success", "added your business");
+            } catch (error) {
+              setAnimationState("failure");
+
+              // After 2 seconds, reset the animation state
+              setTimeout(() => setAnimationState("idle"), 2000);
+
+              setNotificationMessage("Failed to add your business.");
+              setNotificationVisible(true);
+              setTimeout(() => {
+                setNotificationVisible(false);
+              }, 3000); // Hide the banner after 3 seconds
+            }
           }
         }
       }
@@ -308,6 +350,21 @@ const OnboardAddBusiness = () => {
 
   return (
     <View style={styles.container}>
+      <LottieAnimation
+        source={waitingAnimation}
+        visible={animationState === "waiting"}
+        onAnimationFinish={() => {}}
+      />
+      <LottieAnimation
+        source={successAnimation}
+        visible={animationState === "success"}
+        onAnimationFinish={handleAnimationFinish}
+      />
+      <LottieAnimation
+        source={failureAnimation}
+        visible={animationState === "failure"}
+        onAnimationFinish={handleAnimationFinish}
+      />
       <NotificationBanner
         message={notificationMessage}
         visible={notificationVisible}
@@ -374,6 +431,7 @@ const OnboardAddBusiness = () => {
           <TextInput
             label="Bussiness Nickname"
             value={businessNickname}
+            ref={inputRef}
             onChangeText={setBusinessNickname}
             mode="outlined"
             keyboardType="default" // Default keyboard for mixed input

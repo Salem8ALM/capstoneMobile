@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -29,6 +29,9 @@ const screenWidth = Dimensions.get("window").width;
 import { useNavigation } from "@react-navigation/native";
 import Routes from "../../utils/constants/routes";
 import LoanRequestIntro from "./Request/LoanRequestIntro";
+import UserContext from "../../context/UserContext";
+import { fetchImage } from "../../api/Generic";
+import { getToken } from "../../storage/TokenStorage";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -47,11 +50,42 @@ const HomeScreen = () => {
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const onPress = () => {};
+  const [avatarUri, setAvatarUri] = useState(null);
+
+  const {
+    authenticated,
+    setAuthenticated,
+    onboarded,
+    setOnboarded,
+    business,
+    setBusiness,
+    businessAvatar,
+    setBusinessAvatar,
+  } = useContext(UserContext);
+
+  const onPress = () => {
+    console.log();
+  };
+
+  const getBusinessAvatar = async () => {
+    try {
+      const token = await getToken("access");
+      try {
+        const image = await fetchImage(
+          token,
+          business.entity.businessAvatarFileId
+        );
+        setAvatarUri(image);
+      } catch (error) {}
+    } catch (error) {
+      console.error("Unable to retrieve token:", error);
+    }
+  };
 
   useEffect(() => {
+    getBusinessAvatar();
     Animated.timing(scoreWidth, {
-      toValue: 80, // Target width (80% in your case)
+      toValue: business.entity.financialScore * 10, // Target width (80% in your case)
       duration: 1000, // Duration of the animation in milliseconds
       useNativeDriver: false, // Since we're animating the width property
     }).start();
@@ -99,8 +133,6 @@ const HomeScreen = () => {
     });
   };
 
-  //    backgroundColor: "#292933",
-
   return (
     <View style={{ flex: 1, backgroundColor: "#1C1C1E", padding: 20 }}>
       {/* Welcome Message */}
@@ -115,6 +147,14 @@ const HomeScreen = () => {
         👋 Welcome, User!
       </Text>
 
+      <View style={styles.container}>
+        <Button title="Fetch Image" onPress={getBusinessAvatar} />
+
+        {avatarUri && (
+          <Image source={{ uri: avatarUri }} style={styles.image} />
+        )}
+      </View>
+
       {/* Business Card */}
       <View
         style={{
@@ -124,16 +164,23 @@ const HomeScreen = () => {
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Image
-            source={{ uri: "https://via.placeholder.com/50" }}
-            style={{ width: 50, height: 50, borderRadius: 25, marginRight: 15 }}
-          />
+          {avatarUri && (
+            <Image
+              source={{ uri: avatarUri }}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                marginRight: 15,
+              }}
+            />
+          )}
           <View>
             <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
-              Your Business
+              {business.entity.businessNickname}
             </Text>
             <Text style={{ color: "#aaa" }}>
-              Business License ID: #12345678
+              {`Business License ID: #${business.entity.businessLicense.licenseNumber}`}
             </Text>
           </View>
         </View>
