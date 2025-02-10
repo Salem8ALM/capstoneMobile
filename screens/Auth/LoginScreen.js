@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import { StyleSheet, View, Animated, Alert, Dimensions } from "react-native";
+import { StyleSheet, View, Animated, Alert, Dimensions, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 import { IconButton, Text } from "react-native-paper";
 
 import {
@@ -21,8 +21,7 @@ import { handleBiometricLogin } from "./auth-utils/handleBiometricLogin";
 import { loginAPI, refreshTokenAPI } from "../../api/Auth";
 import { setToken, getToken } from "../../storage/TokenStorage";
 import { LinearGradient } from "expo-linear-gradient";
-
-const { width, height } = Dimensions.get("window");
+import MissingFieldPopup from "../../components/MissingFieldPopup"
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -51,6 +50,10 @@ const LoginScreen = () => {
   const passwordAnim = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(1)).current;
 
+  // Add these state declarations after other useState declarations
+  const [notification, setNotification] = useState("")
+  const [showNotification, setShowNotification] = useState(false)
+
   // check if token exists
   const checkToken = async () => {
     const token = await getToken("access");
@@ -65,12 +68,13 @@ const LoginScreen = () => {
     setLogin("Logging in");
 
     if (!civilId || !password) {
-      Alert.alert(
-        "Incomplete credentials",
-        "Please enter both your civil ID and password."
-      );
-      setLogin("Login");
-      return;
+      setShowNotification(false)
+      setTimeout(() => {
+        setNotification("Please enter both your civil ID and password")
+        setShowNotification(true)
+      }, 100)
+      setLogin("Login")
+      return
     }
 
     try {
@@ -81,8 +85,11 @@ const LoginScreen = () => {
       await setToken(response.accessToken, "access");
       await setToken(response.refreshToken, "refresh");
     } catch (error) {
-      console.log(error);
-      Alert.alert("Failed Login", "Incorrect credentials!");
+      setShowNotification(false)
+      setTimeout(() => {
+        setNotification("Incorrect credentials!")
+        setShowNotification(true)
+      }, 100)
     } finally {
       setLogin("Login");
     }
@@ -182,191 +189,202 @@ const LoginScreen = () => {
 
   return (
     <LinearGradient
-      colors={["black", "rgba(14, 16, 12, 0.95)", "black"]} // Gradient colors
-      style={styles.gradient} // Full-screen gradient
-      start={{ x: 0, y: 0 }} // Gradient starts at the top
-      end={{ x: 0, y: 1 }} // Gradient ends at the bottom
+      colors={["black", "rgba(14, 16, 12, 0.95)", "black"]}
+      style={styles.gradient}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
     >
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Welcome back!</Text>
-          <View style={styles.subtitle}>
-            <Text style={{ color: "white" }}>Login below or </Text>
-            <Text>
-              <TouchableRipple
-                onPress={resetStackUntilTwoScreens}
-                rippleColor="rgba(255, 238, 0, 0.51)"
-              >
-                <Text style={styles.link}>create an account</Text>
-              </TouchableRipple>
-            </Text>
-          </View>
-          {/* Animation for civil Id field when it becomes focused */}
-          <Animated.View
-            style={[
-              styles.inputContainer,
-              {
-                // scales up and down the field
-                transform: [
-                  {
-                    scale: civilIdAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [1, 1.05],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            <TextInput
-              label={
-                <Text
-                  style={{
-                    color:
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      >
+        <MissingFieldPopup message={notification} visible={showNotification} />
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.content}>
+            <Text style={styles.title}>Welcome back!</Text>
+            <View style={styles.subtitle}>
+              <Text style={{ color: "white" }}>Login below or </Text>
+              <Text>
+                <TouchableRipple
+                  onPress={resetStackUntilTwoScreens}
+                  rippleColor="rgba(255, 238, 0, 0.51)"
+                >
+                  <Text style={styles.link}>create an account</Text>
+                </TouchableRipple>
+              </Text>
+            </View>
+            {/* Animation for civil Id field when it becomes focused */}
+            <Animated.View
+              style={[
+                styles.inputContainer,
+                {
+                  // scales up and down the field
+                  transform: [
+                    {
+                      scale: civilIdAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 1.05],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <TextInput
+                label={
+                  <Text
+                    style={{
+                      color:
+                        focusedField === "civilId"
+                          ? "#FFD700"
+                          : "rgba(255,255,255,0.3)",
+                    }}
+                  >
+                    Civil ID
+                  </Text>
+                }
+                value={civilId}
+                onChangeText={setCivilId}
+                mode="outlined"
+                left={
+                  <TextInput.Icon
+                    icon="account"
+                    color={
                       focusedField === "civilId"
                         ? "#FFD700"
-                        : "rgba(255,255,255,0.3)",
-                  }}
-                >
-                  Civil ID
-                </Text>
-              }
-              value={civilId}
-              onChangeText={setCivilId}
-              mode="outlined"
-              left={
-                <TextInput.Icon
-                  icon="account"
-                  color={
-                    focusedField === "civilId"
-                      ? "#FFD700"
-                      : "rgba(255,255,255,0.3)"
-                  }
-                />
-              }
-              textColor="white"
-              maxLength={12}
-              inputMode="numeric"
-              style={[styles.input]}
-              onFocus={() => {
-                setFocusedField("civilId");
-                animateField(civilIdAnim, 1);
-              }}
-              onBlur={() => {
-                setFocusedField("");
-                animateField(civilIdAnim, 0);
-              }}
-              theme={{ colors: { primary: "#FFD700" } }} // Dark background
-            />
-          </Animated.View>
-          <Animated.View
-            style={[
-              styles.inputContainer,
-              {
-                transform: [
-                  {
-                    scale: passwordAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [1, 1.05],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            {/* Text input Field for password */}
-            <TextInput
-              label={
-                <Text
-                  style={{
-                    color:
+                        : "rgba(255,255,255,0.3)"
+                    }
+                  />
+                }
+                textColor="white"
+                maxLength={12}
+                inputMode="numeric"
+                style={[styles.input]}
+                onFocus={() => {
+                  setFocusedField("civilId");
+                  animateField(civilIdAnim, 1);
+                }}
+                onBlur={() => {
+                  setFocusedField("");
+                  animateField(civilIdAnim, 0);
+                }}
+                theme={{ colors: { primary: "#FFD700" } }} // Dark background
+              />
+            </Animated.View>
+            <Animated.View
+              style={[
+                styles.inputContainer,
+                {
+                  transform: [
+                    {
+                      scale: passwordAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 1.05],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              {/* Text input Field for password */}
+              <TextInput
+                label={
+                  <Text
+                    style={{
+                      color:
+                        focusedField === "password"
+                          ? "#FFD700"
+                          : "rgba(255,255,255,0.3)",
+                    }}
+                  >
+                    Password
+                  </Text>
+                }
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={secureTextEntry}
+                mode="outlined"
+                left={
+                  <TextInput.Icon
+                    icon="lock"
+                    color={
                       focusedField === "password"
                         ? "#FFD700"
-                        : "rgba(255,255,255,0.3)",
-                  }}
-                >
-                  Password
-                </Text>
-              }
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={secureTextEntry}
-              mode="outlined"
-              left={
-                <TextInput.Icon
-                  icon="lock"
-                  color={
-                    focusedField === "password"
-                      ? "#FFD700"
-                      : "rgba(255,255,255,0.3)"
-                  }
-                />
-              }
-              right={
-                <TextInput.Icon
-                  icon={secureTextEntry ? "eye" : "eye-off"}
-                  color={
-                    focusedField === "password"
-                      ? "#FFD700"
-                      : "rgba(255,255,255,0.3)"
-                  }
-                  onPress={() => setSecureTextEntry(!secureTextEntry)}
-                />
-              }
-              textColor="white"
-              autoCapitalize="none" // Disable auto-capitalization
-              style={[styles.input]}
-              onFocus={() => {
-                setFocusedField("password");
-                animateField(passwordAnim, 1);
-              }}
-              onBlur={() => {
-                setFocusedField("");
-                animateField(passwordAnim, 0);
-              }}
-              theme={{
-                colors: { primary: "#FFD700" },
-              }}
-            />
-          </Animated.View>
-          <Animated.View
-            style={[
-              styles.buttonContainer,
-              { transform: [{ scale: buttonAnim }] },
-            ]}
-          >
-            <Button
-              mode="contained"
-              onPress={handleLogin}
-              onPressIn={() => handlePressIn(buttonAnim)}
-              onPressOut={() => handlePressOut(buttonAnim)}
-              style={styles.button}
-              labelStyle={styles.buttonText}
+                        : "rgba(255,255,255,0.3)"
+                    }
+                  />
+                }
+                right={
+                  <TextInput.Icon
+                    icon={secureTextEntry ? "eye" : "eye-off"}
+                    color={
+                      focusedField === "password"
+                        ? "#FFD700"
+                        : "rgba(255,255,255,0.3)"
+                    }
+                    onPress={() => setSecureTextEntry(!secureTextEntry)}
+                  />
+                }
+                textColor="white"
+                autoCapitalize="none" // Disable auto-capitalization
+                style={[styles.input]}
+                onFocus={() => {
+                  setFocusedField("password");
+                  animateField(passwordAnim, 1);
+                }}
+                onBlur={() => {
+                  setFocusedField("");
+                  animateField(passwordAnim, 0);
+                }}
+                theme={{
+                  colors: { primary: "#FFD700" },
+                }}
+              />
+            </Animated.View>
+            <Animated.View
+              style={[
+                styles.buttonContainer,
+                { transform: [{ scale: buttonAnim }] },
+              ]}
             >
-              {login}
-            </Button>
-          </Animated.View>
-          {/* This is only for astetics, lets not waste time on building the
-        functionality */}
-          <Text
-            style={styles.forgotPassword}
-            onPress={() => {
-              Alert.alert("Forgot Password", "Forgot password link pressed");
-            }}
-          >
-            Forgot Password
-          </Text>
-          {/* Biometric Login Button */}
-          <IconButton
-            icon="fingerprint"
-            size={70}
-            style={styles.biometric}
-            onPress={authenticate}
-            iconColor="gray" // Set the icon color to white
-          />
-          <Text style={styles.biometricText}>Login with Fingerprint</Text>
-        </View>
-      </View>
+              <Button
+                mode="contained"
+                onPress={handleLogin}
+                onPressIn={() => handlePressIn(buttonAnim)}
+                onPressOut={() => handlePressOut(buttonAnim)}
+                style={styles.button}
+                labelStyle={styles.buttonText}
+              >
+                {login}
+              </Button>
+            </Animated.View>
+            {/* This is only for astetics, lets not waste time on building the
+          functionality */}
+            <Text
+              style={styles.forgotPassword}
+              onPress={() => {
+                Alert.alert("Forgot Password", "Forgot password link pressed");
+              }}
+            >
+              Forgot Password
+            </Text>
+            {/* Biometric Login Button */}
+            <IconButton
+              icon="fingerprint"
+              size={70}
+              style={styles.biometric}
+              onPress={authenticate}
+              iconColor="gray" // Set the icon color to white
+            />
+            <Text style={styles.biometricText}>Login with Fingerprint</Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 };
@@ -377,8 +395,11 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1, // Ensures the gradient covers the entire screen
-    width: width,
-    height: height,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
 
   content: {
