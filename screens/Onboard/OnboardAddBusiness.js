@@ -89,29 +89,10 @@ const OnboardAddBusiness = () => {
 
   const businessNicknameAnim = useRef(new Animated.Value(0)).current;
 
-  // checking token and whether the user is onboarded
-  const checkUserState = async () => {
-    const token = await checkToken();
-    await checkBusinessEntity(token);
-  };
-
-  const checkToken = async () => {
+  const checkBusinessEntity = async () => {
     const token = await getToken("access");
-    console.log("INside check token " + token);
-
-    if (token) {
-      setAuthenticated(true);
-
-      return token;
-    } else {
-      Alert.alert("Please log in again", "The session has timed out");
-    }
-  };
-
-  const checkBusinessEntity = async (token) => {
-    console.log(token);
     try {
-      await getCompanyAPI(token);
+      const business = await getCompanyAPI(token);
       setOnboarded(true);
     } catch (error) {
       console.log(error);
@@ -269,9 +250,7 @@ const OnboardAddBusiness = () => {
   };
 
   useEffect(() => {
-    checkUserState();
-
-    // checkOnboard();
+    checkBusinessEntity();
 
     // Start bouncing animation when the component mounts
     Animated.loop(
@@ -401,7 +380,6 @@ const OnboardAddBusiness = () => {
             {scanText}
           </Button>
         </Animated.View>
-
 
         <Animated.View
           style={[

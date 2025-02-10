@@ -21,21 +21,19 @@ import { getCompanyAPI } from "./api/Business";
 
 export default function App() {
   const [authenticated, setAuthenticated] = useState(false); // User authentication status
-  const [onboarded, setOnboarded] = useState(false); // User onboarding status
+  const [onboarded, setOnboarded] = useState(true); // User onboarding status
 
   // checking token and whether the user is onboarded
   const checkUserState = async () => {
-    const token = await checkToken();
-    await checkBusinessEntity(token);
+    await checkToken();
   };
 
   const checkToken = async () => {
     const token = await getToken("access");
+    await checkBusinessEntity(token);
     console.log("INside check token" + token);
-
     if (token) {
       setAuthenticated(true);
-
       return token;
     } else {
       Alert.alert("Please log in again", "The session has timed out");
@@ -43,7 +41,6 @@ export default function App() {
   };
 
   const checkBusinessEntity = async (token) => {
-    console.log(token);
     try {
       await getCompanyAPI(token);
       setOnboarded(true);
@@ -111,8 +108,8 @@ const styles = StyleSheet.create({
   logout: {
     color: "white",
     fontSize: 20,
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   absoluteTopLeft: {
     position: "absolute",

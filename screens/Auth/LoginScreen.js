@@ -21,6 +21,7 @@ import { handleBiometricLogin } from "./auth-utils/handleBiometricLogin";
 import { loginAPI, refreshTokenAPI } from "../../api/Auth";
 import { setToken, getToken } from "../../storage/TokenStorage";
 import { LinearGradient } from "expo-linear-gradient";
+import { getCompanyAPI } from "../../api/Business";
 
 const { width, height } = Dimensions.get("window");
 
@@ -51,9 +52,23 @@ const LoginScreen = () => {
   const passwordAnim = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(1)).current;
 
+  const checkBusinessEntity = async (token) => {
+    console.log(token);
+    try {
+      await getCompanyAPI(token);
+      setOnboarded(true);
+    } catch (error) {
+      setOnboarded(false);
+      console.log(error);
+    }
+  };
+
   // check if token exists
   const checkToken = async () => {
     const token = await getToken("access");
+
+    await checkBusinessEntity(token);
+
     if (token) setAuthenticated(true);
   };
   useEffect(() => {
@@ -91,6 +106,7 @@ const LoginScreen = () => {
   // biometric login
   const authenticate = async () => {
     // call function to check authentication
+    setLogin("Logging in");
 
     const refreshToken = await getToken("refresh");
 
@@ -109,7 +125,6 @@ const LoginScreen = () => {
           await setToken(response.refreshToken, "refresh");
 
           checkToken();
-          // Alert.alert("Success", "Logged in successfully!");
         }
       } else {
         Alert.alert(
@@ -123,6 +138,7 @@ const LoginScreen = () => {
         "Login in at least once to have data stored"
       );
     }
+    setLogin("Login");
   };
 
   // temporary hack to ensure no duplicate screens are piled

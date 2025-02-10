@@ -1,23 +1,24 @@
-"use client"
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native"
-import AnimatedScreen from "../../components/AnimatedScreen"
-import ImageFetcher from "../../components/ImageFetcher"
-import { Feather } from "@expo/vector-icons"
-import { useContext } from "react"
-import UserContext from "../../context/UserContext"
-import { deleteToken } from "../../storage/TokenStorage"
+"use client";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import AnimatedScreen from "../../components/AnimatedScreen";
+import ImageFetcher from "../../components/ImageFetcher";
+import { Feather } from "@expo/vector-icons";
+import { useContext } from "react";
+import UserContext from "../../context/UserContext";
+import { deleteToken } from "../../storage/TokenStorage";
 
 export function Profile() {
-  const { setAuthenticated } = useContext(UserContext)
+  const { setAuthenticated, setOnboarded } = useContext(UserContext);
 
   const handleLogout = async () => {
     try {
-      await deleteToken("access")
-      setAuthenticated(false)
+      await deleteToken("access");
+      setAuthenticated(false);
+      setOnboarded(false);
     } catch (error) {
-      console.error("Error during logout:", error)
+      console.error("Error during logout:", error);
     }
-  }
+  };
 
   return (
     <AnimatedScreen>
@@ -34,7 +35,9 @@ export function Profile() {
               <Feather name="file-text" size={24} color="#FFD700" />
               <View style={styles.buttonTextContainer}>
                 <Text style={styles.buttonText}>Business License</Text>
-                <Text style={styles.buttonSubtext}>View your business documents</Text>
+                <Text style={styles.buttonSubtext}>
+                  View your business documents
+                </Text>
               </View>
             </View>
             <Feather name="chevron-right" size={24} color="#FFD700" />
@@ -45,18 +48,27 @@ export function Profile() {
               <Feather name="bar-chart-2" size={24} color="#FFD700" />
               <View style={styles.buttonTextContainer}>
                 <Text style={styles.buttonText}>Financial Statement</Text>
-                <Text style={styles.buttonSubtext}>View your financial records</Text>
+                <Text style={styles.buttonSubtext}>
+                  View your financial records
+                </Text>
               </View>
             </View>
             <Feather name="chevron-right" size={24} color="#FFD700" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+          <TouchableOpacity
+            style={[styles.button, styles.logoutButton]}
+            onPress={handleLogout}
+          >
             <View style={styles.buttonContent}>
               <Feather name="log-out" size={24} color="#FF4444" />
               <View style={styles.buttonTextContainer}>
-                <Text style={[styles.buttonText, { color: "#FF4444" }]}>Logout</Text>
-                <Text style={styles.buttonSubtext}>Sign out of your account</Text>
+                <Text style={[styles.buttonText, { color: "#FF4444" }]}>
+                  Logout
+                </Text>
+                <Text style={styles.buttonSubtext}>
+                  Sign out of your account
+                </Text>
               </View>
             </View>
             <Feather name="chevron-right" size={24} color="#FF4444" />
@@ -64,7 +76,7 @@ export function Profile() {
         </View>
       </View>
     </AnimatedScreen>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -142,5 +154,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Profile
-
+export default Profile;
