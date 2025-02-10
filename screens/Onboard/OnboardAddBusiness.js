@@ -100,22 +100,24 @@ const OnboardAddBusiness = () => {
 
   const avatarAnim = useRef(new Animated.Value(0)).current;
 
-  const handleChooseAvatar = () => {
-    if (true) {
-      // setAvatar(result.assets[0].uri);
-      Animated.sequence([
-        Animated.timing(avatarAnim, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.timing(avatarAnim, {
-          toValue: 1,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
+  const pressIn = () => {
+    Animated.sequence([
+      Animated.timing(avatarAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const pressOut = () => {
+    Animated.sequence([
+      Animated.timing(avatarAnim, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
   const checkBusinessEntity = async () => {
     const token = await getToken("access");
@@ -162,8 +164,6 @@ const OnboardAddBusiness = () => {
         setSelected(selectedAsset.uri);
         setButtonText(message);
         setButtonIcon("file-check-outline");
-      } else {
-        Alert.alert("Unsuccessful selection", "User canceled file selection.");
       }
     } catch (error) {
       console.log("Error picking file:", error);
@@ -330,6 +330,8 @@ const OnboardAddBusiness = () => {
           ]}
         >
           <TouchableOpacity
+            onPressIn={pressIn} // Call the handle function when the press starts
+            onPressOut={pressOut} // Call the handle function when the press ends
             onPress={() =>
               pickFile(
                 setAvatar,
