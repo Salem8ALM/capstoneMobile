@@ -23,6 +23,7 @@ export default function App() {
 
   const checkToken = async () => {
     const token = await getToken("access");
+    
     await checkBusinessEntity(token);
     console.log("INside check token" + token);
     if (token) {

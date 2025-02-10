@@ -148,7 +148,7 @@ const OnboardAddBusiness = () => {
 
       // Launch the image picker
       let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.mediaTypes, // Specify media type
+        // mediaTypes: ImagePicker.mediaTypes, // Specify media type
         allowsEditing: true,
         quality: 1,
         base64: true,
@@ -233,14 +233,20 @@ const OnboardAddBusiness = () => {
 
             // using
             const formData = new FormData();
+
+            formData.append("businessAvatar", {
+              uri: avatar, // Path or URI to the file
+              type: "image/jpeg", // Adjust the type based on your file
+              name: "businessAvatar.jpeg", // File name
+            });
             formData.append("businessNickname", businessNickname); // Send the text parameter
             formData.append("financialStatementPDF", {
-              uri: selectedDocument.uri, // Path or URI to the file
+              uri: selectedDocument, // Path or URI to the file
               type: "image/jpeg", // Adjust the type based on your file
               name: "financialStatementPDF.jpeg", // File name
             });
             formData.append("businessLicenseImage", {
-              uri: selectedPhoto.uri, // Path or URI to the file
+              uri: selectedPhoto, // Path or URI to the file
               type: "image/jpeg", // Adjust the type based on your file
               name: "businessLicenseImage.jpg", // File name
             });
@@ -306,11 +312,8 @@ const OnboardAddBusiness = () => {
         message={notificationMessage}
         visible={notificationVisible}
       />
-
       <View style={styles.content}>
         <Text style={styles.title}>Add Your Business</Text>
-        {/* <Text style={styles.subtitle}>Please fill in all fields </Text> */}
-
         <Animated.View
           style={[
             styles.avatarContainer,
@@ -479,23 +482,6 @@ const OnboardAddBusiness = () => {
           </Button>
         </Animated.View>
       </View>
-
-      {/* <Button
-        style={styles.button}
-        title="Fetch Image"
-        onPress={fetchImage}
-        disabled={isLoading}
-      />
-
-      {isLoading && (
-        <ActivityIndicator
-          size="large"
-          color="#0000ff"
-          style={styles.loadingIndicator}
-        />
-      )}
-
-      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />} */}
     </View>
   );
 };
