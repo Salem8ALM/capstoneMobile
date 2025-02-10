@@ -146,20 +146,6 @@ export const LoanRequestCard = ({
   );
 };
 
-const DetailItem = ({ icon, label, value }) => (
-  <View style={styles.detailItem}>
-    <View style={styles.iconLabelContainer}>
-      <MaterialCommunityIcons name={icon} size={16} color="#FFD700" />
-      <Text variant="bodySmall" style={styles.label}>
-        {label}
-      </Text>
-    </View>
-    <Text variant="bodyMedium" style={styles.value}>
-      {value}
-    </Text>
-  </View>
-);
-
 const styles = StyleSheet.create({
   animatedContainer: {
     overflow: "hidden",

@@ -53,7 +53,6 @@ export default function LoanDashboard({ navigation }) {
     try {
       const token = await getToken("access");
 
-      
       try {
         const response = await getAllRequestsAPI(token);
         if (response?.allRequests) {
@@ -114,16 +113,19 @@ export default function LoanDashboard({ navigation }) {
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
       >
-        {loanRequests.map((loan) => (
-          <LoanRequestCard
-            key={loan.id}
-            {...loan}
-            onPress={() => {
-              navigation.navigate(Routes.LoanRequest.LoanResponseViewAll);
-              console.log("Pressed loan:", loan.id);
-            }}
-          />
-        ))}
+        {loanRequests
+          .slice() // Create a shallow copy to avoid mutating state
+          .sort((a, b) => new Date(b.statusDate) - new Date(a.statusDate)) // Sort descending (latest first)
+          .map((loan) => (
+            <LoanRequestCard
+              key={loan.id}
+              {...loan}
+              onPress={() => {
+                navigation.navigate(Routes.LoanRequest.LoanResponseViewAll);
+                console.log("Pressed loan:", loan.id);
+              }}
+            />
+          ))}
       </ScrollView>
     </View>
   );
