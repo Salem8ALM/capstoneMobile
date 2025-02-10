@@ -5,7 +5,7 @@ import {
   Animated,
   TouchableOpacity,
 } from "react-native";
-import { Appbar } from "react-native-paper";
+import { Appbar, Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LoanRequestCard } from "../../../components/LoanRequestCard";
 import { LinearGradient } from "expo-linear-gradient";
@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import Routes from "../../../utils/constants/routes";
 import { getToken } from "../../../storage/TokenStorage";
 import { getAllRequestsAPI } from "../../../api/LoanRequest";
+import LottieView from "lottie-react-native";
 
 const loanTermMap = {
   SIX_MONTHS: "6 Months",
@@ -30,6 +31,10 @@ const formatRepaymentPlan = (plan) => {
 
 export default function LoanDashboard({ navigation }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    console.log("Loan Requests:", loanRequests); // Log the loanRequests
+  }, [loanRequests]);
 
   const handlePressIn = () => {
     Animated.timing(scaleAnim, {
@@ -113,19 +118,31 @@ export default function LoanDashboard({ navigation }) {
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
       >
-        {loanRequests
-          .slice() // Create a shallow copy to avoid mutating state
-          .sort((a, b) => new Date(b.statusDate) - new Date(a.statusDate)) // Sort descending (latest first)
-          .map((loan) => (
-            <LoanRequestCard
-              key={loan.id}
-              {...loan}
-              onPress={() => {
-                navigation.navigate(Routes.LoanRequest.LoanResponseViewAll);
-                console.log("Pressed loan:", loan.id);
-              }}
+        {loanRequests.length === 0 ? (
+          <View style={styles.noMessagesContainer}>
+            <LottieView
+              source={require("../../../assets/no-message.json")}
+              autoPlay
+              loop
+              style={styles.lottieAnimation}
             />
-          ))}
+            <Text style={styles.noMessagesText}>No loean request made yet</Text>
+          </View>
+        ) : (
+          loanRequests
+            .slice()
+            .sort((a, b) => new Date(b.statusDate) - new Date(a.statusDate))
+            .map((loan) => (
+              <LoanRequestCard
+                key={loan.id}
+                {...loan}
+                onPress={() => {
+                  navigation.navigate(Routes.LoanRequest.LoanResponseViewAll);
+                  console.log("Pressed loan:", loan.id);
+                }}
+              />
+            ))
+        )}
       </ScrollView>
     </View>
   );
@@ -168,5 +185,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 25,
+  },
+  noMessagesContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1, // Ensure it takes the available space
+    marginTop: 50,
+  },
+  lottieAnimation: {
+    width: 150, // Adjust to your preferred size
+    height: 150,
+  },
+  noMessagesText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: "#fff", // You can adjust the color
   },
 });
