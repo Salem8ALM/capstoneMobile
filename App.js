@@ -21,7 +21,7 @@ import { getCompanyAPI } from "./api/Business";
 
 export default function App() {
   const [authenticated, setAuthenticated] = useState(false); // User authentication status
-  const [onboarded, setOnboarded] = useState(true); // User onboarding status
+  const [onboarded, setOnboarded] = useState(false); // User onboarding status
 
   // checking token and whether the user is onboarded
   const checkUserState = async () => {
@@ -77,23 +77,7 @@ export default function App() {
               onboarded ? (
                 <AppNavigator />
               ) : (
-                <View
-                  style={{
-                    flex: 1,
-                    backgroundColor: "#fff",
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={async () => {
-                      setAuthenticated(false);
-                      await deleteToken("access");
-                    }}
-                    style={[styles.container, styles.absoluteTopLeft]}
-                  >
-                    <Text style={styles.logout}>Logout</Text>
-                  </TouchableOpacity>
-                  <OnboardingNavigator />
-                </View>
+                <OnboardingNavigator />
               )
             ) : (
               <AuthNavigator />

@@ -1,5 +1,11 @@
 import React, { useRef, useEffect, useContext } from "react";
-import { StyleSheet, View, Animated, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Animated,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Icons library
@@ -9,8 +15,11 @@ import {
   handlePressOut,
 } from "../../utils/animations/buttonAnimations";
 import Routes from "../../utils/constants/routes";
+import { deleteToken } from "../../storage/TokenStorage";
 
 const OnboardWelcome = () => {
+  const { setAuthenticated, setOnboarded } = useContext(UserContext);
+
   const navigation = useNavigation();
   const theme = useTheme();
 
@@ -40,6 +49,16 @@ const OnboardWelcome = () => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        onPress={async () => {
+          setAuthenticated(false);
+          await deleteToken("access");
+          setOnboarded(false);
+        }}
+        style={[styles.container, styles.absoluteTopLeft]}
+      >
+        <Text style={styles.logout}>Logout</Text>
+      </TouchableOpacity>
       <View style={styles.content}>
         <Animated.View
           style={[
@@ -91,6 +110,18 @@ const OnboardWelcome = () => {
 };
 
 const styles = StyleSheet.create({
+  logout: {
+    color: "white",
+    fontSize: 20,
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  absoluteTopLeft: {
+    position: "absolute",
+    top: 20, // Adjust to your desired distance from the top
+    left: 20, // Adjust to your desired distance from the left
+    zIndex: 1, // Ensure it appears above other components if overlapping
+  },
   container: {
     flex: 1,
     backgroundColor: "#1a1a1a",

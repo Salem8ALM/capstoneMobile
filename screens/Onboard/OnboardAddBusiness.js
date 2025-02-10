@@ -34,6 +34,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Buffer } from "buffer"; // Import the Buffer library
 import axios from "axios";
 import Constants from "expo-constants";
+import NotificationBanner from "../../utils/animations/NotificationBanner";
 
 const { width, height } = Dimensions.get("window");
 
@@ -80,6 +81,9 @@ const OnboardAddBusiness = () => {
 
   const { authenticated, setAuthenticated, onboarded, setOnboarded } =
     useContext(UserContext);
+
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
@@ -180,78 +184,73 @@ const OnboardAddBusiness = () => {
 
     // ensure all required fields are filled
     if (!businessNickname) {
-      Alert.alert(
-        "Business Nickname is Missing",
-        "Please enter a business nickname to distinguish it from your other businesses."
-      );
-      setSubmitText("Submit");
-      return;
+      setNotificationMessage("Don't forget to add a Business Nickname!");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
+    } else {
+      if (!selectedDocument) {
+        Alert.alert(
+          "Financial Statement Missing",
+          "Please upload your financial statement document."
+        );
+      } else {
+        if (!selectedPhoto) {
+          Alert.alert(
+            "Business License Missing",
+            "Please scan your business license document."
+          );
+        } else {
+          try {
+            const token = await getToken("access");
+
+            // using
+            const formData = new FormData();
+            formData.append("businessNickname", businessNickname); // Send the text parameter
+            formData.append("financialStatementPDF", {
+              uri: selectedDocument.uri, // Path or URI to the file
+              type: "image/jpeg", // Adjust the type based on your file
+              name: "financialStatementPDF.jpeg", // File name
+            });
+            formData.append("businessLicenseImage", {
+              uri: selectedPhoto.uri, // Path or URI to the file
+              type: "image/jpeg", // Adjust the type based on your file
+              name: "businessLicenseImage.jpg", // File name
+            });
+
+            // call the text extraction function here and pass the two images to get the two strings
+            // Note the following two fields are nullable
+
+            // Call OCR with the whole file asset, not just its uri
+            const newFinancialStatementText = await performOCR(
+              selectedDocument
+            );
+            const newBusinessLicenseText = await performOCR(selectedPhoto);
+
+            console.log(newFinancialStatementText, newBusinessLicenseText);
+
+            formData.append(
+              "financialStatementText",
+              newFinancialStatementText
+            );
+            formData.append("businessLicenseText", newBusinessLicenseText);
+
+            const response = await addCompanyAPI(token, formData);
+
+            await checkBusinessEntity(token);
+            Alert.alert("Success", "added your business");
+          } catch (error) {
+            console.log(error);
+            Alert.alert("Failed Login", "Failed to add your business!");
+          }
+        }
+      }
     }
-
-    if (!selectedDocument) {
-      Alert.alert(
-        "Financial Statement Missing",
-        "Please upload your financial statement document."
-      );
-      setSubmitText("Submit");
-      return;
-    }
-
-    if (!selectedPhoto) {
-      Alert.alert(
-        "Business License Missing",
-        "Please scan your business license document."
-      );
-
-      setSubmitText("Submit");
-      return;
-    }
-
-    try {
-      const token = await checkToken();
-
-      // using
-      const formData = new FormData();
-      formData.append("businessNickname", businessNickname); // Send the text parameter
-      formData.append("financialStatementPDF", {
-        uri: selectedDocument.uri, // Path or URI to the file
-        type: "image/jpeg", // Adjust the type based on your file
-        name: "financialStatementPDF.jpeg", // File name
-      });
-      formData.append("businessLicenseImage", {
-        uri: selectedPhoto.uri, // Path or URI to the file
-        type: "image/jpeg", // Adjust the type based on your file
-        name: "businessLicenseImage.jpg", // File name
-      });
-
-      // call the text extraction function here and pass the two images to get the two strings
-      // Note the following two fields are nullable
-
-      // Call OCR with the whole file asset, not just its uri
-      const newFinancialStatementText = await performOCR(selectedDocument);
-      const newBusinessLicenseText = await performOCR(selectedPhoto);
-
-      console.log(newFinancialStatementText, newBusinessLicenseText);
-
-      formData.append("financialStatementText", newFinancialStatementText);
-      formData.append("businessLicenseText", newBusinessLicenseText);
-
-      const response = await addCompanyAPI(token, formData);
-
-      console.log(response);
-      setSubmitText("Submit");
-      await checkBusinessEntity(token);
-      Alert.alert("Success", "added your business");
-    } catch (error) {
-      console.log(error);
-      Alert.alert("Failed Login", "Failed to add your business!");
-      setSubmitText("Submit");
-    }
+    setSubmitText("Submit");
   };
 
   useEffect(() => {
-    checkBusinessEntity();
-
     // Start bouncing animation when the component mounts
     Animated.loop(
       Animated.sequence([
@@ -274,6 +273,11 @@ const OnboardAddBusiness = () => {
 
   return (
     <View style={styles.container}>
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
+
       <View style={styles.content}>
         <Text style={styles.title}>Add Your Business</Text>
         <Text style={styles.subtitle}>Please fill in all fields </Text>
