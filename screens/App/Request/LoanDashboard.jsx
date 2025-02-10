@@ -9,45 +9,47 @@ import { Appbar } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LoanRequestCard } from "../../../components/LoanRequestCard";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Routes from "../../../utils/constants/routes";
+import { getToken } from "../../../storage/TokenStorage";
+import { getAllRequestsAPI } from "../../../api/LoanRequest";
 
 // Sample data
-const loanRequests = [
-  {
-    id: 1,
-    title: "Business Expansion Loan",
-    purpose: "Purchase new equipment",
-    status: "Pending",
-    amount: 50000,
-    term: "36 months",
-    repaymentPlan: "Monthly",
-    dateUpdated: "2024-02-08",
-    isNew: true,
-  },
-  {
-    id: 2,
-    title: "Working Capital Loan",
-    purpose: "Inventory purchase",
-    status: "Await Response",
-    amount: 25000,
-    term: "24 months",
-    repaymentPlan: "Monthly",
-    dateUpdated: "2024-02-07",
-    isNew: true,
-  },
-  {
-    id: 3,
-    title: "Emergency Fund Loan",
-    purpose: "Cash flow management",
-    status: "Pending",
-    amount: 15000,
-    term: "12 months",
-    repaymentPlan: "Monthly",
-    dateUpdated: "2024-02-05",
-    isNew: false,
-  },
-];
+// const loanRequests = [
+//   {
+//     id: 1,
+//     title: "Business Expansion Loan",
+//     purpose: "Purchase new equipment",
+//     status: "Pending",
+//     amount: 50000,
+//     term: "36 months",
+//     repaymentPlan: "Monthly",
+//     dateUpdated: "2024-02-08",
+//     isNew: true,
+//   },
+//   {
+//     id: 2,
+//     title: "Working Capital Loan",
+//     purpose: "Inventory purchase",
+//     status: "Await Response",
+//     amount: 25000,
+//     term: "24 months",
+//     repaymentPlan: "Monthly",
+//     dateUpdated: "2024-02-07",
+//     isNew: true,
+//   },
+//   {
+//     id: 3,
+//     title: "Emergency Fund Loan",
+//     purpose: "Cash flow management",
+//     status: "Pending",
+//     amount: 15000,
+//     term: "12 months",
+//     repaymentPlan: "Monthly",
+//     dateUpdated: "2024-02-05",
+//     isNew: false,
+//   },
+// ];
 
 export default function LoanDashboard({ navigation }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -67,6 +69,42 @@ export default function LoanDashboard({ navigation }) {
       useNativeDriver: true,
     }).start(() => navigation.navigate(Routes.LoanRequest.LoanRequestIntro));
   };
+
+  const [loanRequests, setLoanRequests] = useState([]);
+
+  const getAllRequests = async () => {
+    try {
+      const token = await getToken("access");
+
+      try {
+        const response = await getAllRequestsAPI(token);
+        if (response?.allRequests) {
+          const updatedRequests = response.allRequests.map((request) => ({
+            ...request,
+            isNew: true, // Default to true as required
+          }));
+          setLoanRequests(updatedRequests);
+        }
+      } catch (error) {
+        console.log("Unable to retrieve loan requests", error);
+      }
+    } catch (error) {
+      console.log("Unable to retrieve token", error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch initially
+    getAllRequests();
+
+    // Set up interval to fetch every 3 seconds
+    const interval = setInterval(() => {
+      getAllRequests();
+    }, 3000);
+
+    // Cleanup function to clear interval on unmount
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <View style={styles.container}>
