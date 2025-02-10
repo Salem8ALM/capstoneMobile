@@ -3,14 +3,19 @@ import { View, StyleSheet, Animated, Pressable } from "react-native";
 import { Card, Text, Badge } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
+const formatDateTime = (dateTimeString) => {
+  const date = new Date(dateTimeString);
+  return date.toLocaleString(); // Formats to local date & time
+};
+
 export const LoanRequestCard = ({
-  title,
-  purpose,
+  loanTitle,
+  loanPurpose,
   status,
   amount,
-  term,
+  loanTerm,
   repaymentPlan,
-  dateUpdated,
+  statusDate,
   isNew,
   onPress,
 }) => {
@@ -54,7 +59,7 @@ export const LoanRequestCard = ({
         <Card
           style={[
             styles.card,
-            isNew && { borderLeftWidth: 4, borderLeftColor: "#FFD700" },
+            false && { borderLeftWidth: 4, borderLeftColor: "#FFD700" },
           ]}
         >
           <Card.Content>
@@ -67,7 +72,7 @@ export const LoanRequestCard = ({
                 />
 
                 <Text variant="titleMedium" style={styles.title}>
-                  {title}
+                  {loanTitle}
                 </Text>
                 {isNew && <Badge style={styles.newBadge}>NEW</Badge>}
               </View>
@@ -82,7 +87,7 @@ export const LoanRequestCard = ({
             </View>
 
             <Text variant="bodySmall" style={styles.purpose}>
-              {purpose}
+              {loanPurpose}
             </Text>
 
             <View style={styles.detailsGrid}>
@@ -102,7 +107,7 @@ export const LoanRequestCard = ({
                   Loan Term
                 </Text>
                 <Text variant="bodyMedium" style={styles.value}>
-                  {term}
+                  {loanTerm}
                 </Text>
               </View>
 
@@ -120,7 +125,7 @@ export const LoanRequestCard = ({
                   Last Updated
                 </Text>
                 <Text variant="bodyMedium" style={styles.value}>
-                  {new Date(dateUpdated).toLocaleDateString()}
+                  {formatDateTime(statusDate)}
                 </Text>
               </View>
             </View>
@@ -140,20 +145,6 @@ export const LoanRequestCard = ({
     </Pressable>
   );
 };
-
-const DetailItem = ({ icon, label, value }) => (
-  <View style={styles.detailItem}>
-    <View style={styles.iconLabelContainer}>
-      <MaterialCommunityIcons name={icon} size={16} color="#FFD700" />
-      <Text variant="bodySmall" style={styles.label}>
-        {label}
-      </Text>
-    </View>
-    <Text variant="bodyMedium" style={styles.value}>
-      {value}
-    </Text>
-  </View>
-);
 
 const styles = StyleSheet.create({
   animatedContainer: {

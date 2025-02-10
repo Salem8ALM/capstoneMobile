@@ -1,193 +1,500 @@
-import React from "react";
-import { View, ScrollView, StyleSheet, Image, Text } from "react-native";
+"use client";
+
+import React, { useState, useRef } from "react";
 import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Animated,
+  Pressable,
+} from "react-native";
+import {
+  Text,
   Card,
-  Title,
-  Paragraph,
   Button,
   Avatar,
-  useTheme,
+  Badge,
+  IconButton,
+  Portal,
+  Dialog,
 } from "react-native-paper";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
+import ResponseActionModal from "../../../components/ResponseActionModal";
 
-const LoanRequestDetails = ({ navigation }) => {
-  const loanDetails = {
-    title: "Business Expansion Loan",
-    purpose: "Purchase new equipment",
-    term: "36 months",
-    amount: "50,000 KWD",
-    repaymentPlan: "Monthly",
-    status: "Awaiting Response",
-    statusDate: "2/8/2024",
-  };
+const LoanRequestDetails = () => {
+  const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
+  const [selectedResponse, setSelectedResponse] = useState(null);
+  const scrollY = useRef(new Animated.Value(0)).current;
 
-  const responses = [
+  const [responses] = useState([
     {
       id: 1,
-      avatar: require("../../../assets/avatar2.png"),
-      bankName: "Bank of Kuwait",
-      representative: "John Doe",
-      avatar: require("../../../assets/avatar2.png"),
-      decision: "Approved",
-      date: "2/9/2024",
+      bankName: "Global Finance Bank",
+      representativeName: "Sarah Johnson",
+      decision: "approved",
+      amount: "50,000 KWD",
+      date: "2025-02-09",
       isNew: true,
+      avatar: "/placeholder.svg?height=40&width=40",
+      logo: "/placeholder.svg?height=30&width=30",
     },
     {
       id: 2,
-      avatar: require("../../../assets/avatar2.png"),
-      bankName: "Gulf Bank",
-      representative: "Jane Smith",
-      avatar: require("../../../assets/avatar2.png"),
-      decision: "Counter Offer",
-      date: "2/8/2024",
-      isNew: false,
+      bankName: "Investment Capital",
+      representativeName: "Michael Chen",
+      decision: "counter",
+      counterAmount: "45,000 KWD",
+      date: "2025-02-08",
+      isNew: true,
+      avatar: "/placeholder.svg?height=40&width=40",
+      logo: "/placeholder.svg?height=30&width=30",
     },
-    // Add more responses as needed
-  ];
+    {
+      id: 3,
+      bankName: "National Bank",
+      representativeName: "David Smith",
+      decision: "rejected",
+      date: "2025-02-07",
+      isNew: false,
+      avatar: "/placeholder.svg?height=40&width=40",
+      logo: "/placeholder.svg?height=30&width=30",
+    },
+  ]);
+
+  const handleResponsePress = (response) => {
+    if (response.decision !== "rejected") {
+      setSelectedResponse(response);
+    }
+  };
+
+  const handleResponseAction = (action) => {
+    // Handle the action (accept/counter/reject)
+    console.log(`${action} offer from ${selectedResponse.bankName}`);
+    setSelectedResponse(null);
+  };
+
+  const headerScale = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [1, 0.9],
+    extrapolate: "clamp",
+  });
+
+  const renderIcon = (name, color = "#FFD700") => (
+    <MaterialCommunityIcons
+      name={name}
+      size={20}
+      color={color}
+      style={styles.icon}
+    />
+  );
+
+  const getDecisionColor = (decision) => {
+    switch (decision) {
+      case "approved":
+        return "#4CAF50";
+      case "counter":
+        return "#FFC107";
+      case "rejected":
+        return "#F44336";
+      default:
+        return "#757575";
+    }
+  };
+
+  const getDecisionIcon = (decision) => {
+    switch (decision) {
+      case "approved":
+        return "check-circle";
+      case "counter":
+        return "refresh";
+      case "rejected":
+        return "close-circle";
+      default:
+        return "help-circle";
+    }
+  };
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.loanCard}>
-        <Card.Content>
-          <Title style={styles.title}>{loanDetails.title}</Title>
-          <Paragraph style={styles.detail}>
-            Purpose: {loanDetails.purpose}
-          </Paragraph>
-          <Paragraph style={styles.detail}>
-            Loan Term: {loanDetails.term}
-          </Paragraph>
-          <Paragraph style={styles.detail}>
-            Loan Amount: {loanDetails.amount}
-          </Paragraph>
-          <Paragraph style={styles.detail}>
-            Repayment Plan: {loanDetails.repaymentPlan}
-          </Paragraph>
-          <Paragraph style={styles.detail}>
-            Status: {loanDetails.status}
-          </Paragraph>
-          <Paragraph style={styles.detail}>
-            Status Date: {loanDetails.statusDate}
-          </Paragraph>
-          <Button
-            mode="contained"
-            onPress={() => {}}
-            style={styles.withdrawButton}
-            labelStyle={styles.buttonLabel}
+    <Animated.ScrollView
+      style={styles.container}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        { useNativeDriver: true }
+      )}
+      scrollEventThrottle={16}
+    >
+      <Animatable.View
+        animation="fadeInDown"
+        duration={1000}
+        style={styles.header}
+      >
+        <Animated.View
+          style={[
+            styles.titleContainer,
+            { transform: [{ scale: headerScale }] },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name="file-document"
+            size={24}
+            color="#FFD700"
+          />
+          <Text style={styles.title}>Business Expansion Loan</Text>
+          <Animatable.View
+            animation="pulse"
+            iterationCount="infinite"
+            duration={2000}
           >
-            Withdraw Loan Request
-          </Button>
-        </Card.Content>
-      </Card>
+            <Badge style={styles.statusBadge}>Await Response</Badge>
+          </Animatable.View>
+        </Animated.View>
 
-      <Title style={styles.responseTitle}>Bank Responses</Title>
-      {responses.map((response) => (
-        <Animatable.View animation="fadeInUp" duration={1000} key={response.id}>
-          <Card style={styles.responseCard}>
-            <Card.Content style={styles.responseContent}>
-              <Image source={response.bankLogo} style={styles.bankLogo} />
-              <View style={styles.bankInfo}>
-                <Text style={styles.bankName}>{response.bankName}</Text>
-                <Text style={styles.representative}>
-                  {response.representative}
-                </Text>
+        <Card style={styles.detailsCard}>
+          <Card.Content>
+            <View style={styles.detailRow}>
+              <View style={styles.detailItem}>
+                {renderIcon("cash-multiple")}
+                <Text style={styles.label}>Loan Amount</Text>
+                <Text style={styles.value}>50,000 KWD</Text>
               </View>
-              <Avatar.Image source={response.avatar} size={40} />
-              <View style={styles.decisionContainer}>
-                <Text style={styles.decision}>{response.decision}</Text>
-                <Text style={styles.responseDate}>{response.date}</Text>
+              <View style={styles.detailItem}>
+                {renderIcon("calendar-clock")}
+                <Text style={styles.label}>Loan Term</Text>
+                <Text style={styles.value}>36 months</Text>
               </View>
-              {response.isNew && (
-                <Icon
-                  name="star"
-                  size={20}
-                  color="#FFD700"
-                  style={styles.newIcon}
-                />
-              )}
-            </Card.Content>
-          </Card>
-        </Animatable.View>
-      ))}
-    </ScrollView>
+            </View>
+
+            <View style={styles.detailRow}>
+              <View style={styles.detailItem}>
+                {renderIcon("calendar-sync")}
+                <Text style={styles.label}>Repayment Plan</Text>
+                <Text style={styles.value}>Monthly</Text>
+              </View>
+              <View style={styles.detailItem}>
+                {renderIcon("clock-outline")}
+                <Text style={styles.label}>Status Date</Text>
+                <Text style={styles.value}>2025-02-09</Text>
+              </View>
+            </View>
+
+            <View style={styles.purposeSection}>
+              {renderIcon("text-box-outline")}
+              <Text style={styles.label}>Purpose/Description</Text>
+              <Text style={styles.description}>
+                Purchase new equipment for business expansion and modernization
+                of current operations
+              </Text>
+            </View>
+
+            <Animatable.View animation="pulse" iterationCount={3}>
+              <Button
+                mode="contained"
+                onPress={() => setShowWithdrawDialog(true)}
+                style={styles.withdrawButton}
+                icon={({ size, color }) => (
+                  <MaterialCommunityIcons
+                    name="close-circle"
+                    size={size}
+                    color={color}
+                  />
+                )}
+              >
+                Withdraw Request
+              </Button>
+            </Animatable.View>
+          </Card.Content>
+        </Card>
+      </Animatable.View>
+
+      <View style={styles.responsesSection}>
+        <View style={styles.responsesTitleContainer}>
+          {renderIcon("bank")}
+          <Text style={styles.responsesTitle}>Loan Responses</Text>
+        </View>
+
+        {responses.map((response, index) => (
+          <Animatable.View
+            key={response.id}
+            animation="fadeInUp"
+            delay={300 * index}
+          >
+            <Pressable onPress={() => handleResponsePress(response)}>
+              <Card
+                style={[
+                  styles.responseCard,
+                  response.decision !== "rejected" && styles.clickableCard,
+                ]}
+              >
+                <Card.Content>
+                  <View style={styles.responseHeader}>
+                    <View style={styles.bankInfo}>
+                      <Avatar.Image size={30} source={{ uri: response.logo }} />
+                      <Text style={styles.bankName}>{response.bankName}</Text>
+                    </View>
+                    {response.isNew && (
+                      <Animatable.View
+                        animation="pulse"
+                        iterationCount="infinite"
+                        duration={2000}
+                      >
+                        <Badge style={styles.newBadge}>NEW</Badge>
+                      </Animatable.View>
+                    )}
+                  </View>
+
+                  <View style={styles.representativeInfo}>
+                    <Avatar.Image size={40} source={{ uri: response.avatar }} />
+                    <View style={styles.representativeDetails}>
+                      <Text style={styles.representativeName}>
+                        {response.representativeName}
+                      </Text>
+                      <View style={styles.dateContainer}>
+                        {renderIcon("clock-outline", "#9E9E9E")}
+                        <Text style={styles.responseDate}>{response.date}</Text>
+                      </View>
+                    </View>
+                    <Animatable.View
+                      animation={response.isNew ? "bounce" : undefined}
+                      iterationCount={response.isNew ? "infinite" : undefined}
+                      duration={2000}
+                    >
+                      <IconButton
+                        icon={getDecisionIcon(response.decision)}
+                        iconColor={getDecisionColor(response.decision)}
+                        size={24}
+                      />
+                    </Animatable.View>
+                  </View>
+
+                  <Animatable.View
+                    animation="fadeIn"
+                    style={[
+                      styles.decisionSection,
+                      { borderColor: getDecisionColor(response.decision) },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.decision,
+                        { color: getDecisionColor(response.decision) },
+                      ]}
+                    >
+                      {response.decision === "approved" && "Loan Approved"}
+                      {response.decision === "counter" && "Counter Offer"}
+                      {response.decision === "rejected" &&
+                        "Application Rejected"}
+                    </Text>
+                    {response.decision === "counter" && (
+                      <Text style={styles.counterAmount}>
+                        Counter Amount: {response.counterAmount}
+                      </Text>
+                    )}
+                  </Animatable.View>
+                </Card.Content>
+              </Card>
+            </Pressable>
+          </Animatable.View>
+        ))}
+      </View>
+
+      <Portal>
+        <Dialog
+          visible={showWithdrawDialog}
+          onDismiss={() => setShowWithdrawDialog(false)}
+          style={styles.dialog}
+        >
+          <Dialog.Title style={styles.dialogTitle}>
+            <MaterialCommunityIcons name="alert" size={24} color="#FFD700" />
+            <Text style={styles.dialogTitleText}>Withdraw Loan Request?</Text>
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text style={styles.dialogContent}>
+              Are you sure you want to withdraw this loan request? This action
+              cannot be undone.
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              onPress={() => setShowWithdrawDialog(false)}
+              textColor="#FFD700"
+              icon="close"
+            >
+              Cancel
+            </Button>
+            <Button
+              onPress={() => setShowWithdrawDialog(false)}
+              textColor="#F44336"
+              icon="check"
+            >
+              Withdraw
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+
+      <ResponseActionModal
+        visible={!!selectedResponse}
+        onDismiss={() => setSelectedResponse(null)}
+        response={selectedResponse}
+        onAction={handleResponseAction}
+      />
+    </Animated.ScrollView>
   );
 };
 
-const styles = (colors) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 16,
-      backgroundColor: colors.background,
-    },
-    loanCard: {
-      marginBottom: 16,
-      backgroundColor: colors.surface,
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: "bold",
-      color: colors.text,
-    },
-    detail: {
-      fontSize: 16,
-      marginVertical: 4,
-      color: colors.text,
-    },
-    withdrawButton: {
-      marginTop: 16,
-      backgroundColor: colors.error,
-    },
-    buttonLabel: {
-      color: colors.onError,
-    },
-    responseTitle: {
-      fontSize: 20,
-      fontWeight: "bold",
-      marginBottom: 16,
-      color: colors.text,
-    },
-    responseCard: {
-      marginBottom: 16,
-      backgroundColor: colors.surface,
-    },
-    responseContent: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-    bankLogo: {
-      width: 50,
-      height: 50,
-    },
-    bankInfo: {
-      flex: 1,
-      marginLeft: 16,
-    },
-    bankName: {
-      fontSize: 16,
-      fontWeight: "bold",
-      color: colors.text,
-    },
-    representative: {
-      fontSize: 14,
-      color: colors.secondary,
-    },
-    decisionContainer: {
-      alignItems: "flex-end",
-    },
-    decision: {
-      fontSize: 16,
-      fontWeight: "bold",
-      color: colors.text,
-    },
-    responseDate: {
-      fontSize: 14,
-      color: colors.secondary,
-    },
-    newIcon: {
-      marginLeft: 8,
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#1E1E1E",
+  },
+  header: {
+    padding: 16,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginLeft: 8,
+    flex: 1,
+  },
+  statusBadge: {
+    backgroundColor: "#FFD700",
+    color: "#000000",
+  },
+  detailsCard: {
+    backgroundColor: "#2C2C2C",
+    marginBottom: 16,
+  },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  detailItem: {
+    flex: 1,
+  },
+  label: {
+    color: "#9E9E9E",
+    marginBottom: 4,
+  },
+  value: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  description: {
+    color: "#FFFFFF",
+    marginBottom: 16,
+  },
+  withdrawButton: {
+    backgroundColor: "#2C2C2C",
+    borderColor: "#F44336",
+    borderWidth: 1,
+    marginTop: 16,
+  },
+  responsesSection: {
+    padding: 16,
+  },
+  responsesTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginBottom: 16,
+  },
+  responseCard: {
+    backgroundColor: "#2C2C2C",
+    marginBottom: 12,
+  },
+  responseHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  bankInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  bankName: {
+    color: "#FFFFFF",
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  newBadge: {
+    backgroundColor: "#FFD700",
+    color: "#000000",
+  },
+  representativeInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  representativeDetails: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  representativeName: {
+    color: "#FFFFFF",
+    fontSize: 14,
+  },
+  responseDate: {
+    color: "#9E9E9E",
+    fontSize: 12,
+  },
+  decisionSection: {
+    borderLeftWidth: 4,
+    paddingLeft: 12,
+    marginTop: 8,
+  },
+  decision: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  counterAmount: {
+    color: "#FFFFFF",
+    marginTop: 4,
+  },
+  dialog: {
+    backgroundColor: "#2C2C2C",
+  },
+  dialogTitle: {
+    flexDirection: "row",
+    alignItems: "center",
+    color: "#FFFFFF",
+  },
+  dialogTitleText: {
+    color: "#FFFFFF",
+    marginLeft: 8,
+  },
+  dialogContent: {
+    color: "#FFFFFF",
+  },
+  icon: {
+    marginBottom: 4,
+  },
+  purposeSection: {
+    marginTop: 16,
+  },
+  responsesTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  clickableCard: {
+    borderWidth: 1,
+    borderColor: "rgba(255, 215, 0, 0.3)",
+  },
+  dateContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+});
 
 export default LoanRequestDetails;

@@ -1,4 +1,10 @@
-import React, { useRef, useEffect, useContext, useState } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useContext,
+  useState,
+  useCallback,
+} from "react";
 import {
   StyleSheet,
   View,
@@ -6,6 +12,7 @@ import {
   Alert,
   Dimensions,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import {
   ActivityIndicator,
@@ -34,24 +41,14 @@ import * as ImagePicker from "expo-image-picker";
 import { Buffer } from "buffer"; // Import the Buffer library
 import axios from "axios";
 import Constants from "expo-constants";
+import NotificationBanner from "../../utils/animations/NotificationBanner";
+
+import waitingAnimation from "../../assets/waiting.json";
+import successAnimation from "../../assets/success.json";
+import failureAnimation from "../../assets/failure.json";
+import LottieAnimation from "../../components/LottieAnimation";
 
 const { width, height } = Dimensions.get("window");
-
-function getBase64(url, token) {
-  return axios
-    .get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Attach the token in the headers
-      },
-      responseType: "arraybuffer", // Fetch the image as binary data
-    })
-    .then((response) => Buffer.from(response.data, "binary").toString("base64")) // Convert binary to base64
-    .catch((error) => {
-      // Log the error for debugging
-      console.error("Error fetching the image:", error);
-      throw new Error("Error fetching image. Please try again later.");
-    });
-}
 
 const OnboardAddBusiness = () => {
   const navigation = useNavigation();
@@ -78,8 +75,21 @@ const OnboardAddBusiness = () => {
   // use state for focused field
   const [focusedField, setFocusedField] = useState("");
 
-  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
-    useContext(UserContext);
+  const {
+    authenticated,
+    setAuthenticated,
+    onboarded,
+    setOnboarded,
+    business,
+    setBusiness,
+    businessAvatar,
+    setBusinessAvatar,
+  } = useContext(UserContext);
+
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
+
+  const inputRef = useRef(null);
 
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
@@ -89,32 +99,49 @@ const OnboardAddBusiness = () => {
 
   const businessNicknameAnim = useRef(new Animated.Value(0)).current;
 
-  // checking token and whether the user is onboarded
-  const checkUserState = async () => {
-    const token = await checkToken();
-    await checkBusinessEntity(token);
-  };
+  const [avatarText, setAvatarText] = useState("camera-plus");
+  const [avatarIcon, setAvatarIcon] = useState("camera-plus");
+  const [avatar, setAvatar] = useState(null);
 
-  const checkToken = async () => {
-    const token = await getToken("access");
-    console.log("INside check token " + token);
+  const avatarAnim = useRef(new Animated.Value(0)).current;
 
-    if (token) {
-      setAuthenticated(true);
+  const [animationState, setAnimationState] = useState("idle");
 
-      return token;
-    } else {
-      Alert.alert("Please log in again", "The session has timed out");
+  const handleAnimationFinish = useCallback(() => {
+    if (animationState === "success" || animationState === "failure") {
+      setAnimationState("idle");
     }
+  }, [animationState]);
+
+  const pressIn = () => {
+    Animated.sequence([
+      Animated.timing(avatarAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
-  const checkBusinessEntity = async (token) => {
-    console.log(token);
+  const pressOut = () => {
+    Animated.sequence([
+      Animated.timing(avatarAnim, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+  const checkBusinessEntity = async () => {
+    const token = await getToken("access");
     try {
-      await getCompanyAPI(token);
+      const response = await getCompanyAPI(token);
       setOnboarded(true);
+      return response;
     } catch (error) {
+      setOnboarded(false);
       console.log(error);
+      return null;
     }
   };
 
@@ -125,6 +152,11 @@ const OnboardAddBusiness = () => {
     setButtonIcon,
     message
   ) => {
+    setFocusedField("");
+    if (inputRef.current) {
+      inputRef.current.blur(); // Unfocus the TextInput
+    }
+
     try {
       // Request permission to access the media library
       const permissionResult =
@@ -139,7 +171,7 @@ const OnboardAddBusiness = () => {
 
       // Launch the image picker
       let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.mediaTypes, // Specify media type
+        // mediaTypes: ImagePicker.mediaTypes, // Specify media type
         allowsEditing: true,
         quality: 1,
         base64: true,
@@ -150,11 +182,9 @@ const OnboardAddBusiness = () => {
         const selectedAsset = result.assets[0];
 
         // Update state
-        setSelected(selectedAsset);
+        setSelected(selectedAsset.uri);
         setButtonText(message);
         setButtonIcon("file-check-outline");
-      } else {
-        Alert.alert("Unsuccessful selection", "User canceled file selection.");
       }
     } catch (error) {
       console.log("Error picking file:", error);
@@ -196,83 +226,108 @@ const OnboardAddBusiness = () => {
   // logic when "Submit" button is pressed
   const handleSubmit = async () => {
     setSubmitText("Submitting");
-
     // ensure all required fields are filled
-    if (!businessNickname) {
-      Alert.alert(
-        "Business Nickname is Missing",
-        "Please enter a business nickname to distinguish it from your other businesses."
-      );
-      setSubmitText("Submit");
-      return;
+    if (!avatar) {
+      setNotificationMessage("Don't forget to add an avatar!");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
+    } else {
+      if (!businessNickname) {
+        setNotificationMessage("Don't forget to add a Business Nickname!");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
+      } else {
+        if (!selectedDocument) {
+          setNotificationMessage("Don't forget to add a financial statement!");
+          setNotificationVisible(true);
+          setTimeout(() => {
+            setNotificationVisible(false);
+          }, 3000); // Hide the banner after 3 seconds
+        } else {
+          if (!selectedPhoto) {
+            setNotificationMessage(
+              "Don't forget to add your business license!"
+            );
+            setNotificationVisible(true);
+            setTimeout(() => {
+              setNotificationVisible(false);
+            }, 3000); // Hide the banner after 3 seconds
+          } else {
+            try {
+              setAnimationState("waiting");
+
+              const token = await getToken("access");
+
+              // using
+              const formData = new FormData();
+
+              formData.append("businessAvatar", {
+                uri: avatar, // Path or URI to the file
+                type: "image/jpeg", // Adjust the type based on your file
+                name: "businessAvatar.jpeg", // File name
+              });
+              formData.append("businessNickname", businessNickname); // Send the text parameter
+              formData.append("financialStatementPDF", {
+                uri: selectedDocument, // Path or URI to the file
+                type: "image/jpeg", // Adjust the type based on your file
+                name: "financialStatementPDF.jpeg", // File name
+              });
+              formData.append("businessLicenseImage", {
+                uri: selectedPhoto, // Path or URI to the file
+                type: "image/jpeg", // Adjust the type based on your file
+                name: "businessLicenseImage.jpg", // File name
+              });
+
+              // call the text extraction function here and pass the two images to get the two strings
+              // Note the following two fields are nullable
+
+              // Call OCR with the whole file asset, not just its uri
+              const newFinancialStatementText = await performOCR(
+                selectedDocument
+              );
+              const newBusinessLicenseText = await performOCR(selectedPhoto);
+
+              console.log(newFinancialStatementText, newBusinessLicenseText);
+
+              formData.append(
+                "financialStatementText",
+                newFinancialStatementText
+              );
+              formData.append("businessLicenseText", newBusinessLicenseText);
+
+              const response = await addCompanyAPI(token, formData);
+
+              const businessData = await checkBusinessEntity(token);
+              setBusiness(businessData); // Store business data in state
+
+              setAnimationState("success");
+              setTimeout(() => setAnimationState("idle"), 2000);
+
+              Alert.alert("Success", "added your business");
+            } catch (error) {
+              setAnimationState("failure");
+
+              // After 2 seconds, reset the animation state
+              setTimeout(() => setAnimationState("idle"), 2000);
+
+              setNotificationMessage("Failed to add your business.");
+              setNotificationVisible(true);
+              setTimeout(() => {
+                setNotificationVisible(false);
+              }, 3000); // Hide the banner after 3 seconds
+            }
+          }
+        }
+      }
     }
-
-    if (!selectedDocument) {
-      Alert.alert(
-        "Financial Statement Missing",
-        "Please upload your financial statement document."
-      );
-      setSubmitText("Submit");
-      return;
-    }
-
-    if (!selectedPhoto) {
-      Alert.alert(
-        "Business License Missing",
-        "Please scan your business license document."
-      );
-
-      setSubmitText("Submit");
-      return;
-    }
-
-    try {
-      const token = await checkToken();
-
-      // using
-      const formData = new FormData();
-      formData.append("businessNickname", businessNickname); // Send the text parameter
-      formData.append("financialStatementPDF", {
-        uri: selectedDocument.uri, // Path or URI to the file
-        type: "image/jpeg", // Adjust the type based on your file
-        name: "financialStatementPDF.jpeg", // File name
-      });
-      formData.append("businessLicenseImage", {
-        uri: selectedPhoto.uri, // Path or URI to the file
-        type: "image/jpeg", // Adjust the type based on your file
-        name: "businessLicenseImage.jpg", // File name
-      });
-
-      // call the text extraction function here and pass the two images to get the two strings
-      // Note the following two fields are nullable
-
-      // Call OCR with the whole file asset, not just its uri
-      const newFinancialStatementText = await performOCR(selectedDocument);
-      const newBusinessLicenseText = await performOCR(selectedPhoto);
-
-      console.log(newFinancialStatementText, newBusinessLicenseText);
-
-      formData.append("financialStatementText", newFinancialStatementText);
-      formData.append("businessLicenseText", newBusinessLicenseText);
-
-      const response = await addCompanyAPI(token, formData);
-
-      console.log(response);
-      setSubmitText("Submit");
-      await checkBusinessEntity(token);
-      Alert.alert("Success", "added your business");
-    } catch (error) {
-      console.log(error);
-      Alert.alert("Failed Login", "Failed to add your business!");
-      setSubmitText("Submit");
-    }
+    setSubmitText("Submit");
   };
 
   useEffect(() => {
-    checkUserState();
-
-    // checkOnboard();
-
     // Start bouncing animation when the component mounts
     Animated.loop(
       Animated.sequence([
@@ -295,9 +350,68 @@ const OnboardAddBusiness = () => {
 
   return (
     <View style={styles.container}>
+      <LottieAnimation
+        source={waitingAnimation}
+        visible={animationState === "waiting"}
+        onAnimationFinish={() => {}}
+      />
+      <LottieAnimation
+        source={successAnimation}
+        visible={animationState === "success"}
+        onAnimationFinish={handleAnimationFinish}
+      />
+      <LottieAnimation
+        source={failureAnimation}
+        visible={animationState === "failure"}
+        onAnimationFinish={handleAnimationFinish}
+      />
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
       <View style={styles.content}>
         <Text style={styles.title}>Add Your Business</Text>
-        <Text style={styles.subtitle}>Please fill in all fields </Text>
+        <Animated.View
+          style={[
+            styles.avatarContainer,
+            {
+              transform: [
+                {
+                  scale: avatarAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <TouchableOpacity
+            onPressIn={pressIn} // Call the handle function when the press starts
+            onPressOut={pressOut} // Call the handle function when the press ends
+            onPress={() =>
+              pickFile(
+                setAvatar,
+                setUploadText,
+                setUploadIcon,
+                "Document Successfully Uploaded"
+              )
+            }
+            style={styles.avatarButton}
+          >
+            {avatar ? (
+              <Image source={{ uri: avatar }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <MaterialCommunityIcons
+                  name={avatarIcon}
+                  size={40}
+                  color="#FFD700"
+                />
+              </View>
+            )}
+          </TouchableOpacity>
+        </Animated.View>
 
         <Animated.View
           style={[
@@ -317,6 +431,7 @@ const OnboardAddBusiness = () => {
           <TextInput
             label="Bussiness Nickname"
             value={businessNickname}
+            ref={inputRef}
             onChangeText={setBusinessNickname}
             mode="outlined"
             keyboardType="default" // Default keyboard for mixed input
@@ -402,7 +517,6 @@ const OnboardAddBusiness = () => {
           </Button>
         </Animated.View>
 
-
         <Animated.View
           style={[
             styles.buttonContainer,
@@ -428,23 +542,6 @@ const OnboardAddBusiness = () => {
           </Button>
         </Animated.View>
       </View>
-
-      {/* <Button
-        style={styles.button}
-        title="Fetch Image"
-        onPress={fetchImage}
-        disabled={isLoading}
-      />
-
-      {isLoading && (
-        <ActivityIndicator
-          size="large"
-          color="#0000ff"
-          style={styles.loadingIndicator}
-        />
-      )}
-
-      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />} */}
     </View>
   );
 };
@@ -535,6 +632,37 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#FFD700",
     paddingVertical: 10,
+  },
+  avatarContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  avatarButton: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "rgba(255, 215, 0, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#FFD700",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+  },
+  avatarPlaceholder: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 215, 0, 0.1)",
+  },
+  avatarText: {
+    marginTop: 10,
+    color: "#FFD700",
+    fontSize: 16,
   },
 });
 

@@ -4,38 +4,35 @@ import AuthNavigator from "./navigations/AuthNavigator";
 import { useState, useEffect } from "react";
 import UserContext from "./context/UserContext";
 import AppNavigator from "./navigations/AppNavigator";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "react-native";
-
-//-------- although not currently in use, they will be used for token storage
-import {
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
 import OnboardingNavigator from "./navigations/OnboardingNavigator";
-import { deleteToken, getToken } from "./storage/TokenStorage";
+import { getToken } from "./storage/TokenStorage";
 import { getCompanyAPI } from "./api/Business";
 //----------
 
 export default function App() {
   const [authenticated, setAuthenticated] = useState(false); // User authentication status
   const [onboarded, setOnboarded] = useState(false); // User onboarding status
+  const [business, setBusiness] = useState(null); // Company data
+  const [businessAvatar, setBusinessAvatar] = useState(null); // Company data
 
   // checking token and whether the user is onboarded
   const checkUserState = async () => {
-    const token = await checkToken();
-    await checkBusinessEntity(token);
+    await checkToken();
   };
 
   const checkToken = async () => {
     const token = await getToken("access");
-    console.log("INside check token" + token);
 
+    const businessData = await checkBusinessEntity(token);
+    console.log("Inside check token" + token);
     if (token) {
       setAuthenticated(true);
-
+      if (businessData) {
+        setBusiness(businessData); // Store business data in state
+      }
       return token;
     } else {
       Alert.alert("Please log in again", "The session has timed out");
@@ -43,13 +40,14 @@ export default function App() {
   };
 
   const checkBusinessEntity = async (token) => {
-    console.log(token);
     try {
-      await getCompanyAPI(token);
+      const response = await getCompanyAPI(token);
       setOnboarded(true);
+      return response; // Return the company data
     } catch (error) {
       setOnboarded(false);
       console.log(error);
+      return null; // Return null if no company data found
     }
   };
 
@@ -74,29 +72,17 @@ export default function App() {
               setAuthenticated,
               onboarded,
               setOnboarded,
+              business, // Provide company data here
+              setBusiness, // You can provide a setter function for modifying the company data
+              businessAvatar,
+              setBusinessAvatar,
             }}
           >
             {authenticated ? (
               onboarded ? (
                 <AppNavigator />
               ) : (
-                <View
-                  style={{
-                    flex: 1,
-                    backgroundColor: "#fff",
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={async () => {
-                      setAuthenticated(false);
-                      await deleteToken("access");
-                    }}
-                    style={[styles.container, styles.absoluteTopLeft]}
-                  >
-                    <Text style={styles.logout}>Logout</Text>
-                  </TouchableOpacity>
-                  <OnboardingNavigator />
-                </View>
+                <OnboardingNavigator />
               )
             ) : (
               <AuthNavigator />
@@ -111,8 +97,8 @@ const styles = StyleSheet.create({
   logout: {
     color: "white",
     fontSize: 20,
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   absoluteTopLeft: {
     position: "absolute",

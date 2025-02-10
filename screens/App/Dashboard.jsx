@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -29,16 +29,20 @@ const screenWidth = Dimensions.get("window").width;
 import { useNavigation } from "@react-navigation/native";
 import Routes from "../../utils/constants/routes";
 import LoanRequestIntro from "./Request/LoanRequestIntro";
+import UserContext from "../../context/UserContext";
+import { fetchImage } from "../../api/Generic";
+import { getToken } from "../../storage/TokenStorage";
+import FinancialAnalysisModal from "../../components/FinancialAnalysisModal";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
 
   const iconTranslateY = useSharedValue(0);
 
-  const translateXButton1 = new Animated.Value(-screenWidth);
-  const translateXButton2 = new Animated.Value(-screenWidth);
+  const translateXButton1 = useRef(new Animated.Value(-screenWidth)).current;
+  const translateXButton2 = useRef(new Animated.Value(-screenWidth)).current;
 
-  const scoreWidth = new Animated.Value(0); // Initial width of 0%
+  const scoreWidth = useRef(new Animated.Value(0)).current; // Initial width of 0%
 
   const buttonAnim = useRef(new Animated.Value(1)).current;
 
@@ -47,15 +51,24 @@ const HomeScreen = () => {
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const onPress = () => {};
+  const [avatarUri, setAvatarUri] = useState(null);
 
-  useEffect(() => {
-    Animated.timing(scoreWidth, {
-      toValue: 80, // Target width (80% in your case)
-      duration: 1000, // Duration of the animation in milliseconds
-      useNativeDriver: false, // Since we're animating the width property
-    }).start();
-  }, []);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const {
+    authenticated,
+    setAuthenticated,
+    onboarded,
+    setOnboarded,
+    business,
+    setBusiness,
+    businessAvatar,
+    setBusinessAvatar,
+  } = useContext(UserContext);
+
+  const onPress = () => {
+    console.log();
+  };
 
   useEffect(() => {
     // Animation for Button 1 (faster pace)
@@ -66,6 +79,12 @@ const HomeScreen = () => {
         useNativeDriver: true,
       })
     );
+
+    Animated.timing(scoreWidth, {
+      toValue: business.entity.financialScore * 10, // Target width (80% in your case)
+      duration: 1000, // Duration of the animation in milliseconds
+      useNativeDriver: false, // Since we're animating the width property
+    }).start();
     animationButton1.start();
 
     // Animation for Button 2 (slower pace)
@@ -78,19 +97,45 @@ const HomeScreen = () => {
     );
     animationButton2.start();
 
-    return () => {
-      animationButton1.stop();
-      animationButton2.stop();
-    };
-  }, []);
-
-  useEffect(() => {
     iconTranslateY.value = withRepeat(
       withTiming(10, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true
     );
+
+    return () => {
+      animationButton1.stop();
+      animationButton2.stop();
+      translateXButton1.setValue(-screenWidth);
+      translateXButton2.setValue(-screenWidth);
+    };
   }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await getToken("access");
+        if (!token) {
+          console.warn("No token found, skipping image fetch.");
+          return;
+        }
+
+        const image = await fetchImage(
+          token,
+          business.entity.businessAvatarFileId
+        );
+        if (image) {
+          setAvatarUri(image);
+        } else {
+          console.warn("Fetched image is null or undefined.");
+        }
+      } catch (error) {
+        console.error("Error fetching business avatar:", error);
+      }
+    };
+
+    fetchData(); // Call the function
+  }, []); // Runs only on mount
 
   const handleSubmit = async () => {
     console.log("apply for a logn");
@@ -98,8 +143,6 @@ const HomeScreen = () => {
       screen: Routes.LoanRequest.LoanRequestIntro,
     });
   };
-
-  //    backgroundColor: "#292933",
 
   return (
     <View style={{ flex: 1, backgroundColor: "#1C1C1E", padding: 20 }}>
@@ -112,7 +155,7 @@ const HomeScreen = () => {
           marginBottom: 10,
         }}
       >
-        👋 Welcome, User!
+        👋 {`Welcome, ${business.entity.businessOwnerUser.firstName}`}
       </Text>
 
       {/* Business Card */}
@@ -124,16 +167,33 @@ const HomeScreen = () => {
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Image
-            source={{ uri: "https://via.placeholder.com/50" }}
-            style={{ width: 50, height: 50, borderRadius: 25, marginRight: 15 }}
-          />
+          {avatarUri ? (
+            <Image
+              source={{ uri: avatarUri }}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                marginRight: 15,
+              }}
+            />
+          ) : (
+            <View
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                marginRight: 15,
+                backgroundColor: "#333", // Placeholder color
+              }}
+            />
+          )}
           <View>
             <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
-              Your Business
+              {business.entity.businessNickname}
             </Text>
             <Text style={{ color: "#aaa" }}>
-              Business License ID: #12345678
+              {`Business License ID: #${business.entity.businessLicense.licenseNumber}`}
             </Text>
           </View>
         </View>
@@ -168,7 +228,7 @@ const HomeScreen = () => {
         <TouchableOpacity
           style={styles.card}
           activeOpacity={0.3} // Slight dim on press
-          onPress={onPress}
+          onPress={() => setModalVisible(true)}
           onPressIn={() => handlePressIn(scaleAnim)}
           onPressOut={() => handlePressOut(scaleAnim)}
         >
@@ -279,6 +339,11 @@ const HomeScreen = () => {
           labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
         }}
         style={{ borderRadius: 10, paddingTop: 15 }}
+      />
+      <FinancialAnalysisModal
+        visible={modalVisible}
+        onDismiss={() => setModalVisible(false)}
+        analysisText={business.entity.financialAnalysis}
       />
     </View>
   );

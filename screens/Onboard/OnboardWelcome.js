@@ -1,5 +1,11 @@
 import React, { useRef, useEffect, useContext } from "react";
-import { StyleSheet, View, Animated, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Animated,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Icons library
@@ -9,51 +15,18 @@ import {
   handlePressOut,
 } from "../../utils/animations/buttonAnimations";
 import Routes from "../../utils/constants/routes";
-import { getCompanyAPI } from "../../api/Business";
-import { getToken } from "../../storage/TokenStorage";
+import { deleteToken } from "../../storage/TokenStorage";
 
 const OnboardWelcome = () => {
+  const { setAuthenticated, setOnboarded } = useContext(UserContext);
+
   const navigation = useNavigation();
   const theme = useTheme();
-
-  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
-    useContext(UserContext);
 
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
 
-  // checking token and whether the user is onboarded
-  const checkUserState = async () => {
-    const token = await checkToken();
-    await checkBusinessEntity(token);
-  };
-
-  const checkToken = async () => {
-    const token = await getToken("access");
-    console.log("INside check token" + token);
-
-    if (token) {
-      setAuthenticated(true);
-
-      return token;
-    } else {
-      Alert.alert("Please log in again", "The session has timed out");
-    }
-  };
-
-  const checkBusinessEntity = async (token) => {
-    console.log(token);
-    try {
-      await getCompanyAPI(token);
-      setOnboarded(true);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
-    checkUserState();
-
     // Start bouncing animation when the component mounts
     Animated.loop(
       Animated.sequence([
@@ -76,6 +49,16 @@ const OnboardWelcome = () => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        onPress={async () => {
+          setAuthenticated(false);
+          await deleteToken("access");
+          setOnboarded(false);
+        }}
+        style={[styles.container, styles.absoluteTopLeft]}
+      >
+        <Text style={styles.logout}>Logout</Text>
+      </TouchableOpacity>
       <View style={styles.content}>
         <Animated.View
           style={[
@@ -127,6 +110,18 @@ const OnboardWelcome = () => {
 };
 
 const styles = StyleSheet.create({
+  logout: {
+    color: "white",
+    fontSize: 20,
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  absoluteTopLeft: {
+    position: "absolute",
+    top: 20, // Adjust to your desired distance from the top
+    left: 20, // Adjust to your desired distance from the left
+    zIndex: 1, // Ensure it appears above other components if overlapping
+  },
   container: {
     flex: 1,
     backgroundColor: "#1a1a1a",

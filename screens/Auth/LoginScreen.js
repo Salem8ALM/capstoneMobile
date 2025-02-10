@@ -21,6 +21,7 @@ import { handleBiometricLogin } from "./auth-utils/handleBiometricLogin";
 import { loginAPI, refreshTokenAPI } from "../../api/Auth";
 import { setToken, getToken } from "../../storage/TokenStorage";
 import { LinearGradient } from "expo-linear-gradient";
+import { getCompanyAPI } from "../../api/Business";
 
 const { width, height } = Dimensions.get("window");
 
@@ -41,8 +42,14 @@ const LoginScreen = () => {
   const [focusedField, setFocusedField] = useState("");
 
   // Used to change from AuthNavigator to AppNavigator after authenticatino
-  const { authenticated, setAuthenticated, onboarded, setOnboarded } =
-    useContext(UserContext);
+  const {
+    authenticated,
+    setAuthenticated,
+    onboarded,
+    setOnboarded,
+    business,
+    setBusiness,
+  } = useContext(UserContext);
 
   const [data, setData] = useState(null);
 
@@ -54,8 +61,35 @@ const LoginScreen = () => {
   // check if token exists
   const checkToken = async () => {
     const token = await getToken("access");
-    if (token) setAuthenticated(true);
+
+    const businessData = await checkBusinessEntity(token);
+
+    console.log("How about here" + businessData);
+
+    console.log("Inside check token" + token);
+    if (token) {
+      setAuthenticated(true);
+      if (businessData) {
+        setBusiness(businessData); // Store business data in state
+      }
+      return token;
+    }
   };
+
+  const checkBusinessEntity = async (token) => {
+    console.log(token);
+    try {
+      const response = await getCompanyAPI(token);
+      console.log("business: " + response);
+      setOnboarded(true);
+      return response;
+    } catch (error) {
+      setOnboarded(false);
+      console.log(error);
+      return null; // Return null if no company data found
+    }
+  };
+
   useEffect(() => {
     checkToken();
   });
@@ -91,6 +125,7 @@ const LoginScreen = () => {
   // biometric login
   const authenticate = async () => {
     // call function to check authentication
+    setLogin("Logging in");
 
     const refreshToken = await getToken("refresh");
 
@@ -109,7 +144,6 @@ const LoginScreen = () => {
           await setToken(response.refreshToken, "refresh");
 
           checkToken();
-          // Alert.alert("Success", "Logged in successfully!");
         }
       } else {
         Alert.alert(
@@ -123,6 +157,7 @@ const LoginScreen = () => {
         "Login in at least once to have data stored"
       );
     }
+    setLogin("Login");
   };
 
   // temporary hack to ensure no duplicate screens are piled

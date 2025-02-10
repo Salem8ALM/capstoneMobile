@@ -5,52 +5,36 @@ import {
   Animated,
   TouchableOpacity,
 } from "react-native";
-import { Appbar } from "react-native-paper";
+import { Appbar, Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LoanRequestCard } from "../../../components/LoanRequestCard";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Routes from "../../../utils/constants/routes";
+import { getToken } from "../../../storage/TokenStorage";
+import { getAllRequestsAPI } from "../../../api/LoanRequest";
+import LottieView from "lottie-react-native";
 
-// Sample data
-const loanRequests = [
-  {
-    id: 1,
-    title: "Business Expansion Loan",
-    purpose: "Purchase new equipment",
-    status: "Pending",
-    amount: 50000,
-    term: "36 months",
-    repaymentPlan: "Monthly",
-    dateUpdated: "2024-02-08",
-    isNew: true,
-  },
-  {
-    id: 2,
-    title: "Working Capital Loan",
-    purpose: "Inventory purchase",
-    status: "Await Response",
-    amount: 25000,
-    term: "24 months",
-    repaymentPlan: "Monthly",
-    dateUpdated: "2024-02-07",
-    isNew: true,
-  },
-  {
-    id: 3,
-    title: "Emergency Fund Loan",
-    purpose: "Cash flow management",
-    status: "Pending",
-    amount: 15000,
-    term: "12 months",
-    repaymentPlan: "Monthly",
-    dateUpdated: "2024-02-05",
-    isNew: false,
-  },
-];
+const loanTermMap = {
+  SIX_MONTHS: "6 Months",
+  ONE_YEAR: "1 Year",
+  TWO_YEARS: "2 Years",
+  FIVE_YEARS: "5 Years",
+};
+
+const formatRepaymentPlan = (plan) => {
+  return plan
+    .toLowerCase() // Convert to lowercase
+    .replace(/_/g, " ") // Replace underscores with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize each word
+};
 
 export default function LoanDashboard({ navigation }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    console.log("Loan Requests:", loanRequests); // Log the loanRequests
+  }, [loanRequests]);
 
   const handlePressIn = () => {
     Animated.timing(scaleAnim, {
@@ -67,6 +51,46 @@ export default function LoanDashboard({ navigation }) {
       useNativeDriver: true,
     }).start(() => navigation.navigate(Routes.LoanRequest.LoanRequestIntro));
   };
+
+  const [loanRequests, setLoanRequests] = useState([]);
+
+  const getAllRequests = async () => {
+    try {
+      const token = await getToken("access");
+
+      try {
+        const response = await getAllRequestsAPI(token);
+        if (response?.allRequests) {
+          const updatedRequests = response.allRequests.map((request) => ({
+            ...request,
+            loanTerm: loanTermMap[request.loanTerm] || "Unknown", // Convert backend term to user-friendly text
+            repaymentPlan: formatRepaymentPlan(request.repaymentPlan), // Format repayment plan
+            status: request.status.replace(/_/g, " "), // Format repayment plan
+
+            isNew: true, // Default to true as required
+          }));
+          setLoanRequests(updatedRequests);
+        }
+      } catch (error) {
+        console.error("Unable to retrieve loan requests:", error);
+      }
+    } catch (error) {
+      console.error("Unable to retrieve token:", error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch initially
+    getAllRequests();
+
+    // // Set up interval to fetch every 3 seconds
+    // const interval = setInterval(() => {
+    //   getAllRequests();
+    // }, 3000);
+
+    // // Cleanup function to clear interval on unmount
+    // return () => clearInterval(interval);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -94,16 +118,31 @@ export default function LoanDashboard({ navigation }) {
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
       >
-        {loanRequests.map((loan) => (
-          <LoanRequestCard
-            key={loan.id}
-            {...loan}
-            onPress={() => {
-              // navigation.navigate(Routes.LoanRequest.LoanResponseViewAll);
-              console.log("Pressed loan:", loan.id);
-            }}
-          />
-        ))}
+        {loanRequests.length === 0 ? (
+          <View style={styles.noMessagesContainer}>
+            <LottieView
+              source={require("../../../assets/no-message.json")}
+              autoPlay
+              loop
+              style={styles.lottieAnimation}
+            />
+            <Text style={styles.noMessagesText}>No loean request made yet</Text>
+          </View>
+        ) : (
+          loanRequests
+            .slice()
+            .sort((a, b) => new Date(b.statusDate) - new Date(a.statusDate))
+            .map((loan) => (
+              <LoanRequestCard
+                key={loan.id}
+                {...loan}
+                onPress={() => {
+                  navigation.navigate(Routes.LoanRequest.LoanResponseViewAll);
+                  console.log("Pressed loan:", loan.id);
+                }}
+              />
+            ))
+        )}
       </ScrollView>
     </View>
   );
@@ -146,5 +185,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 25,
+  },
+  noMessagesContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1, // Ensure it takes the available space
+    marginTop: 50,
+  },
+  lottieAnimation: {
+    width: 150, // Adjust to your preferred size
+    height: 150,
+  },
+  noMessagesText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: "#fff", // You can adjust the color
   },
 });
