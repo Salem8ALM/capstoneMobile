@@ -1,11 +1,9 @@
-import axios from "axios";
-import { getToken } from "../storage/TokenStorage";
 import instance from "./index";
 import { Buffer } from "buffer"; // Import the Buffer library
 
 const fetchImage = async (token, id) => {
   try {
-    const base64Data = instance
+    const base64Data = await instance
       .get(`/api/files/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -19,6 +17,9 @@ const fetchImage = async (token, id) => {
         console.error("Error fetching the image:", error);
         throw new Error("Error fetching image. Please try again later.");
       });
+
+    console.log(base64Data);
+
     return `data:image/png;base64,${base64Data}`;
   } catch (error) {
     console.error(error.response.data);

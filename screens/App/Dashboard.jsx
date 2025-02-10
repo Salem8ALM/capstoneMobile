@@ -70,6 +70,7 @@ const HomeScreen = () => {
   const getBusinessAvatar = async () => {
     try {
       const token = await getToken("access");
+
       try {
         const image = await fetchImage(
           token,
@@ -144,16 +145,8 @@ const HomeScreen = () => {
           marginBottom: 10,
         }}
       >
-        👋 Welcome, User!
+        👋 {`Welcome, ${business.entity.businessOwnerUser.firstName}`}
       </Text>
-
-      <View style={styles.container}>
-        <Button title="Fetch Image" onPress={getBusinessAvatar} />
-
-        {avatarUri && (
-          <Image source={{ uri: avatarUri }} style={styles.image} />
-        )}
-      </View>
 
       {/* Business Card */}
       <View
@@ -167,6 +160,9 @@ const HomeScreen = () => {
           {avatarUri && (
             <Image
               source={{ uri: avatarUri }}
+              onError={(e) =>
+                console.log("Image load error:", e.nativeEvent.error)
+              }
               style={{
                 width: 50,
                 height: 50,
