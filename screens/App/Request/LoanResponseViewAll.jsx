@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   ScrollView,
@@ -22,7 +22,9 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import ResponseActionModal from "../../../components/ResponseActionModal";
 
-const LoanRequestDetails = () => {
+const LoanRequestDetails = ({ route }) => {
+  const { loan } = route.params;
+
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [selectedResponse, setSelectedResponse] = useState(null);
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -115,6 +117,10 @@ const LoanRequestDetails = () => {
     }
   };
 
+  useEffect(() => {
+    console.log(loan);
+  }, []);
+
   return (
     <Animated.ScrollView
       style={styles.container}
@@ -140,7 +146,7 @@ const LoanRequestDetails = () => {
             size={24}
             color="#FFD700"
           />
-          <Text style={styles.title}>Business Expansion Loan</Text>
+          <Text style={styles.title}>{loan.loanTitle}</Text>
           <Animatable.View
             animation="pulse"
             iterationCount="infinite"
@@ -156,12 +162,12 @@ const LoanRequestDetails = () => {
               <View style={styles.detailItem}>
                 {renderIcon("cash-multiple")}
                 <Text style={styles.label}>Loan Amount</Text>
-                <Text style={styles.value}>50,000 KWD</Text>
+                <Text style={styles.value}>{`${loan.amount} KWD`}</Text>
               </View>
               <View style={styles.detailItem}>
                 {renderIcon("calendar-clock")}
                 <Text style={styles.label}>Loan Term</Text>
-                <Text style={styles.value}>36 months</Text>
+                <Text style={styles.value}>{loan.loanTerm}</Text>
               </View>
             </View>
 
@@ -169,22 +175,19 @@ const LoanRequestDetails = () => {
               <View style={styles.detailItem}>
                 {renderIcon("calendar-sync")}
                 <Text style={styles.label}>Repayment Plan</Text>
-                <Text style={styles.value}>Monthly</Text>
+                <Text style={styles.value}>{loan.repaymentPlan}</Text>
               </View>
               <View style={styles.detailItem}>
                 {renderIcon("clock-outline")}
                 <Text style={styles.label}>Status Date</Text>
-                <Text style={styles.value}>2025-02-09</Text>
+                <Text style={styles.value}>{loan.statusDate}</Text>
               </View>
             </View>
 
             <View style={styles.purposeSection}>
               {renderIcon("text-box-outline")}
               <Text style={styles.label}>Purpose/Description</Text>
-              <Text style={styles.description}>
-                Purchase new equipment for business expansion and modernization
-                of current operations
-              </Text>
+              <Text style={styles.description}>{loan.loanPurpose}</Text>
             </View>
 
             <Animatable.View animation="pulse" iterationCount={3}>

@@ -137,7 +137,9 @@ export default function LoanDashboard({ navigation }) {
                 key={loan.id}
                 {...loan}
                 onPress={() => {
-                  navigation.navigate(Routes.LoanRequest.LoanResponseViewAll);
+                  navigation.navigate(Routes.LoanRequest.LoanResponseViewAll, {
+                    loan: loan,
+                  });
                   console.log("Pressed loan:", loan.id);
                 }}
               />
