@@ -29,7 +29,6 @@ const getCompanyAPI = async (token) => {
         Authorization: `Bearer ${token}`, // Attach the token here
       },
     });
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.log(error.response.data);
@@ -51,7 +50,5 @@ const getFinancialStatementAPI = async (token) => {
     throw error; // Re-throw to handle it in the calling function
   }
 };
-
-
 
 export { addCompanyAPI, getFinancialStatementAPI, getCompanyAPI };

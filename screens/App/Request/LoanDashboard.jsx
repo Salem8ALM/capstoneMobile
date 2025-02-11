@@ -141,6 +141,8 @@ export default function LoanDashboard({ navigation }) {
                     loan: loan,
                   });
                   console.log("Pressed loan:", loan.id);
+                  
+
                 }}
               />
             ))

@@ -17,7 +17,7 @@ const sendLoanRequest = async (token, request) => {
 };
 
 const getAllRequestsAPI = async (token) => {
-  console.log(`inside get all requests: ${token}`);
+  console.log(`token: ${token}`);
 
   try {
     const response = await instance.get(controller + "/request/all", {

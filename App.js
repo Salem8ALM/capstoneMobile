@@ -27,7 +27,6 @@ export default function App() {
     const token = await getToken("access");
 
     const businessData = await checkBusinessEntity(token);
-    console.log("Inside check token" + token);
     if (token) {
       setAuthenticated(true);
       if (businessData) {
@@ -46,7 +45,6 @@ export default function App() {
       return response; // Return the company data
     } catch (error) {
       setOnboarded(false);
-      console.log(error);
       return null; // Return null if no company data found
     }
   };
