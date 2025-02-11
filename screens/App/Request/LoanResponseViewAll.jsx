@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   View,
   ScrollView,
@@ -22,6 +22,9 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import ResponseActionModal from "../../../components/ResponseActionModal";
+import UserContext from "../../../context/UserContext";
+import { getToken } from "../../../storage/TokenStorage";
+import { getAllRequestsAPI } from "../../../api/LoanRequest";
 
 function capitalizeFirstLetter(input) {
   return input
@@ -38,16 +41,70 @@ const bankIcons = {
   WARBA_BANK: require("../../../assets/bankIcons/Warba.png"),
 };
 
-const LoanRequestDetails = ({ route }) => {
-  const { loan } = route.params;
+const formatRepaymentPlan = (plan) => {
+  return plan
+    .toLowerCase() // Convert to lowercase
+    .replace(/_/g, " ") // Replace underscores with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize each word
+};
 
-  const [loanProp, setLoanProp] = useState(loan);
+const loanTermMap = {
+  SIX_MONTHS: "6 Months",
+  ONE_YEAR: "1 Year",
+  TWO_YEARS: "2 Years",
+  FIVE_YEARS: "5 Years",
+};
+
+const LoanRequestDetails = ({ route }) => {
+  const { loanId } = route.params;
+
+  const { loans, setLoans } = useContext(UserContext);
 
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [selectedResponse, setSelectedResponse] = useState(null);
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const [responses] = useState(loan.loanResponses);
+  let loan = loans.find((loan) => loan.id === loanId);
+  const [responses, setResponses] = useState([]);
+
+  const getAllRequests = async () => {
+    try {
+      const token = await getToken("access");
+      const response = await getAllRequestsAPI(token);
+
+      if (response?.allRequests) {
+        const updatedRequests = response.allRequests.map((request) => ({
+          ...request,
+          loanTerm: loanTermMap[request.loanTerm] || "Unknown",
+          repaymentPlan: formatRepaymentPlan(request.repaymentPlan),
+          status: request.status.replace(/_/g, " "),
+          isNew: true,
+        }));
+
+        setLoans(updatedRequests);
+      }
+    } catch (error) {
+      console.error("Unable to retrieve loan requests:", error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch initially
+    getAllRequests();
+
+    // Set up interval to fetch every 3 seconds
+    // const interval = setInterval(() => {
+    //   getAllRequests();
+    // }, 3000);
+
+    // // Cleanup function to clear interval on unmount
+    // return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const loan = loans.find((loan) => loan.id === loanId);
+    setResponses(loan ? loan.loanResponses : []);
+  }, [loans, loanId]); // <- This ensures responses update when loans change
 
   // const [responses] = useState([
   //   {
@@ -401,7 +458,7 @@ const LoanRequestDetails = ({ route }) => {
         visible={!!selectedResponse}
         onDismiss={() => setSelectedResponse(null)}
         response={selectedResponse}
-        request={loanProp}
+        request={loan}
         onAction={handleResponseAction}
       />
     </Animated.ScrollView>
