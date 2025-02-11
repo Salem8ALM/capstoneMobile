@@ -1,16 +1,25 @@
-import React, { useEffect } from "react";
-import { StyleSheet, View, Animated } from "react-native";
+import React, { useContext, useEffect } from "react";
+import { StyleSheet, View, Animated, Image } from "react-native";
 import { Portal, Modal, Text, Button, IconButton } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
+import UserContext from "../context/UserContext";
 
 async function capitalizeFirstLetter(input) {
+  if (!input) return ""; // Return an empty string if input is falsy (undefined, null, etc.)
   return input
     .toLowerCase()
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
+
+const bankIcons = {
+  BOUBYAN_BANK: require("../assets/bankIcons/Boubyan.png"),
+  KUWAIT_INTERNATIONAL_BANK: require("../assets/bankIcons/KIB.png"),
+  KUWAIT_FINANCE_HOUSE: require("../assets/bankIcons/KFH.png"),
+  WARBA_BANK: require("../assets/bankIcons/Warba.png"),
+};
 
 const formatDateTime = (dateTimeString) => {
   const date = new Date(dateTimeString);
@@ -22,11 +31,11 @@ const ResponseActionModal = ({
   onDismiss,
   response,
   onAction,
-  loan,
+  loanId,
 }) => {
-  useEffect(() => {
-    console.log(loan?.amount);
-  }, []);
+  const { loans } = useContext(UserContext);
+  let loan = loans.find((loan) => loan.id === loanId);
+
   return (
     <Portal>
       <Modal
@@ -57,7 +66,21 @@ const ResponseActionModal = ({
             <View style={styles.logoContainer}>
               <MaterialCommunityIcons name="bank" size={40} color="#FFD700" />
             </View>
-            <Text style={styles.bankName}>{response?.banker.bank}</Text>
+            <Image
+              source={bankIcons[response?.banker.bank]}
+              style={{
+                width: 70,
+                height: 70,
+                borderRadius: 25, // Half of width/height to make it round
+                overflow: "hidden", // Ensures it clips correctly
+              }}
+            />
+
+            <Text style={styles.bankName}>
+              {response?.banker?.bank
+                ? capitalizeFirstLetter(response.banker.bank)
+                : "No Bank"}
+            </Text>
           </Animatable.View>
 
           <Animatable.View
@@ -77,13 +100,13 @@ const ResponseActionModal = ({
             />
             <Text style={styles.offerTitle}>
               {response?.status === "APPROVED"
-                ? "Loan Approved"
+                ? "Loan Offered"
                 : "Counter Offer"}
             </Text>
             <Text style={styles.amount}>
-              {response?.status === "APPROVED"
-                ? response?.amount
-                : loan?.amount}
+              {response?.status === "APPROVED" && loan?.amount.toLocaleString()}
+              {response?.status === "COUNTER_OFFER" &&
+                response?.amount.toLocaleString()}
             </Text>
 
             <View style={styles.detailsRow}>
@@ -105,7 +128,13 @@ const ResponseActionModal = ({
                 color="#9E9E9E"
               />
               <Text style={styles.detailText}>
-                {`Representative: ${response?.banker.firstName} ${response?.banker.lastName}`}
+                Representative:
+                {capitalizeFirstLetter(
+                  "_" +
+                    response?.banker.firstName +
+                    "_" +
+                    response?.banker.lastName
+                )}
               </Text>
             </View>
           </Animatable.View>
@@ -124,14 +153,15 @@ const ResponseActionModal = ({
               Accept Offer
             </Button>
 
-            {response?.status === "counter" && (
+            {response?.status === "COUNTER_OFFER" && (
               <Button
                 mode="contained"
+                textColor="black"
                 style={[styles.actionButton, styles.counterButton]}
-                icon="refresh"
+                icon="chat-processing"
                 onPress={() => onAction("counter")}
               >
-                Make Counter Offer
+                Negotiate
               </Button>
             )}
 
@@ -160,6 +190,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 20,
     elevation: 5,
+    borderColor: "white",
+    borderWidth: 0.2,
   },
   header: {
     alignItems: "flex-end",

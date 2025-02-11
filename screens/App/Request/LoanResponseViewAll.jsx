@@ -1,14 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useContext } from "react";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Animated,
-  Pressable,
-  Image,
-} from "react-native";
+import { View, StyleSheet, Animated, Pressable, Image } from "react-native";
 import {
   Text,
   Card,
@@ -105,41 +98,6 @@ const LoanRequestDetails = ({ route }) => {
     const loan = loans.find((loan) => loan.id === loanId);
     setResponses(loan ? loan.loanResponses : []);
   }, [loans, loanId]); // <- This ensures responses update when loans change
-
-  // const [responses] = useState([
-  //   {
-  //     id: 1,
-  //     bankName: "Global Finance Bank",
-  //     representativeName: "Sarah Johnson",
-  //     decision: "approved",
-  //     amount: "50,000 KWD",
-  //     date: "2025-02-09",
-  //     isNew: true,
-  //     avatar: "/placeholder.svg?height=40&width=40",
-  //     logo: "/placeholder.svg?height=30&width=30",
-  //   },
-  //   {
-  //     id: 2,
-  //     bankName: "Investment Capital",
-  //     representativeName: "Michael Chen",
-  //     decision: "counter",
-  //     counterAmount: "45,000 KWD",
-  //     date: "2025-02-08",
-  //     isNew: true,
-  //     avatar: "/placeholder.svg?height=40&width=40",
-  //     logo: "/placeholder.svg?height=30&width=30",
-  //   },
-  //   {
-  //     id: 3,
-  //     bankName: "National Bank",
-  //     representativeName: "David Smith",
-  //     decision: "rejected",
-  //     date: "2025-02-07",
-  //     isNew: false,
-  //     avatar: "/placeholder.svg?height=40&width=40",
-  //     logo: "/placeholder.svg?height=30&width=30",
-  //   },
-  // ]);
 
   const handleResponsePress = (response) => {
     if (response.status !== "REJECTED" && response.status !== "RESCINDED") {
@@ -341,13 +299,14 @@ const LoanRequestDetails = ({ route }) => {
                           {capitalizeFirstLetter(response.banker.bank)}
                         </Text>
                       </View>
-                      {response.isNew && (
+                      {(response.status === "APPROVED" ||
+                        response.status === "COUNTER_OFFER") && (
                         <Animatable.View
                           animation="pulse"
                           iterationCount="infinite"
                           duration={2000}
                         >
-                          <Badge style={styles.newBadge}>NEW</Badge>
+                          <Badge style={styles.newBadge}>Await Response</Badge>
                         </Animatable.View>
                       )}
                     </View>
@@ -374,8 +333,18 @@ const LoanRequestDetails = ({ route }) => {
                         </View>
                       </View>
                       <Animatable.View
-                        animation={response.isNew ? "bounce" : undefined}
-                        iterationCount={response.isNew ? "infinite" : undefined}
+                        animation={
+                          response.status === "APPROVED" ||
+                          response.status === "COUNTER_OFFER"
+                            ? "bounce"
+                            : undefined
+                        }
+                        iterationCount={
+                          response.status === "APPROVED" ||
+                          response.status === "COUNTER_OFFER"
+                            ? "infinite"
+                            : undefined
+                        }
                         duration={2000}
                       >
                         <IconButton
@@ -404,7 +373,7 @@ const LoanRequestDetails = ({ route }) => {
                         {response.status === "REJECTED" &&
                           "Application Rejected: " + response.reason}
                         {response.status === "RESCINDED" &&
-                          "Banker Rescinded Offer: 'New response submitted'"}
+                          "Banker Rescinded Offer: New response submitted"}
                       </Text>
                       {response.status === "COUNTER_OFFER" && (
                         <Text style={styles.counterAmount}>
@@ -458,8 +427,8 @@ const LoanRequestDetails = ({ route }) => {
         visible={!!selectedResponse}
         onDismiss={() => setSelectedResponse(null)}
         response={selectedResponse}
-        request={loan}
         onAction={handleResponseAction}
+        loanId={loanId}
       />
     </Animated.ScrollView>
   );
@@ -521,7 +490,7 @@ const styles = StyleSheet.create({
   },
   responsesSection: {
     padding: 16,
-    marginBottom: 150,
+    marginBottom: 110,
   },
   responsesTitle: {
     fontSize: 20,
