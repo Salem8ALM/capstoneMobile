@@ -76,6 +76,11 @@ const LoanRequestDetails = ({ route }) => {
     setSelectedResponse(null);
   };
 
+  const formatDateTime = (dateTimeString) => {
+    const date = new Date(dateTimeString);
+    return date.toLocaleString(); // Formats to local date & time
+  };
+
   const headerScale = scrollY.interpolate({
     inputRange: [0, 100],
     outputRange: [1, 0.9],
@@ -162,7 +167,9 @@ const LoanRequestDetails = ({ route }) => {
               <View style={styles.detailItem}>
                 {renderIcon("cash-multiple")}
                 <Text style={styles.label}>Loan Amount</Text>
-                <Text style={styles.value}>{`${loan.amount} KWD`}</Text>
+                <Text
+                  style={styles.value}
+                >{`${loan.amount.toLocaleString()} KWD`}</Text>
               </View>
               <View style={styles.detailItem}>
                 {renderIcon("calendar-clock")}
@@ -180,7 +187,9 @@ const LoanRequestDetails = ({ route }) => {
               <View style={styles.detailItem}>
                 {renderIcon("clock-outline")}
                 <Text style={styles.label}>Status Date</Text>
-                <Text style={styles.value}>{loan.statusDate}</Text>
+                <Text style={styles.value}>
+                  {formatDateTime(loan.statusDate)}
+                </Text>
               </View>
             </View>
 
