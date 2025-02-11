@@ -68,7 +68,7 @@ export default function LoanDashboard({ navigation }) {
             repaymentPlan: formatRepaymentPlan(request.repaymentPlan), // Format repayment plan
             status: request.status.replace(/_/g, " "), // Format repayment plan
 
-            isNew: true, // Default to true as required
+            isNew: false, // Default to true as required
           }));
           setLoans(updatedRequests);
         }
@@ -85,12 +85,12 @@ export default function LoanDashboard({ navigation }) {
     getAllRequests();
 
     // Set up interval to fetch every 3 seconds
-    // const interval = setInterval(() => {
-    //   getAllRequests();
-    // }, 3000);
+    const interval = setInterval(() => {
+      getAllRequests();
+    }, 3000);
 
-    // // Cleanup function to clear interval on unmount
-    // return () => clearInterval(interval);
+    // Cleanup function to clear interval on unmount
+    return () => clearInterval(interval);
   }, []);
 
   return (

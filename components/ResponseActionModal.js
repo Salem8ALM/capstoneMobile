@@ -1,9 +1,11 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, View, Animated, Image } from "react-native";
 import { Portal, Modal, Text, Button, IconButton } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import UserContext from "../context/UserContext";
+import { acceptOfferAPI } from "../api/LoanRequest";
+import { getToken } from "../storage/TokenStorage";
 
 async function capitalizeFirstLetter(input) {
   if (!input) return ""; // Return an empty string if input is falsy (undefined, null, etc.)
@@ -35,6 +37,21 @@ const ResponseActionModal = ({
 }) => {
   const { loans } = useContext(UserContext);
   let loan = loans.find((loan) => loan.id === loanId);
+
+  const accpetOffer = async (response) => {
+    try {
+      const token = await getToken("access");
+
+      try {
+        await acceptOfferAPI(token, loanId, response.id);
+        onDismiss();
+      } catch (error) {
+        console.error("Unable to retrieve loan requests:", error);
+      }
+    } catch (error) {
+      console.error("Unable to retrieve token:", error);
+    }
+  };
 
   return (
     <Portal>
@@ -148,7 +165,7 @@ const ResponseActionModal = ({
               mode="contained"
               style={[styles.actionButton, styles.acceptButton]}
               icon="check"
-              onPress={() => onAction("accept")}
+              onPress={() => accpetOffer(response)}
             >
               Accept Offer
             </Button>
