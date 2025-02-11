@@ -17,6 +17,7 @@ export default function App() {
   const [onboarded, setOnboarded] = useState(false); // User onboarding status
   const [business, setBusiness] = useState(null); // Company data
   const [businessAvatar, setBusinessAvatar] = useState(null); // Company data
+  const [loans, setLoans] = useState([]); // Company data
 
   // checking token and whether the user is onboarded
   const checkUserState = async () => {
@@ -28,8 +29,8 @@ export default function App() {
 
     const businessData = await checkBusinessEntity(token);
     if (token) {
-      setAuthenticated(true);
       if (businessData) {
+        setAuthenticated(true);
         setBusiness(businessData); // Store business data in state
       }
       return token;
@@ -74,6 +75,8 @@ export default function App() {
               setBusiness, // You can provide a setter function for modifying the company data
               businessAvatar,
               setBusinessAvatar,
+              loans,
+              setLoans,
             }}
           >
             {authenticated ? (

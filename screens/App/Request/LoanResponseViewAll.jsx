@@ -1,13 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Animated,
-  Pressable,
-} from "react-native";
+import React, { useState, useRef, useEffect, useContext } from "react";
+import { View, StyleSheet, Animated, Pressable, Image } from "react-native";
 import {
   Text,
   Card,
@@ -21,59 +15,105 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import ResponseActionModal from "../../../components/ResponseActionModal";
+import UserContext from "../../../context/UserContext";
+import { getToken } from "../../../storage/TokenStorage";
+import { getAllRequestsAPI } from "../../../api/LoanRequest";
+
+function capitalizeFirstLetter(input) {
+  return input
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+const bankIcons = {
+  BOUBYAN_BANK: require("../../../assets/bankIcons/Boubyan.png"),
+  KUWAIT_INTERNATIONAL_BANK: require("../../../assets/bankIcons/KIB.png"),
+  KUWAIT_FINANCE_HOUSE: require("../../../assets/bankIcons/KFH.png"),
+  WARBA_BANK: require("../../../assets/bankIcons/Warba.png"),
+};
+
+const formatRepaymentPlan = (plan) => {
+  return plan
+    .toLowerCase() // Convert to lowercase
+    .replace(/_/g, " ") // Replace underscores with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize each word
+};
+
+const loanTermMap = {
+  SIX_MONTHS: "6 Months",
+  ONE_YEAR: "1 Year",
+  TWO_YEARS: "2 Years",
+  FIVE_YEARS: "5 Years",
+};
 
 const LoanRequestDetails = ({ route }) => {
-  const { loan } = route.params;
+  const { loanId } = route.params;
+
+  const { loans, setLoans } = useContext(UserContext);
 
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [selectedResponse, setSelectedResponse] = useState(null);
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const [responses] = useState([
-    {
-      id: 1,
-      bankName: "Global Finance Bank",
-      representativeName: "Sarah Johnson",
-      decision: "approved",
-      amount: "50,000 KWD",
-      date: "2025-02-09",
-      isNew: true,
-      avatar: "/placeholder.svg?height=40&width=40",
-      logo: "/placeholder.svg?height=30&width=30",
-    },
-    {
-      id: 2,
-      bankName: "Investment Capital",
-      representativeName: "Michael Chen",
-      decision: "counter",
-      counterAmount: "45,000 KWD",
-      date: "2025-02-08",
-      isNew: true,
-      avatar: "/placeholder.svg?height=40&width=40",
-      logo: "/placeholder.svg?height=30&width=30",
-    },
-    {
-      id: 3,
-      bankName: "National Bank",
-      representativeName: "David Smith",
-      decision: "rejected",
-      date: "2025-02-07",
-      isNew: false,
-      avatar: "/placeholder.svg?height=40&width=40",
-      logo: "/placeholder.svg?height=30&width=30",
-    },
-  ]);
+  let loan = loans.find((loan) => loan.id === loanId);
+  const [responses, setResponses] = useState([]);
+
+  const getAllRequests = async () => {
+    try {
+      const token = await getToken("access");
+      const response = await getAllRequestsAPI(token);
+
+      if (response?.allRequests) {
+        const updatedRequests = response.allRequests.map((request) => ({
+          ...request,
+          loanTerm: loanTermMap[request.loanTerm] || "Unknown",
+          repaymentPlan: formatRepaymentPlan(request.repaymentPlan),
+          status: request.status.replace(/_/g, " "),
+          isNew: true,
+        }));
+
+        setLoans(updatedRequests);
+      }
+    } catch (error) {
+      console.error("Unable to retrieve loan requests:", error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch initially
+    getAllRequests();
+
+    // Set up interval to fetch every 3 seconds
+    // const interval = setInterval(() => {
+    //   getAllRequests();
+    // }, 3000);
+
+    // // Cleanup function to clear interval on unmount
+    // return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const loan = loans.find((loan) => loan.id === loanId);
+    setResponses(loan ? loan.loanResponses : []);
+  }, [loans, loanId]); // <- This ensures responses update when loans change
 
   const handleResponsePress = (response) => {
-    if (response.decision !== "rejected") {
+    if (response.status !== "REJECTED" && response.status !== "RESCINDED") {
       setSelectedResponse(response);
     }
   };
 
   const handleResponseAction = (action) => {
     // Handle the action (accept/counter/reject)
-    console.log(`${action} offer from ${selectedResponse.bankName}`);
+    console.log(`${action} offer from ${selectedResponse.banker.bank}`);
     setSelectedResponse(null);
+  };
+
+  const formatDateTime = (dateTimeString) => {
+    const date = new Date(dateTimeString);
+    return date.toLocaleString(); // Formats to local date & time
   };
 
   const headerScale = scrollY.interpolate({
@@ -93,27 +133,31 @@ const LoanRequestDetails = ({ route }) => {
 
   const getDecisionColor = (decision) => {
     switch (decision) {
-      case "approved":
+      case "APPROVED":
         return "#4CAF50";
-      case "counter":
+      case "COUNTER_OFFER":
         return "#FFC107";
-      case "rejected":
+      case "REJECTED":
         return "#F44336";
+      case "RESCINDED":
+        return "#9E9E9E"; // Gray (Neutral/Revoked)
       default:
-        return "#757575";
+        return "#757575"; // Default Gray
     }
   };
 
   const getDecisionIcon = (decision) => {
     switch (decision) {
-      case "approved":
+      case "APPROVED":
         return "check-circle";
-      case "counter":
+      case "COUNTER_OFFER":
         return "refresh";
-      case "rejected":
+      case "REJECTED":
         return "close-circle";
+      case "RESCINDED":
+        return "undo"; // Revoked/Withdrawn
       default:
-        return "help-circle";
+        return "help-circle"; // Unknown
     }
   };
 
@@ -162,7 +206,9 @@ const LoanRequestDetails = ({ route }) => {
               <View style={styles.detailItem}>
                 {renderIcon("cash-multiple")}
                 <Text style={styles.label}>Loan Amount</Text>
-                <Text style={styles.value}>{`${loan.amount} KWD`}</Text>
+                <Text
+                  style={styles.value}
+                >{`${loan.amount.toLocaleString()} KWD`}</Text>
               </View>
               <View style={styles.detailItem}>
                 {renderIcon("calendar-clock")}
@@ -180,7 +226,9 @@ const LoanRequestDetails = ({ route }) => {
               <View style={styles.detailItem}>
                 {renderIcon("clock-outline")}
                 <Text style={styles.label}>Status Date</Text>
-                <Text style={styles.value}>{loan.statusDate}</Text>
+                <Text style={styles.value}>
+                  {formatDateTime(loan.statusDate)}
+                </Text>
               </View>
             </View>
 
@@ -216,89 +264,128 @@ const LoanRequestDetails = ({ route }) => {
           <Text style={styles.responsesTitle}>Loan Responses</Text>
         </View>
 
-        {responses.map((response, index) => (
-          <Animatable.View
-            key={response.id}
-            animation="fadeInUp"
-            delay={300 * index}
-          >
-            <Pressable onPress={() => handleResponsePress(response)}>
-              <Card
-                style={[
-                  styles.responseCard,
-                  response.decision !== "rejected" && styles.clickableCard,
-                ]}
-              >
-                <Card.Content>
-                  <View style={styles.responseHeader}>
-                    <View style={styles.bankInfo}>
-                      <Avatar.Image size={30} source={{ uri: response.logo }} />
-                      <Text style={styles.bankName}>{response.bankName}</Text>
+        {responses
+          .slice()
+          .sort((a, b) => new Date(b.statusDate) - new Date(a.statusDate))
+          .map((response, index) => (
+            <Animatable.View
+              key={response.id}
+              animation="fadeInUp"
+              delay={300 * index}
+            >
+              <Pressable onPress={() => handleResponsePress(response)}>
+                <Card
+                  style={[
+                    styles.responseCard,
+                    !(
+                      response.status === "REJECTED" ||
+                      response.status === "RESCINDED"
+                    ) && styles.clickableCard,
+                  ]}
+                >
+                  <Card.Content>
+                    <View style={styles.responseHeader}>
+                      <View style={styles.bankInfo}>
+                        <Image
+                          source={bankIcons[response.banker.bank]}
+                          style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: 25, // Half of width/height to make it round
+                            overflow: "hidden", // Ensures it clips correctly
+                          }}
+                        />
+                        <Text style={styles.bankName}>
+                          {capitalizeFirstLetter(response.banker.bank)}
+                        </Text>
+                      </View>
+                      {(response.status === "APPROVED" ||
+                        response.status === "COUNTER_OFFER") && (
+                        <Animatable.View
+                          animation="pulse"
+                          iterationCount="infinite"
+                          duration={2000}
+                        >
+                          <Badge style={styles.newBadge}>Await Response</Badge>
+                        </Animatable.View>
+                      )}
                     </View>
-                    {response.isNew && (
+
+                    <View style={styles.representativeInfo}>
+                      <Image
+                        source={bankIcons[response.banker.bank]}
+                        style={{
+                          width: 40,
+                          height: 40,
+                        }}
+                      />
+                      <View style={styles.representativeDetails}>
+                        <Text style={styles.representativeName}>
+                          {capitalizeFirstLetter(
+                            `${response.banker.firstName}_${response.banker.lastName}`
+                          )}
+                        </Text>
+                        <View style={styles.dateContainer}>
+                          {renderIcon("clock-outline", "#9E9E9E")}
+                          <Text style={styles.responseDate}>
+                            {formatDateTime(response.statusDate)}
+                          </Text>
+                        </View>
+                      </View>
                       <Animatable.View
-                        animation="pulse"
-                        iterationCount="infinite"
+                        animation={
+                          response.status === "APPROVED" ||
+                          response.status === "COUNTER_OFFER"
+                            ? "bounce"
+                            : undefined
+                        }
+                        iterationCount={
+                          response.status === "APPROVED" ||
+                          response.status === "COUNTER_OFFER"
+                            ? "infinite"
+                            : undefined
+                        }
                         duration={2000}
                       >
-                        <Badge style={styles.newBadge}>NEW</Badge>
+                        <IconButton
+                          icon={getDecisionIcon(response.status)}
+                          iconColor={getDecisionColor(response.status)}
+                          size={24}
+                        />
                       </Animatable.View>
-                    )}
-                  </View>
-
-                  <View style={styles.representativeInfo}>
-                    <Avatar.Image size={40} source={{ uri: response.avatar }} />
-                    <View style={styles.representativeDetails}>
-                      <Text style={styles.representativeName}>
-                        {response.representativeName}
-                      </Text>
-                      <View style={styles.dateContainer}>
-                        {renderIcon("clock-outline", "#9E9E9E")}
-                        <Text style={styles.responseDate}>{response.date}</Text>
-                      </View>
                     </View>
-                    <Animatable.View
-                      animation={response.isNew ? "bounce" : undefined}
-                      iterationCount={response.isNew ? "infinite" : undefined}
-                      duration={2000}
-                    >
-                      <IconButton
-                        icon={getDecisionIcon(response.decision)}
-                        iconColor={getDecisionColor(response.decision)}
-                        size={24}
-                      />
-                    </Animatable.View>
-                  </View>
 
-                  <Animatable.View
-                    animation="fadeIn"
-                    style={[
-                      styles.decisionSection,
-                      { borderColor: getDecisionColor(response.decision) },
-                    ]}
-                  >
-                    <Text
+                    <Animatable.View
+                      animation="fadeIn"
                       style={[
-                        styles.decision,
-                        { color: getDecisionColor(response.decision) },
+                        styles.decisionSection,
+                        { borderColor: getDecisionColor(response.status) },
                       ]}
                     >
-                      {response.decision === "approved" && "Loan Approved"}
-                      {response.decision === "counter" && "Counter Offer"}
-                      {response.decision === "rejected" &&
-                        "Application Rejected"}
-                    </Text>
-                    {response.decision === "counter" && (
-                      <Text style={styles.counterAmount}>
-                        Counter Amount: {response.counterAmount}
+                      <Text
+                        style={[
+                          styles.decision,
+                          { color: getDecisionColor(response.status) },
+                        ]}
+                      >
+                        {response.status === "APPROVED" && "Loan Offered"}
+                        {response.status === "COUNTER_OFFER" && "Counter Offer"}
+                        {response.status === "REJECTED" &&
+                          "Application Rejected: " + response.reason}
+                        {response.status === "RESCINDED" &&
+                          "Banker Rescinded Offer: New response submitted"}
                       </Text>
-                    )}
-                  </Animatable.View>
-                </Card.Content>
-              </Card>
-            </Pressable>
-          </Animatable.View>
-        ))}
+                      {response.status === "COUNTER_OFFER" && (
+                        <Text style={styles.counterAmount}>
+                          Counter Amount: {response.amount}
+                        </Text>
+                      )}
+                    </Animatable.View>
+                  </Card.Content>
+                </Card>
+              </Pressable>
+            </Animatable.View>
+          ))}
       </View>
 
       <Portal>
@@ -341,6 +428,7 @@ const LoanRequestDetails = ({ route }) => {
         onDismiss={() => setSelectedResponse(null)}
         response={selectedResponse}
         onAction={handleResponseAction}
+        loanId={loanId}
       />
     </Animated.ScrollView>
   );
@@ -372,7 +460,6 @@ const styles = StyleSheet.create({
   },
   detailsCard: {
     backgroundColor: "#2C2C2C",
-    marginBottom: 16,
   },
   detailRow: {
     flexDirection: "row",
@@ -403,6 +490,7 @@ const styles = StyleSheet.create({
   },
   responsesSection: {
     padding: 16,
+    marginBottom: 110,
   },
   responsesTitle: {
     fontSize: 20,

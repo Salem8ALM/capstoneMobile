@@ -9,11 +9,12 @@ import { Appbar, Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LoanRequestCard } from "../../../components/LoanRequestCard";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Routes from "../../../utils/constants/routes";
 import { getToken } from "../../../storage/TokenStorage";
 import { getAllRequestsAPI } from "../../../api/LoanRequest";
 import LottieView from "lottie-react-native";
+import UserContext from "../../../context/UserContext";
 
 const loanTermMap = {
   SIX_MONTHS: "6 Months",
@@ -33,8 +34,8 @@ export default function LoanDashboard({ navigation }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    console.log("Loan Requests:", loanRequests); // Log the loanRequests
-  }, [loanRequests]);
+    console.log("Loan Requests:", loans); // Log the loans
+  }, [loans]);
 
   const handlePressIn = () => {
     Animated.timing(scaleAnim, {
@@ -52,7 +53,7 @@ export default function LoanDashboard({ navigation }) {
     }).start(() => navigation.navigate(Routes.LoanRequest.LoanRequestIntro));
   };
 
-  const [loanRequests, setLoanRequests] = useState([]);
+  const { loans, setLoans } = useContext(UserContext);
 
   const getAllRequests = async () => {
     try {
@@ -69,7 +70,7 @@ export default function LoanDashboard({ navigation }) {
 
             isNew: true, // Default to true as required
           }));
-          setLoanRequests(updatedRequests);
+          setLoans(updatedRequests);
         }
       } catch (error) {
         console.error("Unable to retrieve loan requests:", error);
@@ -83,7 +84,7 @@ export default function LoanDashboard({ navigation }) {
     // Fetch initially
     getAllRequests();
 
-    // // Set up interval to fetch every 3 seconds
+    // Set up interval to fetch every 3 seconds
     // const interval = setInterval(() => {
     //   getAllRequests();
     // }, 3000);
@@ -118,7 +119,7 @@ export default function LoanDashboard({ navigation }) {
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
       >
-        {loanRequests.length === 0 ? (
+        {loans.length === 0 ? (
           <View style={styles.noMessagesContainer}>
             <LottieView
               source={require("../../../assets/no-message.json")}
@@ -129,7 +130,7 @@ export default function LoanDashboard({ navigation }) {
             <Text style={styles.noMessagesText}>No loean request made yet</Text>
           </View>
         ) : (
-          loanRequests
+          loans
             .slice()
             .sort((a, b) => new Date(b.statusDate) - new Date(a.statusDate))
             .map((loan) => (
@@ -138,11 +139,9 @@ export default function LoanDashboard({ navigation }) {
                 {...loan}
                 onPress={() => {
                   navigation.navigate(Routes.LoanRequest.LoanResponseViewAll, {
-                    loan: loan,
+                    loanId: loan.id,
                   });
                   console.log("Pressed loan:", loan.id);
-                  
-
                 }}
               />
             ))

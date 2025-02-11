@@ -25,6 +25,7 @@ import {
 import { signupAPI } from "../../api/Auth";
 import { setToken, getToken } from "../../storage/TokenStorage";
 import { LinearGradient } from "expo-linear-gradient";
+import NotificationBanner from "../../utils/animations/NotificationBanner";
 
 const { width, height } = Dimensions.get("window");
 
@@ -47,6 +48,9 @@ const RegisterScreen = () => {
 
   // use state for focused field
   const [focusedField, setFocusedField] = useState("");
+
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   // Used to change from AuthNavigator to AppNavigator after authenticatino
   const { authenticated, setAuthenticated, onboarded, setOnboarded } =
@@ -73,28 +77,8 @@ const RegisterScreen = () => {
 
   // function to submit account creation
   const submit = async () => {
-    setSignup("Signing Up...");
     const civilIdNumerics = civilId.replace(/[^0-9]/g, "");
     const mobileNumberNumerics = mobileNumber.replace(/[^0-9]/g, "");
-
-    // Ensure civil id is exactly 12 digits long
-    if (civilIdNumerics.length != 12) {
-      Alert.alert("Civil Id", "Your Civil Id must be 12 numbers long.");
-      setSignup("Sign Up");
-
-      return;
-    }
-
-    // Ensure the number entered is exactly 8 numbers long
-    if (mobileNumberNumerics.length != 8) {
-      Alert.alert(
-        "Mobile Number",
-        "Your Mobile Number must be 8 numbers long."
-      );
-      setSignup("Sign Up");
-
-      return;
-    }
 
     if (
       !civilId ||
@@ -104,97 +88,129 @@ const RegisterScreen = () => {
       !lastName ||
       !password
     ) {
-      Alert.alert(
-        "Incomplete fields",
-        "Please ensure all fields are filled to successfully sign up"
-      );
-      setSignup("Sign Up");
-      return;
-    }
-    const existingToken = checkToken();
-    if (existingToken) {
-      Alert.alert(
-        "Already a user!",
-        "It seems you have previously logged in on this device. Would you like to replace the data of your previous account on this device with this new one?",
-        [
-          {
-            text: "Replace",
-            onPress: () => {
-              Alert.alert(
-                "Almost there!",
-                "Authenticate biometrically to complete the sign up process.",
-                [
-                  {
-                    text: "Authenticate",
-                    onPress: async () => {
-                      let status = await handleBiometricLogin();
+      setNotificationMessage("Please ensure all fields are filled!");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
+    } else {
+      // Ensure civil id is exactly 12 digits long
+      if (civilIdNumerics.length != 12) {
+        setNotificationMessage("Your Civil Id must be 12 numbers long!");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
+      } else {
+        // Ensure the number entered is exactly 8 numbers long
+        if (mobileNumberNumerics.length != 8) {
+          setNotificationMessage("Your Mobile Number must be 8 numbers long!");
+          setNotificationVisible(true);
+          setTimeout(() => {
+            setNotificationVisible(false);
+          }, 3000); // Hide the banner after 3 seconds
+        } else {
+          const existingToken = checkToken();
+          if (existingToken) {
+            Alert.alert(
+              "Already a user!",
+              "It seems you have previously logged in on this device. Would you like to replace the data of your previous account on this device with this new one?",
+              [
+                {
+                  text: "Replace",
+                  onPress: () => {
+                    Alert.alert(
+                      "Almost there!",
+                      "Authenticate biometrically to complete the sign up process.",
+                      [
+                        {
+                          text: "Authenticate",
+                          onPress: async () => {
+                            let status = await handleBiometricLogin();
 
-                      if (status) {
-                        resetStackUntilTwoScreens();
+                            if (status) {
+                              resetStackUntilTwoScreens();
 
-                        try {
-                          const response = await signupAPI(
-                            username,
-                            firstName,
-                            lastName,
-                            civilId,
-                            mobileNumber,
-                            password,
-                            "BUSINESS_OWNER",
-                            "NOT_BANK"
-                          );
+                              try {
+                                setSignup("Signing Up...");
 
-                          // uncomment this
-                          // await setToken(response.accessToken, "access");
-                          // checkToken();
+                                const response = await signupAPI(
+                                  username,
+                                  firstName,
+                                  lastName,
+                                  civilId,
+                                  mobileNumber,
+                                  password,
+                                  "BUSINESS_OWNER",
+                                  "NOT_BANK"
+                                );
 
-                          await setToken(response.refreshToken, "refresh");
-                        } catch (error) {
-                          Alert.alert(
-                            "Failed Signup",
-                            "A user is already registered with your civil ID. Please login with your credentials!"
-                          );
-                          setSignup("Sign Up");
-                          return;
-                        } finally {
-                          setSignup("Sign Up");
-                        }
+                                // uncomment this
+                                // await setToken(response.accessToken, "access");
+                                // checkToken();
 
-                        Alert.alert(
-                          "Successfully created Account!",
-                          "Please login using your credientals or biometrically."
-                        );
-                      } else {
-                        Alert.alert(
-                          "Failed creating Account!",
-                          "Please try again."
-                        );
-                      }
-                      setSignup("Sign Up");
-                    },
+                                await setToken(
+                                  response.refreshToken,
+                                  "refresh"
+                                );
+                              } catch (error) {
+                                Alert.alert(
+                                  "Failed Signup",
+                                  "A user is already registered with your civil ID. Please login with your credentials!"
+                                );
+                                setSignup("Sign Up");
+                                return;
+                              } finally {
+                                setSignup("Sign Up");
+                              }
+
+                              Alert.alert(
+                                "Successfully created Account!",
+                                "Please login using your credientals or biometrically."
+                              );
+                            } else {
+                              Alert.alert(
+                                "Failed creating Account!",
+                                "Please try again."
+                              );
+                            }
+                            setSignup("Sign Up");
+                          },
+                        },
+                        {
+                          text: "Cancel",
+                          onPress: () => setSignup("Sign Up"),
+                          style: "cancel",
+                        },
+                      ],
+                      { cancelable: true } // Allows dismissing the alert by tapping outside
+                    );
                   },
-                  {
-                    text: "Cancel",
-                    onPress: () => setSignup("Sign Up"),
-                    style: "cancel",
+                },
+                {
+                  text: "Cancel",
+                  onPress: () => {
+                    setSignup("Sign Up");
+                    return;
                   },
-                ],
-                { cancelable: true } // Allows dismissing the alert by tapping outside
-              );
-            },
-          },
-          {
-            text: "Cancel",
-            onPress: () => {
-              setSignup("Sign Up");
-              return;
-            },
 
-            style: "cancel",
-          },
-        ]
-      );
+                  style: "cancel",
+                },
+              ]
+            );
+          } else {
+            setNotificationMessage(
+              "Failed signing up. Ensure you're connected to internet"
+            );
+            setNotificationVisible(true);
+            setTimeout(() => {
+              setNotificationVisible(false);
+            }, 3000); // Hide the banner after 3 seconds
+          }
+        }
+      }
     }
+    setSignup("Sign Up");
   };
 
   // temporary hack to ensure no duplicate screens are piled
@@ -259,6 +275,11 @@ const RegisterScreen = () => {
       start={{ x: 0, y: 0 }} // Gradient starts at the top
       end={{ x: 0, y: 1 }} // Gradient ends at the bottom
     >
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
+
       <View style={styles.container}>
         <View style={styles.content}>
           <Text style={styles.title}>Sign Up</Text>

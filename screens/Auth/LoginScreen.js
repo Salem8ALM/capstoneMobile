@@ -22,6 +22,7 @@ import { loginAPI, refreshTokenAPI } from "../../api/Auth";
 import { setToken, getToken } from "../../storage/TokenStorage";
 import { LinearGradient } from "expo-linear-gradient";
 import { getCompanyAPI } from "../../api/Business";
+import NotificationBanner from "../../utils/animations/NotificationBanner";
 
 const { width, height } = Dimensions.get("window");
 
@@ -32,6 +33,9 @@ const LoginScreen = () => {
   const [civilId, setCivilId] = useState("");
   const [password, setPassword] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   // Text when clicking on login
   const [login, setLogin] = useState("Login");
@@ -93,27 +97,29 @@ const LoginScreen = () => {
     setLogin("Logging in");
 
     if (!civilId || !password) {
-      Alert.alert(
-        "Incomplete credentials",
-        "Please enter both your civil ID and password."
-      );
-      setLogin("Login");
-      return;
-    }
+      setNotificationMessage("Please login with both civil ID and password!");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
+    } else {
+      try {
+        const response = await loginAPI(civilId, password);
+        setData(response); // Save the response data
 
-    try {
-      const response = await loginAPI(civilId, password);
-      setData(response); // Save the response data
-
-      // Set new tokens
-      await setToken(response.accessToken, "access");
-      await setToken(response.refreshToken, "refresh");
-    } catch (error) {
-      console.log(error);
-      Alert.alert("Failed Login", "Incorrect credentials!");
-    } finally {
-      setLogin("Login");
+        // Set new tokens
+        await setToken(response.accessToken, "access");
+        await setToken(response.refreshToken, "refresh");
+      } catch (error) {
+        console.log(error);
+        setNotificationMessage("Failed to Login. Incorrect credentials");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
+      }
     }
+    setLogin("Login");
   };
 
   // biometric login
@@ -216,6 +222,11 @@ const LoginScreen = () => {
       start={{ x: 0, y: 0 }} // Gradient starts at the top
       end={{ x: 0, y: 1 }} // Gradient ends at the bottom
     >
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
+
       <View style={styles.container}>
         <View style={styles.content}>
           <Text style={styles.title}>Welcome back!</Text>
