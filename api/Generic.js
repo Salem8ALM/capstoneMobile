@@ -18,8 +18,6 @@ const fetchImage = async (token, id) => {
         throw new Error("Error fetching image. Please try again later.");
       });
 
-    console.log(base64Data);
-
     return `data:image/png;base64,${base64Data}`;
   } catch (error) {
     console.error(error.response.data);

@@ -63,10 +63,6 @@ const LoginScreen = () => {
     const token = await getToken("access");
 
     const businessData = await checkBusinessEntity(token);
-
-    console.log("How about here" + businessData);
-
-    console.log("Inside check token" + token);
     if (token) {
       setAuthenticated(true);
       if (businessData) {
@@ -77,10 +73,8 @@ const LoginScreen = () => {
   };
 
   const checkBusinessEntity = async (token) => {
-    console.log(token);
     try {
       const response = await getCompanyAPI(token);
-      console.log("business: " + response);
       setOnboarded(true);
       return response;
     } catch (error) {

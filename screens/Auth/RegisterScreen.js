@@ -484,16 +484,7 @@ const RegisterScreen = () => {
               value={mobileNumber}
               onChangeText={setMobileNumber}
               mode="outlined"
-              left={
-                <TextInput.Icon
-                  icon="tablet-android"
-                  color={
-                    focusedField === "mobileNumber"
-                      ? "#FFD700"
-                      : "rgba(255,255,255,0.2)"
-                  }
-                />
-              }
+              left={<TextInput.Affix text="+965" />}
               maxLength={8}
               inputMode="numeric"
               textColor="white"
