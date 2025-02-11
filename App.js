@@ -28,8 +28,8 @@ export default function App() {
 
     const businessData = await checkBusinessEntity(token);
     if (token) {
-      setAuthenticated(true);
       if (businessData) {
+        setAuthenticated(true);
         setBusiness(businessData); // Store business data in state
       }
       return token;

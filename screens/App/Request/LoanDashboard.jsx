@@ -83,7 +83,7 @@ export default function LoanDashboard({ navigation }) {
     // Fetch initially
     getAllRequests();
 
-    // // Set up interval to fetch every 3 seconds
+    // Set up interval to fetch every 3 seconds
     // const interval = setInterval(() => {
     //   getAllRequests();
     // }, 3000);
@@ -141,8 +141,6 @@ export default function LoanDashboard({ navigation }) {
                     loan: loan,
                   });
                   console.log("Pressed loan:", loan.id);
-                  
-
                 }}
               />
             ))

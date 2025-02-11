@@ -1,10 +1,32 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, Animated } from "react-native";
 import { Portal, Modal, Text, Button, IconButton } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 
-const ResponseActionModal = ({ visible, onDismiss, response, onAction }) => {
+async function capitalizeFirstLetter(input) {
+  return input
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+const formatDateTime = (dateTimeString) => {
+  const date = new Date(dateTimeString);
+  return date.toLocaleString(); // Formats to local date & time
+};
+
+const ResponseActionModal = ({
+  visible,
+  onDismiss,
+  response,
+  onAction,
+  loan,
+}) => {
+  useEffect(() => {
+    console.log(loan?.amount);
+  }, []);
   return (
     <Portal>
       <Modal
@@ -35,7 +57,7 @@ const ResponseActionModal = ({ visible, onDismiss, response, onAction }) => {
             <View style={styles.logoContainer}>
               <MaterialCommunityIcons name="bank" size={40} color="#FFD700" />
             </View>
-            <Text style={styles.bankName}>{response?.bankName}</Text>
+            <Text style={styles.bankName}>{response?.banker.bank}</Text>
           </Animatable.View>
 
           <Animatable.View
@@ -45,7 +67,7 @@ const ResponseActionModal = ({ visible, onDismiss, response, onAction }) => {
           >
             <MaterialCommunityIcons
               name={
-                response?.decision === "approved"
+                response?.status === "APPROVED"
                   ? "check-circle-outline"
                   : "refresh"
               }
@@ -54,14 +76,14 @@ const ResponseActionModal = ({ visible, onDismiss, response, onAction }) => {
               style={styles.offerIcon}
             />
             <Text style={styles.offerTitle}>
-              {response?.decision === "approved"
+              {response?.status === "APPROVED"
                 ? "Loan Approved"
                 : "Counter Offer"}
             </Text>
             <Text style={styles.amount}>
-              {response?.decision === "approved"
+              {response?.status === "APPROVED"
                 ? response?.amount
-                : response?.counterAmount}
+                : loan?.amount}
             </Text>
 
             <View style={styles.detailsRow}>
@@ -71,7 +93,8 @@ const ResponseActionModal = ({ visible, onDismiss, response, onAction }) => {
                 color="#9E9E9E"
               />
               <Text style={styles.detailText}>
-                Response received on {response?.date}
+                Response received on {"\n"}
+                {formatDateTime(response?.statusDate)}
               </Text>
             </View>
 
@@ -82,7 +105,7 @@ const ResponseActionModal = ({ visible, onDismiss, response, onAction }) => {
                 color="#9E9E9E"
               />
               <Text style={styles.detailText}>
-                Representative: {response?.representativeName}
+                {`Representative: ${response?.banker.firstName} ${response?.banker.lastName}`}
               </Text>
             </View>
           </Animatable.View>
@@ -101,7 +124,7 @@ const ResponseActionModal = ({ visible, onDismiss, response, onAction }) => {
               Accept Offer
             </Button>
 
-            {response?.decision === "counter" && (
+            {response?.status === "counter" && (
               <Button
                 mode="contained"
                 style={[styles.actionButton, styles.counterButton]}

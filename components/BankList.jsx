@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -61,30 +61,32 @@ export function BankList({ setBanksSelected }) {
 
     const newValue = !allRelevantSelected; // Toggle selection state
 
-    setSelectedCards((prev) => {
-      const updatedState = Object.fromEntries(
+    setSelectedCards((prev) =>
+      Object.fromEntries(
         bankData.map((bank) => {
           // Only toggle Islamic banks if the filter is on, otherwise toggle all banks
           const shouldSelect = isIslamicFilterOn ? bank.isIslamic : true;
           return [bank.name, shouldSelect ? newValue : prev[bank.name]];
         })
-      );
+      )
+    );
 
-      const selectedBanksList = Object.entries(updatedState)
-        .filter(([_, isSelected]) => isSelected) // Only selected banks
-        .map(([name]) => bankMappings[name]); // Map to identifiers
-
-      setBanksSelected(selectedBanksList);
-      console.log(selectedBanksList);
-
-      return updatedState;
-    });
     Animated.timing(selectAllAnim, {
       toValue: newValue ? 1 : 0,
       duration: 300,
       useNativeDriver: false,
     }).start();
   };
+
+  // ✅ Use `useEffect` to update `setBanksSelected` when `selectedCards` changes
+  useEffect(() => {
+    const selectedBanksList = Object.entries(selectedCards)
+      .filter(([_, isSelected]) => isSelected) // Only selected banks
+      .map(([name]) => bankMappings[name]); // Map to identifiers
+
+    setBanksSelected(selectedBanksList);
+    console.log(selectedBanksList);
+  }, [selectedCards, setBanksSelected]); // Depend on `selectedCards` to update `setBanksSelected`
 
   const selectAllBg = selectAllAnim.interpolate({
     inputRange: [0, 1],
