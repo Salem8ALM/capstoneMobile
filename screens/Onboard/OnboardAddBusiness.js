@@ -46,7 +46,8 @@ import NotificationBanner from "../../utils/animations/NotificationBanner";
 import waitingAnimation from "../../assets/waiting.json";
 import successAnimation from "../../assets/success.json";
 import failureAnimation from "../../assets/failure.json";
-import LottieAnimation from "../../components/LottieAnimation";
+import LoadingScreen from "../../components/LoadingScreen";
+import LottieAnimationDecision from "../../components/LottieAnimationDecision";
 
 const { width, height } = Dimensions.get("window");
 
@@ -307,7 +308,7 @@ const OnboardAddBusiness = () => {
               setAnimationState("success");
               setTimeout(() => setAnimationState("idle"), 2000);
 
-              Alert.alert("Success", "added your business");
+              // Alert.alert("Success", "added your business");
             } catch (error) {
               setAnimationState("failure");
 
@@ -350,17 +351,18 @@ const OnboardAddBusiness = () => {
 
   return (
     <View style={styles.container}>
-      <LottieAnimation
-        source={waitingAnimation}
-        visible={animationState === "waiting"}
-        onAnimationFinish={() => {}}
-      />
-      <LottieAnimation
+      {animationState === "waiting" && (
+        <View>
+          <LoadingScreen />
+        </View>
+      )}
+
+      <LottieAnimationDecision
         source={successAnimation}
         visible={animationState === "success"}
         onAnimationFinish={handleAnimationFinish}
       />
-      <LottieAnimation
+      <LottieAnimationDecision
         source={failureAnimation}
         visible={animationState === "failure"}
         onAnimationFinish={handleAnimationFinish}
