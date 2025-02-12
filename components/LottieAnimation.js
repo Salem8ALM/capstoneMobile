@@ -8,23 +8,23 @@ const LottieAnimation = ({
   source,
   visible,
   onAnimationFinish,
-  loop = false,
+  loop = true, // Make sure loop is true by default
 }) => {
   const animationRef = useRef(null);
 
   useEffect(() => {
     if (visible && animationRef.current) {
-      animationRef.current.play();
+      animationRef.current.play(); // Play animation when visible
     } else if (!visible && animationRef.current) {
-      animationRef.current.reset();
+      animationRef.current.stop(); // Stop animation when not visible
     }
   }, [visible]);
 
   const handleAnimationFinish = () => {
     if (loop && animationRef.current) {
-      animationRef.current.play();
+      animationRef.current.play(); // Loop animation if it's set to loop
     } else if (onAnimationFinish) {
-      onAnimationFinish();
+      onAnimationFinish(); // Call the onFinish callback
     }
   };
 
@@ -36,9 +36,9 @@ const LottieAnimation = ({
         ref={animationRef}
         source={source}
         autoPlay
-        loop={loop}
+        loop={loop} // Ensure loop is correctly passed
         style={styles.animation}
-        onAnimationFinish={handleAnimationFinish}
+        onAnimationFinish={handleAnimationFinish} // Use the finish handler to loop or do something after the animation ends
       />
     </View>
   );
