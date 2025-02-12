@@ -288,6 +288,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
               <Animatable.View animation="pulse" iterationCount={3}>
                 <Button
                   mode="contained"
+                  textColor="#F44336"
                   onPress={() => setShowWithdrawDialog(true)}
                   style={styles.withdrawButton}
                   icon={({ size, color }) => (

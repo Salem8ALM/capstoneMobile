@@ -77,11 +77,19 @@ const HomeScreen = () => {
   useEffect(() => {
     // Animation for Button 1 (faster pace)
     const animationButton1 = Animated.loop(
-      Animated.timing(translateXButton1, {
-        toValue: screenWidth * 2,
-        duration: 3500, // Faster pace (shorter duration)
-        useNativeDriver: true,
-      })
+      Animated.sequence([
+        Animated.timing(translateXButton1, {
+          toValue: screenWidth * 2,
+          duration: 550, // Faster pace
+          useNativeDriver: true,
+        }),
+        Animated.delay(700), // Add a 1-second delay before restarting
+        Animated.timing(translateXButton1, {
+          toValue: -screenWidth, // Reset back to the start position
+          duration: 0, // Instantly move back
+          useNativeDriver: true,
+        }),
+      ])
     );
 
     Animated.timing(scoreWidth, {

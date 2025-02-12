@@ -23,8 +23,6 @@ const loanTermMap = {
   FIVE_YEARS: "5 Years",
 };
 
-
-
 const formatRepaymentPlan = (plan) => {
   return plan
     .toLowerCase() // Convert to lowercase
@@ -70,7 +68,7 @@ export default function LoanDashboard({ navigation }) {
             repaymentPlan: formatRepaymentPlan(request.repaymentPlan), // Format repayment plan
             status: request.status.replace(/_/g, " "), // Format repayment plan
 
-            isNew: false, // Default to true as required
+            isNew: request.status === "NEW_RESPONSE", // Default to true as required
           }));
           setLoans(updatedRequests);
         }
@@ -129,7 +127,7 @@ export default function LoanDashboard({ navigation }) {
               loop
               style={styles.lottieAnimation}
             />
-            <Text style={styles.noMessagesText}>No loean request made yet</Text>
+            <Text style={styles.noMessagesText}>No loan request made yet</Text>
           </View>
         ) : (
           loans
@@ -159,6 +157,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1a1a1a",
   },
+  shineWrapper: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: "hidden",
+  },
+
+  shine: {
+    borderRadius: 8, // If you want rounded corners for the gradient
+    position: "absolute", // Make sure the gradient itself doesn't overflow
+
+    width: "100%",
+    height: "100%",
+    opacity: 0.4,
+    borderRadius: 8, // If you want rounded corners for the gradient
+  },
+
   header: {
     backgroundColor: "#1a1a1a",
     elevation: 0,
@@ -195,11 +212,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1, // Ensure it takes the available space
-    marginTop: 50,
+    marginTop: 100,
   },
   lottieAnimation: {
-    width: 150, // Adjust to your preferred size
-    height: 150,
+    Top: 100,
+    width: 250, // Adjust to your preferred size
+    height: 250,
   },
   noMessagesText: {
     marginTop: 20,
