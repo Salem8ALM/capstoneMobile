@@ -56,10 +56,7 @@ export default function ProcessModal({ visible, onClose, navigation }) {
     setTimeout(() => {
       onClose();
       setTimeout(() => {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "Dashboard" }],
-        });
+        navigation.popToTop();
       }, 0);
     }, 6000);
   };
