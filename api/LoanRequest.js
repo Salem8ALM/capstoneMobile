@@ -74,9 +74,29 @@ const withdrawLoanRequestAPI = async (token, id) => {
   }
 };
 
+const rejectOfferAPI = async (token, loanRequestId, loanResponseId) => {
+  console.log(`token: ${token}`);
+  try {
+    const response = await instance.post(
+      `${controller}/offer/reject`,
+      { loanRequestId, loanResponseId }, // Send as JSON body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error accepting offer:", error);
+    throw error;
+  }
+};
+
 export {
   sendLoanRequest,
   getAllRequestsAPI,
   acceptOfferAPI,
   withdrawLoanRequestAPI,
+  rejectOfferAPI,
 };
