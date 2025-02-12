@@ -52,6 +52,12 @@ const loanTermMap = {
   FIVE_YEARS: "5 Years",
 };
 
+const avatarMap = {
+  BOUBYAN_BANK: require("../../../assets/bankers/mohamed.png"),
+  KUWAIT_INTERNATIONAL_BANK: require("../../../assets/bankers/fajri.png"),
+  WARBA_BANK: require("../../../assets/bankers/salem.png"),
+};
+
 const statusPriority = {
   APPROVED: 1,
   COUNTER_OFFER: 2,
@@ -362,7 +368,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
                             duration={2000}
                           >
                             <Badge style={styles.newBadge}>
-                              {response.status}
+                              {response.status.replace(/_/g, " ")}
                             </Badge>
                           </Animatable.View>
                         )}
@@ -370,7 +376,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
 
                       <View style={styles.representativeInfo}>
                         <Image
-                          source={bankIcons[response.banker.bank]}
+                          source={avatarMap[response.banker.bank]}
                           style={{
                             width: 40,
                             height: 40,

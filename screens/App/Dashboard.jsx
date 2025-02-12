@@ -147,17 +147,28 @@ const HomeScreen = () => {
   return (
     <View style={{ flex: 1, backgroundColor: "#1C1C1E", padding: 20 }}>
       {/* Welcome Message */}
-      <Text
-        style={{
-          color: "#fff",
-          fontSize: 24,
-          fontWeight: "bold",
-          marginBottom: 10,
-        }}
-      >
-        👋 {`Welcome, ${business.entity.businessOwnerUser.firstName}`}
-      </Text>
-
+      <View style={{ flexDirection: "row" }}>
+        <Image
+          source={{ uri: avatarUri }}
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 25,
+            marginRight: 15,
+            justifyContent: "center",
+            alignSelf: "center",
+          }}
+        />
+        <Text
+          style={{
+            color: "#fff",
+            fontSize: 24,
+            fontWeight: "bold",
+          }}
+        >
+          {`Welcome, ${business.entity.businessOwnerUser.firstName}`}
+        </Text>
+      </View>
       {/* Business Card */}
       <View
         style={{
