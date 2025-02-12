@@ -4,7 +4,7 @@ import { Portal, Modal, Text, Button, IconButton } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import UserContext from "../context/UserContext";
-import { acceptOfferAPI } from "../api/LoanRequest";
+import { acceptOfferAPI, rejectOfferAPI } from "../api/LoanRequest";
 import { getToken } from "../storage/TokenStorage";
 
 async function capitalizeFirstLetter(input) {
@@ -47,6 +47,21 @@ const ResponseActionModal = ({
         onDismiss();
       } catch (error) {
         console.error("Unable to retrieve loan requests:", error);
+      }
+    } catch (error) {
+      console.error("Unable to retrieve token:", error);
+    }
+  };
+
+  const rejectOffer = async (response) => {
+    try {
+      const token = await getToken("access");
+
+      try {
+        await rejectOfferAPI(token, loanId, response.id);
+        onDismiss();
+      } catch (error) {
+        console.error("Unable to reject loan request:", error);
       }
     } catch (error) {
       console.error("Unable to retrieve token:", error);
@@ -188,7 +203,7 @@ const ResponseActionModal = ({
               textColor="#F44336"
               style={[styles.actionButton, styles.rejectButton]}
               icon="close"
-              onPress={() => onAction("reject")}
+              onPress={() => rejectOffer(response)}
             >
               Reject Offer
             </Button>

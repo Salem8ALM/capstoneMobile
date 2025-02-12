@@ -190,7 +190,10 @@ const LoanRequestDetails = ({ route, navigation }) => {
       name={name}
       size={20}
       color={color}
-      style={styles.icon}
+      style={
+        (styles.icon,
+        { margin: name === "bank" ? 10 : name === "clock-outline" ? 10 : 0 })
+      }
     />
   );
 
@@ -414,6 +417,9 @@ const LoanRequestDetails = ({ route, navigation }) => {
                               `${response.banker.firstName}_${response.banker.lastName}`
                             )}
                           </Text>
+                          <Text style={{ color: "rgb(104, 104, 104)" }}>
+                            {`+(965)${response.banker.mobileNumber}`}
+                          </Text>
                           <View style={styles.dateContainer}>
                             {renderIcon("clock-outline", "#9E9E9E")}
                             <Text style={styles.responseDate}>
@@ -626,7 +632,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#FFFFFF",
-    marginBottom: 16,
   },
   responseCard: {
     backgroundColor: "#2C2C2C",
@@ -669,6 +674,7 @@ const styles = StyleSheet.create({
   responseDate: {
     color: "#9E9E9E",
     fontSize: 12,
+    marginTop: 5,
   },
   decisionSection: {
     borderLeftWidth: 4,
@@ -701,13 +707,10 @@ const styles = StyleSheet.create({
   icon: {
     marginBottom: 4,
   },
-  purposeSection: {
-    marginTop: 16,
-  },
+  purposeSection: {},
   responsesTitleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
   },
   clickableCard: {
     borderWidth: 1,
