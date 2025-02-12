@@ -137,7 +137,6 @@ const OnboardAddBusiness = () => {
     const token = await getToken("access");
     try {
       const response = await getCompanyAPI(token);
-      setOnboarded(true);
       return response;
     } catch (error) {
       setOnboarded(false);
@@ -306,9 +305,12 @@ const OnboardAddBusiness = () => {
               setBusiness(businessData); // Store business data in state
 
               setAnimationState("success");
-              setTimeout(() => setAnimationState("idle"), 2000);
 
-              // Alert.alert("Success", "added your business");
+              // ✅ Ensure the animation plays before setting onboarded
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+
+              setAnimationState("idle");
+              setOnboarded(true); // ✅ This will now execute AFTER the timeout
             } catch (error) {
               setAnimationState("failure");
 

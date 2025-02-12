@@ -110,11 +110,13 @@ const LoadingModal = ({ visible }) => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalContent: {
+    justifyContent: "center",
+
     width: width * 0.85,
     backgroundColor: "rgba(28, 25, 8, 0.9)",
     borderRadius: 15,

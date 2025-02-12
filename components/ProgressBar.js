@@ -10,7 +10,7 @@ const { width } = Dimensions.get("window");
 
 const ProgressBar = ({ progress, colors }) => {
   const animatedStyle = useAnimatedStyle(() => ({
-    width: withTiming(`${progress}%`, { duration: 500 }),
+    width: withTiming(`${progress}%`, { duration: 300 }),
   }));
 
   return (
@@ -29,7 +29,7 @@ const ProgressBar = ({ progress, colors }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: width * 0.8,
+    width: width * 0.6,
     height: 4,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 2,
