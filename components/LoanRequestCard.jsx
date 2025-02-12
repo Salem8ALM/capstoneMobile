@@ -3,9 +3,7 @@ import { View, StyleSheet, Animated, Pressable } from "react-native";
 import { Card, Text, Badge } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Dimensions } from "react-native";
-import { useSharedValue } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
-import { Easing } from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
 

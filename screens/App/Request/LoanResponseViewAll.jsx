@@ -22,6 +22,11 @@ import {
   withdrawLoanRequestAPI,
 } from "../../../api/LoanRequest";
 import LottieView from "lottie-react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
+import { Dimensions } from "react-native";
+
+const screenWidth = Dimensions.get("window").width;
 
 function capitalizeFirstLetter(input) {
   return input
@@ -73,6 +78,8 @@ const LoanRequestDetails = ({ route, navigation }) => {
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [selectedResponse, setSelectedResponse] = useState(null);
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  const translateXAnim = useRef(new Animated.Value(-screenWidth * 1.5)).current;
 
   let loan = loans.find((loan) => loan.id === loanId);
   const [responses, setResponses] = useState([]);
@@ -126,14 +133,24 @@ const LoanRequestDetails = ({ route, navigation }) => {
   useEffect(() => {
     // Fetch initially
     getAllRequests();
+  }, []);
 
-    // // Set up interval to fetch every 3 seconds
-    // const interval = setInterval(() => {
-    //   getAllRequests();
-    // }, 3000);
-
-    // // Cleanup function to clear interval on unmount
-    // return () => clearInterval(interval);
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(translateXAnim, {
+          toValue: screenWidth * 2,
+          duration: 750, // Faster pace
+          useNativeDriver: true,
+        }),
+        Animated.delay(500), // Add a 1-second delay before restarting
+        Animated.timing(translateXAnim, {
+          toValue: -screenWidth, // Reset back to the start position
+          duration: 0, // Instantly move back
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
   }, []);
 
   useEffect(() => {
@@ -308,11 +325,6 @@ const LoanRequestDetails = ({ route, navigation }) => {
       </Animatable.View>
 
       <View style={styles.responsesSection}>
-        {/* <View style={styles.responsesTitleContainer}>
-          {renderIcon("bank")}
-          <Text style={styles.responsesTitle}>Loan Responses</Text>
-        </View> */}
-
         {sortedResponses.length === 0 ? (
           <View style={styles.noMessagesContainer}>
             <LottieView
@@ -343,6 +355,19 @@ const LoanRequestDetails = ({ route, navigation }) => {
                         response.status === "REJECTED" ||
                         response.status === "RESCINDED"
                       ) && styles.clickableCard,
+                      styles.detailsCard,
+                      {
+                        borderColor:
+                          response.status === "APPROVED" ||
+                          response.status === "COUNTER_OFFER"
+                            ? "rgb(96, 96, 96)"
+                            : "#333",
+                        backgroundColor:
+                          response.status === "APPROVED" ||
+                          response.status === "COUNTER_OFFER"
+                            ? "rgb(53, 53, 53)"
+                            : "#2a2a2a",
+                      },
                     ]}
                   >
                     <Card.Content>
@@ -446,6 +471,26 @@ const LoanRequestDetails = ({ route, navigation }) => {
                           </Text>
                         )}
                       </Animatable.View>
+                      {(response.status === "APPROVED" ||
+                        response.status === "COUNTER_OFFER") && (
+                        <Animated.View
+                          style={[
+                            styles.shineWrapper,
+                            { transform: [{ translateX: translateXAnim }] },
+                          ]}
+                        >
+                          <LinearGradient
+                            colors={[
+                              "rgba(255,255,255,0.1)",
+                              "rgba(255, 255, 255, 0.5)",
+                              "rgba(255,255,255,0.1)",
+                            ]}
+                            start={{ x: 0, y: 0.5 }}
+                            end={{ x: 1, y: 0.5 }}
+                            style={styles.shine}
+                          />
+                        </Animated.View>
+                      )}
                     </Card.Content>
                   </Card>
                 </Pressable>
@@ -505,6 +550,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1E1E1E",
+  },
+  shineWrapper: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: "hidden",
+  },
+
+  shine: {
+    borderRadius: 8, // If you want rounded corners for the gradient
+    position: "absolute", // Make sure the gradient itself doesn't overflow
+
+    width: "100%",
+    height: "100%",
+    opacity: 0.4,
+    borderRadius: 8, // If you want rounded corners for the gradient
   },
   header: {
     padding: 16,
@@ -568,6 +631,7 @@ const styles = StyleSheet.create({
   responseCard: {
     backgroundColor: "#2C2C2C",
     marginBottom: 12,
+    overflow: "hidden",
   },
   responseHeader: {
     flexDirection: "row",
