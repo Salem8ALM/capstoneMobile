@@ -142,7 +142,7 @@ const LoanRequestDetails = ({ navigation }) => {
         visible={notificationVisible}
       />
       <View style={styles.content}>
-        <Text style={styles.title}>Step 1/5: Loan Details</Text>
+        <Text style={styles.title}>Step 1/3: Loan Details</Text>
         <Text style={styles.subtitle}>
           Give your loan a nickname and a purpose.
         </Text>
