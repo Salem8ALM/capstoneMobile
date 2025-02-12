@@ -118,13 +118,13 @@ const LoanRequestDetails = ({ route, navigation }) => {
     // Fetch initially
     getAllRequests();
 
-    // Set up interval to fetch every 3 seconds
-    const interval = setInterval(() => {
-      getAllRequests();
-    }, 3000);
+    // // Set up interval to fetch every 3 seconds
+    // const interval = setInterval(() => {
+    //   getAllRequests();
+    // }, 3000);
 
-    // Cleanup function to clear interval on unmount
-    return () => clearInterval(interval);
+    // // Cleanup function to clear interval on unmount
+    // return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
