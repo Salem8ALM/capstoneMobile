@@ -54,7 +54,7 @@ const loanTermMap = {
 
 const statusPriority = {
   APPROVED: 1,
-  "COUNTER OFFER": 2,
+  COUNTER_OFFER: 2,
   REJECTED: 3,
   RESCINDED: 3,
 };
@@ -109,9 +109,9 @@ const LoanRequestDetails = ({ route, navigation }) => {
 
   const sortedResponses = responses.slice().sort((a, b) => {
     // Compare by status priority
-    // const statusComparison =
-    //   statusPriority[a.status] - statusPriority[b.status];
-    // if (statusComparison !== 0) return statusComparison;
+    const statusComparison =
+      statusPriority[a.status] - statusPriority[b.status];
+    if (statusComparison !== 0) return statusComparison;
 
     // If statuses are the same, sort by statusDate (descending)
     return new Date(b.statusDate) - new Date(a.statusDate);
