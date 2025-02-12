@@ -23,6 +23,8 @@ const loanTermMap = {
   FIVE_YEARS: "5 Years",
 };
 
+
+
 const formatRepaymentPlan = (plan) => {
   return plan
     .toLowerCase() // Convert to lowercase

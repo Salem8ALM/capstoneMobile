@@ -53,6 +53,10 @@ const HomeScreen = () => {
 
   const [avatarUri, setAvatarUri] = useState(null);
 
+  const [profileImage, setProfileImage] = useState(
+    require("../../assets/bankers/ibrahim.png")
+  );
+
   const [modalVisible, setModalVisible] = useState(false);
 
   const {
@@ -149,7 +153,7 @@ const HomeScreen = () => {
       {/* Welcome Message */}
       <View style={{ flexDirection: "row" }}>
         <Image
-          source={{ uri: avatarUri }}
+          source={profileImage}
           style={{
             width: 30,
             height: 30,
