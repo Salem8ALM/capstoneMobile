@@ -163,6 +163,7 @@ const ResponseActionModal = ({
           >
             <Button
               mode="contained"
+              textColor="#4CAF50"
               style={[styles.actionButton, styles.acceptButton]}
               icon="check"
               onPress={() => accpetOffer(response)}
@@ -173,7 +174,7 @@ const ResponseActionModal = ({
             {response?.status === "COUNTER_OFFER" && (
               <Button
                 mode="contained"
-                textColor="black"
+                textColor="#FFD700"
                 style={[styles.actionButton, styles.counterButton]}
                 icon="chat-processing"
                 onPress={() => onAction("counter")}
@@ -184,6 +185,7 @@ const ResponseActionModal = ({
 
             <Button
               mode="contained"
+              textColor="#F44336"
               style={[styles.actionButton, styles.rejectButton]}
               icon="close"
               onPress={() => onAction("reject")}
@@ -269,13 +271,21 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   acceptButton: {
-    backgroundColor: "#4CAF50",
+    borderColor: "#4CAF50",
+    borderWidth: 2,
+
+    backgroundColor: "transparent",
   },
   counterButton: {
-    backgroundColor: "#FFD700",
+    backgroundColor: "transparent",
+    borderWidth: 2,
+
+    borderColor: "#FFD700",
   },
   rejectButton: {
-    backgroundColor: "#F44336",
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor: "#F44336",
   },
 });
 
