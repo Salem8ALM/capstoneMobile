@@ -1,60 +1,58 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
+import { StyleSheet, Animated } from "react-native";
 import LottieView from "lottie-react-native";
-import { View, StyleSheet } from "react-native";
 
-const LottieAnimation = ({
-  source,
-  visible,
-  onAnimationFinish,
-  loop = false,
-}) => {
+const LottieAnimation = ({ animations, currentIndex, style }) => {
+  const fadeAnim = useRef(new Animated.Value(1)).current;
   const animationRef = useRef(null);
+  const [currentAnimation, setCurrentAnimation] = React.useState(
+    animations[currentIndex]
+  );
 
   useEffect(() => {
-    if (visible && animationRef.current) {
-      animationRef.current.play();
-    } else if (!visible && animationRef.current) {
-      animationRef.current.reset();
-    }
-  }, [visible]);
+    // Fade out current animation
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
-  const handleAnimationFinish = () => {
-    if (loop && animationRef.current) {
-      animationRef.current.play();
-    } else if (onAnimationFinish) {
-      onAnimationFinish();
-    }
-  };
-
-  if (!visible) return null;
+    // Change animation after fade out
+    setTimeout(() => {
+      setCurrentAnimation(animations[currentIndex]);
+    }, 500);
+  }, [currentIndex, animations, fadeAnim]); // Added fadeAnim to dependencies
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, style, { opacity: fadeAnim }]}>
       <LottieView
         ref={animationRef}
-        source={source}
+        source={currentAnimation}
         autoPlay
-        loop={loop}
+        loop
         style={styles.animation}
-        onAnimationFinish={handleAnimationFinish}
       />
-    </View>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 1000,
   },
   animation: {
-    width: 200,
-    height: 200,
+    width: "100%",
+    height: "100%",
   },
 });
 

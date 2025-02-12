@@ -46,7 +46,8 @@ import NotificationBanner from "../../utils/animations/NotificationBanner";
 import waitingAnimation from "../../assets/waiting.json";
 import successAnimation from "../../assets/success.json";
 import failureAnimation from "../../assets/failure.json";
-import LottieAnimation from "../../components/LottieAnimation";
+import LoadingScreen from "../../components/LoadingScreen";
+import LottieAnimationDecision from "../../components/LottieAnimationDecision";
 
 const { width, height } = Dimensions.get("window");
 
@@ -136,7 +137,6 @@ const OnboardAddBusiness = () => {
     const token = await getToken("access");
     try {
       const response = await getCompanyAPI(token);
-      setOnboarded(true);
       return response;
     } catch (error) {
       setOnboarded(false);
@@ -305,9 +305,12 @@ const OnboardAddBusiness = () => {
               setBusiness(businessData); // Store business data in state
 
               setAnimationState("success");
-              setTimeout(() => setAnimationState("idle"), 2000);
 
-              Alert.alert("Success", "added your business");
+              // ✅ Ensure the animation plays before setting onboarded
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+
+              setAnimationState("idle");
+              setOnboarded(true); // ✅ This will now execute AFTER the timeout
             } catch (error) {
               setAnimationState("failure");
 
@@ -350,17 +353,18 @@ const OnboardAddBusiness = () => {
 
   return (
     <View style={styles.container}>
-      <LottieAnimation
-        source={waitingAnimation}
-        visible={animationState === "waiting"}
-        onAnimationFinish={() => {}}
-      />
-      <LottieAnimation
+      {animationState === "waiting" && (
+        <View>
+          <LoadingScreen />
+        </View>
+      )}
+
+      <LottieAnimationDecision
         source={successAnimation}
         visible={animationState === "success"}
         onAnimationFinish={handleAnimationFinish}
       />
-      <LottieAnimation
+      <LottieAnimationDecision
         source={failureAnimation}
         visible={animationState === "failure"}
         onAnimationFinish={handleAnimationFinish}
