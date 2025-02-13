@@ -56,7 +56,7 @@ export const ChatDetail = ({ route }) => {
       setMessages((prev) => [
         ...prev,
         {
-          id: String(prev.length + 1),
+          id: String(Date.now()), // Unique timestamp-based ID
           text: message,
           timestamp: new Date().toLocaleTimeString(),
           sent: true,
@@ -107,7 +107,11 @@ export const ChatDetail = ({ route }) => {
       }
     };
 
-    fetchMessages(); // Call the function
+    // Call fetchChatList every 3 seconds
+    const intervalId = setInterval(fetchMessages, 3000);
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
   }, []); // Runs only on mount
 
   const pickFile = async () => {
