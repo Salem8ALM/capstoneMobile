@@ -179,7 +179,7 @@ const LoginScreen = () => {
             <Text style={{ color: "white" }}>Login below or </Text>
             <Text>
               <TouchableRipple
-                onPress={() => navigation.navigate(Routes.Auth.Register)}
+                onPress={() => navigation.push(Routes.Auth.Register)}
                 rippleColor="rgba(255, 238, 0, 0.51)"
               >
                 <Text style={styles.link}>create an account</Text>
