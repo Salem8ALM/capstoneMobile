@@ -1,5 +1,12 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import { StyleSheet, View, Animated, Alert, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Animated,
+  Alert,
+  Dimensions,
+  Image,
+} from "react-native";
 import { IconButton, Text } from "react-native-paper";
 
 import {
@@ -146,23 +153,25 @@ const LoginScreen = () => {
           checkToken();
         }
       } else {
-        Alert.alert(
-          "Biometric data not found.",
-          "Login in at least once to have data stored"
-        );
+        setNotificationMessage("Biometric data not found");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       }
     } catch (error) {
-      Alert.alert(
-        "Biometric data not found.",
-        "Login in at least once to have data stored"
-      );
+      setNotificationMessage("Biometric data not found");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
     setLogin("Login");
   };
 
   return (
     <LinearGradient
-      colors={["black", "rgba(14, 16, 12, 0.95)", "black"]} // Gradient colors
+      colors={["black", "rgba(14, 16, 12, 1)", "black"]} // Gradient colors
       style={styles.gradient} // Full-screen gradient
       start={{ x: 0, y: 0 }} // Gradient starts at the top
       end={{ x: 0, y: 1 }} // Gradient ends at the bottom
@@ -173,7 +182,18 @@ const LoginScreen = () => {
           visible={notificationVisible}
         />
         <View style={styles.content}>
-          <Text style={styles.title}>Welcome back!</Text>
+          {/* <Text style={styles.title}>Welcome back!</Text> */}
+
+          <Image
+            source={require("../../assets/logo.png")}
+            style={{
+              width: 200,
+              height: 48,
+              justifyContent: "center",
+              alignSelf: "center",
+            }}
+          />
+
           <View style={styles.subtitle}>
             <Text style={{ color: "white" }}>Login below or </Text>
             <Text>

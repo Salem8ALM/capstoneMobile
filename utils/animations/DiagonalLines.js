@@ -1,32 +1,26 @@
-import React from "react";
-import { useEffect, useRef } from "react";
-import { View, StyleSheet, Animated, Dimensions } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, StyleSheet, Animated, Dimensions, Easing } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
 const DiagonalLines = ({
-  toValueSequence,
-  duration,
-  outputRange,
-  lineSpacing,
-  lineOffset,
+  toValueSequence = [0, 1], // Default to a basic sequence
+  duration = 2000, // Default animation duration
+  outputRange = ["0deg", "30deg"], // Default rotation range
+  lineSpacing = 12, // Spacing between lines
+  lineOffset = 0, // Offset for the lines
 }) => {
   const backgroundAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const backgroundAnimation = Animated.loop(
       Animated.sequence(
-        toValueSequence.map(
-          (toValue) =>
-            Animated.timing(backgroundAnim, {
-              toValue,
-              duration,
-              useNativeDriver: true,
-            }),
+        toValueSequence.map((toValue) =>
           Animated.timing(backgroundAnim, {
-            toValue: 0,
-            duration: 10000,
+            toValue,
+            duration,
             useNativeDriver: true,
+            easing: Easing.linear, // Apply linear easing for consistent speed
           })
         )
       )
@@ -38,7 +32,7 @@ const DiagonalLines = ({
   }, [toValueSequence, duration, backgroundAnim]);
 
   const rotate = backgroundAnim.interpolate({
-    inputRange: [0, 1.5],
+    inputRange: [0, 1],
     outputRange,
   });
 
@@ -47,17 +41,25 @@ const DiagonalLines = ({
       style={[
         StyleSheet.absoluteFillObject,
         {
-          opacity: 0.07,
+          opacity: 0.03,
           zIndex: 1,
           transform: [{ rotate }],
           pointerEvents: "none",
         },
       ]}
     >
-      {Array.from({ length: 200 }).map((_, i) => (
+      {Array.from({ length: Math.ceil(width / lineSpacing) }).map((_, i) => (
         <View
           key={i}
-          style={[styles.diagonalLine, { left: i * lineSpacing + lineOffset }]}
+          style={[
+            styles.diagonalLine,
+            {
+              left: i * lineSpacing + lineOffset,
+              height: height * 50, // Adjust line height to ensure full coverage vertically
+              width: width * 90, // Adjust line width for full coverage horizontally
+              transform: [{ rotate: `${i * 2}deg` }], // Adjust rotation for diagonal lines
+            },
+          ]}
         />
       ))}
     </Animated.View>
@@ -67,9 +69,8 @@ const DiagonalLines = ({
 const styles = StyleSheet.create({
   diagonalLine: {
     position: "absolute",
-    width: 2,
-    height: height * 9, // Ensures lines cover the entire height of the screen
     backgroundColor: "#FFD700", // Golden color for the lines
   },
 });
+
 export default DiagonalLines;

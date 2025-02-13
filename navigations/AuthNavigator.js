@@ -22,14 +22,14 @@ const AuthNavigator = () => {
       <View style={styles.container}>
         <DiagonalLines
           toValueSequence={[0.5, 0]}
-          duration={250000}
-          outputRange={["45deg", "25000deg"]}
+          duration={2000000}
+          outputRange={["45deg", "10000deg"]}
           lineSpacing={5}
           lineOffset={-300}
         />
         <DiagonalLines
           toValueSequence={[0.1, 0]}
-          duration={500000}
+          duration={3000000}
           outputRange={["40deg", "225000deg"]}
           lineSpacing={10}
           lineOffset={-200}

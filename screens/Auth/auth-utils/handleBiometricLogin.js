@@ -26,8 +26,5 @@ export const handleBiometricLogin = async () => {
 
   if (result.success) {
     return true;
-  } else {
-    Alert.alert("Failed", "Biometric authentication failed.");
-    return false;
   }
 };
