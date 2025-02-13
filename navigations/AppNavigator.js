@@ -92,8 +92,9 @@ const AppNavigator = () => {
           tabBarActiveTintColor: "#FFD700",
           tabBarInactiveTintColor: "#8E8E93",
           tabBarShowLabel: false,
-          // Add fade animation for screen transitions
           tabBarHideOnKeyboard: true,
+          animation: 'none',
+          animationEnabled: false,
         }}
         screenListeners={{
           state: (e) => {

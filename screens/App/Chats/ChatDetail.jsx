@@ -41,14 +41,12 @@ const avatarMap = {
 
 export const ChatDetail = ({ route }) => {
   const navigation = useNavigation();
-  // const route = useRoute();
   const { itemId } = route.params;
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const inputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [banker, setBanker] = useState("");
-
   const [chatId, setChatId] = useState(itemId);
 
   const handleSendMessage = async () => {
@@ -56,7 +54,7 @@ export const ChatDetail = ({ route }) => {
       setMessages((prev) => [
         ...prev,
         {
-          id: String(Date.now()), // Unique timestamp-based ID
+          id: String(Date.now()),
           text: message,
           timestamp: new Date().toLocaleTimeString(),
           sent: true,

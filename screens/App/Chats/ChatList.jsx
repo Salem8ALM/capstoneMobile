@@ -8,8 +8,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getChatsAPI } from "../../../api/Chat";
-import { useEffect, useState } from "react";
+import { useEffect, useState ,SafeAreaView} from "react";
 import { getToken } from "../../../storage/TokenStorage";
+import { useNotifications } from '../../../context/NotificationsContext';
 
 const avatarMap = {
   Me: require("../../../assets/bankers/ibrahim.png"),
@@ -20,7 +21,9 @@ const avatarMap = {
 
 export const ChatList = () => {
   const navigation = useNavigation();
-  const [bankers, setBankers] = useState("");
+  const [bankers, setBankers] = useState([]);
+  const { addNotification } = useNotifications();
+  const [previousMessages, setPreviousMessages] = useState({});
 
   useEffect(() => {
     const fetchChatList = async () => {
@@ -32,47 +35,66 @@ export const ChatList = () => {
         }
 
         const chats = await getChatsAPI(token);
-        console.log("Fetched chats:", chats);
-
+        
         // Map backend response to bankers structure
         const mappedBankers = chats.map((chat) => ({
           id: chat.id,
           name: chat.banker.bank,
-          logo: avatarMap[chat.banker.bank] || "default-logo-url.png", // Use a default if missing
-          lastMessage:
-            chat.messages.length > 0
-              ? chat.messages.reduce((latest, msg) =>
-                  new Date(msg.timestamp) > new Date(latest.timestamp)
-                    ? msg
-                    : latest
-                ).characters
-              : "No messages yet",
-          timestamp:
-            chat.messages.length > 0
-              ? new Date(
-                  chat.messages.reduce((latest, msg) =>
-                    new Date(msg.timestamp) > new Date(latest.timestamp)
-                      ? msg
-                      : latest
-                  ).timestamp
-                ).toLocaleTimeString()
-              : "No messages",
-          unreadCount: 0, // Update if backend provides unread count
-          isActive: true, // Update based on backend data if applicable
+          logo: avatarMap[chat.banker.bank] || "default-logo-url.png",
+          lastMessage: chat.messages.length > 0 
+            ? chat.messages[chat.messages.length - 1].characters 
+            : "No messages yet",
+          timestamp: chat.messages.length > 0 
+            ? new Date(chat.messages[chat.messages.length - 1].timestamp).toLocaleTimeString()
+            : "No messages",
+          messages: chat.messages,
+          unreadCount: 0,
+          isActive: true,
         }));
 
-        setBankers(mappedBankers); // Update state
+        // Check for new messages and create notifications
+        mappedBankers.forEach(banker => {
+          const previousChat = previousMessages[banker.id];
+          if (previousChat) {
+            const newMessages = banker.messages.filter(msg => 
+              !previousChat.messages.find(prevMsg => prevMsg.id === msg.id)
+            );
+            
+            newMessages.forEach(msg => {
+              addNotification({
+                type: 'message',
+                title: `New message from ${banker.name}`,
+                message: msg.characters,
+                chatId: banker.id,
+                messageId: msg.id,
+                timestamp: new Date(msg.timestamp)
+              });
+            });
+          }
+        });
+
+        // Update previous messages state
+        const newPreviousMessages = {};
+        mappedBankers.forEach(banker => {
+          newPreviousMessages[banker.id] = banker;
+        });
+        setPreviousMessages(newPreviousMessages);
+
+        setBankers(mappedBankers);
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
     };
 
-    // Call fetchChatList every 3 seconds
+    // Initial fetch
+    fetchChatList();
+
+    // Set up polling interval
     const intervalId = setInterval(fetchChatList, 3000);
 
     // Cleanup on unmount
     return () => clearInterval(intervalId);
-  }, []);
+  }, [addNotification]);
 
   const renderBankItem = ({ item }) => (
     <TouchableOpacity
@@ -97,6 +119,15 @@ export const ChatList = () => {
       </View>
     </TouchableOpacity>
   );
+
+  const handleNewMessage = (message) => {
+    addNotification({
+      type: 'message',
+      title: `New message from ${message.senderName}`,
+      message: message.preview,
+      chatId: message.chatId
+    });
+  };
 
   return (
     <View style={styles.container}>

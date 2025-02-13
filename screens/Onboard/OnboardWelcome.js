@@ -115,6 +115,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#fff",
     fontWeight: "bold",
+    top: 20,
+
   },
   absoluteTopLeft: {
     position: "absolute",

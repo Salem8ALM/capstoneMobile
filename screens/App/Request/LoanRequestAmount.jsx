@@ -10,6 +10,7 @@ import {
 } from "../../../utils/animations/buttonAnimations";
 import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
 import { useData } from "../../../context/DataContext";
+import LoanProgressBar from '../../../components/LoanProgressBar';
 
 const AnimatedListItem = ({ item, onPress, style }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -71,61 +72,10 @@ const LoanRequestAmount = ({ navigation }) => {
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
 
+  const totalSteps = 3;
+  const currentStep = 2;
+
   const symbols = [
-    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
-    {
-      icon: "calendar-month-outline",
-      size: 40,
-      color: "rgba(255, 223, 0, 0.1)",
-    },
-    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
-    {
-      icon: "swap-horizontal-circle",
-      size: 30,
-      color: "rgba(255, 215, 0, 0.02)",
-    },
-    {
-      icon: "wallet",
-      size: 40,
-      color: "rgba(255, 223, 0, 0.1)",
-    },
-    { icon: "chart-line", size: 60, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
-    {
-      icon: "calendar-month-outline",
-      size: 40,
-      color: "rgba(255, 223, 0, 0.1)",
-    },
-    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
-    {
-      icon: "swap-horizontal-circle",
-      size: 30,
-      color: "rgba(255, 215, 0, 0.02)",
-    },
-    {
-      icon: "wallet",
-      size: 40,
-      color: "rgba(255, 223, 0, 0.1)",
-    },
-    { icon: "chart-line", size: 60, color: "rgba(255, 230, 0, 0.02)" },
-    { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
-    {
-      icon: "calendar-month-outline",
-      size: 40,
-      color: "rgba(255, 223, 0, 0.1)",
-    },
-    { icon: "bank", size: 60, color: "rgba(255, 230, 0, 0.02)" },
-    {
-      icon: "swap-horizontal-circle",
-      size: 60,
-      color: "rgba(255, 215, 0, 0.05)",
-    },
-    {
-      icon: "wallet",
-      size: 40,
-      color: "rgba(255, 223, 0, 0.05)",
-    },
-    { icon: "chart-line", size: 30, color: "rgba(255, 230, 0, 0.2)" },
     { icon: "cash-multiple", size: 30, color: "rgba(255, 215, 0, 0.02)" },
     {
       icon: "calendar-month-outline",
@@ -324,7 +274,7 @@ const LoanRequestAmount = ({ navigation }) => {
         visible={notificationVisible}
       />
       <View style={styles.content}>
-        <Text style={styles.title}>Step 2/3: Loan Amount & Terms</Text>
+        <LoanProgressBar step={2} totalSteps={3} />
         <Text style={styles.subtitle}>
           Provide the loan details and repayment plan.
         </Text>
@@ -517,6 +467,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: "center",
+    paddingBottom: 40,
   },
   title: {
     fontSize: 28,
@@ -529,7 +480,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#ccc",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 30,
   },
   inputContainer: {
     marginBottom: 20,
@@ -606,6 +557,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#000",
+  },
+  symbols: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 });
 

@@ -1,14 +1,83 @@
 "use client";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import AnimatedScreen from "../../components/AnimatedScreen";
+import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
 import ImageFetcher from "../../components/ImageFetcher";
 import { Feather } from "@expo/vector-icons";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import UserContext from "../../context/UserContext";
-import { deleteToken } from "../../storage/TokenStorage";
+import { deleteToken, getToken } from "../../storage/TokenStorage";
+import axios from "axios";
+import { fetchImage } from "../../api/Generic";
 
 export function Profile() {
-  const { setAuthenticated, setOnboarded } = useContext(UserContext);
+  const { setAuthenticated, setOnboarded, business } = useContext(UserContext);
+  const [userProfile, setUserProfile] = useState({
+    firstName: "",
+    lastName: "",
+    mobileNumber: "",
+    civilId: "",
+    bank: "",
+    role: "",
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [avatarUri, setAvatarUri] = useState(null);
+  const [profileImage, setProfileImage] = useState(
+    require("../../assets/bankers/ibrahim.png")
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await getToken("access");
+        if (!token) {
+          console.warn("No token found");
+          return;
+        }
+
+        // Fetch user profile
+        const response = await axios.post(
+          'http://192.168.8.6:8080/user/v1/token-info',
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log("Token info response:", response.data);
+
+        const userData = response.data;
+        setUserProfile({
+          username: userData.username || "N/A",
+          civilId: userData["civil Id"] || "N/A",
+          role: Array.isArray(userData.roles) 
+            ? userData.roles[0] 
+            : userData.roles || "N/A",
+          bank: userData.bank || "N/A",
+          firstName: userData.firstName || userData.username || "N/A",
+          lastName: userData.lastName || "",
+        });
+
+        // Fetch business avatar if business exists
+        if (business?.entity?.businessAvatarFileId) {
+          const image = await fetchImage(token, business.entity.businessAvatarFileId);
+          if (image) {
+            setAvatarUri(image);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        if (error.response) {
+          console.error("Response data:", error.response.data);
+          console.error("Response status:", error.response.status);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [business]);
 
   const handleLogout = async () => {
     try {
@@ -20,96 +89,186 @@ export function Profile() {
     }
   };
 
-  return (
-    <AnimatedScreen>
+  if (isLoading) {
+    return (
       <View style={styles.container}>
-        <ImageFetcher fileId={2} style={styles.profileImage} />
-        <View style={styles.infoContainer}>
-          <Text style={styles.name}>firstName lastName</Text>
-          <Text style={styles.phone}>+965 9234 9321</Text>
-        </View>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
 
-        <View style={styles.buttonSection}>
-          <TouchableOpacity style={styles.button}>
-            <View style={styles.buttonContent}>
-              <Feather name="file-text" size={24} color="#FFD700" />
-              <View style={styles.buttonTextContainer}>
-                <Text style={styles.buttonText}>Business License</Text>
-                <Text style={styles.buttonSubtext}>
-                  View your business documents
-                </Text>
-              </View>
-            </View>
-            <Feather name="chevron-right" size={24} color="#FFD700" />
-          </TouchableOpacity>
+  const formatRole = (role) => {
+    return role?.toLowerCase()
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
-          <TouchableOpacity style={styles.button}>
-            <View style={styles.buttonContent}>
-              <Feather name="bar-chart-2" size={24} color="#FFD700" />
-              <View style={styles.buttonTextContainer}>
-                <Text style={styles.buttonText}>Financial Statement</Text>
-                <Text style={styles.buttonSubtext}>
-                  View your financial records
-                </Text>
-              </View>
-            </View>
-            <Feather name="chevron-right" size={24} color="#FFD700" />
-          </TouchableOpacity>
+  const formatBank = (bank) => {
+    return bank?.toLowerCase()
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
-          <TouchableOpacity
-            style={[styles.button, styles.logoutButton]}
-            onPress={handleLogout}
-          >
-            <View style={styles.buttonContent}>
-              <Feather name="log-out" size={24} color="#FF4444" />
-              <View style={styles.buttonTextContainer}>
-                <Text style={[styles.buttonText, { color: "#FF4444" }]}>
-                  Logout
-                </Text>
-                <Text style={styles.buttonSubtext}>
-                  Sign out of your account
-                </Text>
-              </View>
-            </View>
-            <Feather name="chevron-right" size={24} color="#FF4444" />
-          </TouchableOpacity>
+  return (
+    <View style={styles.container}>
+      {/* Profile Header Section */}
+      <View style={styles.profileHeader}>
+        <Image
+          source={profileImage}
+          style={styles.userAvatar}
+        />
+        <View style={styles.userInfo}>
+          <Text style={styles.userName}>
+            {userProfile.firstName} {userProfile.lastName}
+          </Text>
+          <Text style={styles.userRole}>
+            {formatRole(userProfile.role)}
+          </Text>
         </View>
       </View>
-    </AnimatedScreen>
+
+      {/* Business Card */}
+      <View style={styles.businessCard}>
+        <View style={styles.businessInfo}>
+          {avatarUri ? (
+            <Image
+              source={{ uri: avatarUri }}
+              style={styles.businessAvatar}
+            />
+          ) : (
+            <View style={styles.businessAvatarPlaceholder} />
+          )}
+          <View>
+            <Text style={styles.businessName}>
+              {business?.entity?.businessNickname || "Your Business"}
+            </Text>
+            <Text style={styles.licenseText}>
+              {`License ID: #${business?.entity?.businessLicense?.licenseNumber || "N/A"}`}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.buttonSection}>
+        <TouchableOpacity style={styles.button}>
+          <View style={styles.buttonContent}>
+            <Feather name="file-text" size={24} color="#FFD700" />
+            <View style={styles.buttonTextContainer}>
+              <Text style={styles.buttonText}>Business License</Text>
+              <Text style={styles.buttonSubtext}>
+                View your business documents
+              </Text>
+            </View>
+          </View>
+          <Feather name="chevron-right" size={24} color="#FFD700" />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button}>
+          <View style={styles.buttonContent}>
+            <Feather name="bar-chart-2" size={24} color="#FFD700" />
+            <View style={styles.buttonTextContainer}>
+              <Text style={styles.buttonText}>Financial Statement</Text>
+              <Text style={styles.buttonSubtext}>
+                View your financial records
+              </Text>
+            </View>
+          </View>
+          <Feather name="chevron-right" size={24} color="#FFD700" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, styles.logoutButton]}
+          onPress={handleLogout}
+        >
+          <View style={styles.buttonContent}>
+            <Feather name="log-out" size={24} color="#FF4444" />
+            <View style={styles.buttonTextContainer}>
+              <Text style={[styles.buttonText, { color: "#FF4444" }]}>
+                Logout
+              </Text>
+              <Text style={styles.buttonSubtext}>
+                Sign out of your account
+              </Text>
+            </View>
+          </View>
+          <Feather name="chevron-right" size={24} color="#FF4444" />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "#1C1C1E",
+    paddingTop: 60, // Increased top padding
   },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignSelf: "center",
-    marginTop: 40,
+  profileHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 30,
+  },
+  userAvatar: {
+    width: 60, // Increased size
+    height: 60, // Increased size
+    borderRadius: 30,
+    marginRight: 15,
     borderWidth: 2,
     borderColor: "#FFD700",
   },
-  infoContainer: {
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 40,
+  userInfo: {
+    flex: 1,
   },
-  name: {
+  userName: {
+    color: "#fff",
     fontSize: 24,
-    fontWeight: "600",
-    color: "#FFFFFF",
-    marginBottom: 8,
+    fontWeight: "bold",
+    marginBottom: 4,
   },
-  phone: {
+  userRole: {
+    color: "#FFD700",
     fontSize: 16,
-    color: "#A1A1AA",
+  },
+  businessCard: {
+    backgroundColor: "#2C2C2E", // Slightly lighter background for contrast
+    padding: 20,
+    borderRadius: 15,
+    marginHorizontal: 20,
+    marginBottom: 30,
+  },
+  businessInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  businessAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
+  },
+  businessAvatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
+    backgroundColor: "#333",
+  },
+  businessName: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  licenseText: {
+    color: "#aaa",
+    fontSize: 14,
   },
   buttonSection: {
+    paddingHorizontal: 20,
     gap: 16,
   },
   button: {
@@ -151,6 +310,25 @@ const styles = StyleSheet.create({
     top: 40, // Adjust to your desired distance from the top
     left: 20, // Adjust to your desired distance from the left
     zIndex: 1, // Ensure it appears above other components if overlapping
+  },
+  loadingText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+  },
+  role: {
+    fontSize: 16,
+    color: '#FFD700',
+    marginTop: 4,
+  },
+  bank: {
+    fontSize: 14,
+    color: '#A1A1AA',
+    marginTop: 4,
+  },
+  civilId: {
+    fontSize: 14,
+    color: '#A1A1AA',
+    marginTop: 4,
   },
 });
 

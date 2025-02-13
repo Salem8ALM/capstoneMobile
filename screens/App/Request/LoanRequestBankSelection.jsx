@@ -10,6 +10,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import Routes from "../../../utils/constants/routes";
 import { useData } from "../../../context/DataContext";
+import LoanProgressBar from '../../../components/LoanProgressBar';
 
 const { height } = Dimensions.get("window");
 
@@ -63,6 +64,9 @@ export default function LoanRequestBankSelection({ navigation, route }) {
     }).start();
   }, [reviewAnim]);
 
+  const totalSteps = 3;
+  const currentStep = 3;
+
   return (
     <View style={styles.container}>
       <NotificationBanner
@@ -70,10 +74,11 @@ export default function LoanRequestBankSelection({ navigation, route }) {
         visible={notificationVisible}
       />
       <View style={styles.content}>
-        <Text style={styles.title}>Step 3/3: Select Banks</Text>
+        <LoanProgressBar step={3} totalSteps={3} />
         <Text style={styles.subtitle}>
-          Select all the banks you wish to request this to.
+          Select the banks you'd like to receive offers from.
         </Text>
+
         <BankList setBanksSelected={setBanksSelected} />
 
         <Animated.View style={[{ transform: [{ scale: reviewAnim }] }]}>
@@ -104,13 +109,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1a1a1a",
-    justifyContent: "center",
-    marginBottom: 30,
   },
   content: {
     flex: 1,
     width: "100%",
     justifyContent: "center",
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   cardContainer: {
     flex: 1,
@@ -123,7 +128,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#ccc",
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 30,
   },
   symbols: {
     flex: 1,
@@ -172,5 +177,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#000",
+  },
+  progressContainer: {
+    marginBottom: 30,
+    alignItems: 'center',
+  },
+  progressBar: {
+    width: '100%',
+    height: 6,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 3,
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#FFD700',
+    borderRadius: 3,
+  },
+  progressText: {
+    color: '#A1A1AA',
+    fontSize: 14,
   },
 });
