@@ -105,12 +105,17 @@ export const LoanRequestCard = ({
                   <Text variant="titleMedium" style={styles.title}>
                     {loanTitle}
                   </Text>
-                  {isNew && <Badge style={styles.newBadge}>Pending</Badge>}
+                  {status === "NEW RESPONSE" && (
+                    <Badge style={styles.newBadge}>Pending</Badge>
+                  )}
                 </View>
                 <Badge
                   style={[
                     styles.statusBadge,
-                    { borderColor: isNew ? "#FFD700" : "#666" },
+                    {
+                      borderColor:
+                        status === "NEW RESPONSE" ? "#FFD700" : "#666",
+                    },
                   ]}
                 >
                   {status}

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   Animated,
+  Platform,
 } from "react-native";
 import {
   useSharedValue,
@@ -156,12 +157,10 @@ const HomeScreen = () => {
 
   return (
     <View
-      style={{
-        flex: 1,
-        backgroundColor: "#1C1C1E",
-        padding: 20,
-        paddingTop: 60, // Added top padding for iOS
-      }}
+      style={[
+        { flex: 1, backgroundColor: "#1C1C1E", padding: 20 },
+        Platform.OS === "ios" && { paddingTop: 60 },
+      ]}
     >
       {/* Welcome Message */}
       <View style={{ flexDirection: "row" }}>
