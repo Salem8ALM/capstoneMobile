@@ -85,8 +85,10 @@ export const LoanRequestCard = ({
             style={[
               styles.card,
               {
-                borderColor: isNew ? "rgb(96, 96, 96)" : "#333",
-                backgroundColor: isNew ? "rgb(53, 53, 53)" : "#2a2a2a",
+                borderColor:
+                  status === "NEW RESPONSE" ? "rgb(96, 96, 96)" : "#333",
+                backgroundColor:
+                  status === "NEW RESPONSE" ? "rgb(53, 53, 53)" : "#2a2a2a",
               },
               false && { borderLeftWidth: 4, borderLeftColor: "#FFD700" },
             ]}
