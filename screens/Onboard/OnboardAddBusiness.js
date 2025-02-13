@@ -49,15 +49,8 @@ import failureAnimation from "../../assets/failure.json";
 import LoadingScreen from "../../components/LoadingScreen";
 import LottieAnimationDecision from "../../components/LottieAnimationDecision";
 
-const { width, height } = Dimensions.get("window");
-
 const OnboardAddBusiness = () => {
-  const navigation = useNavigation();
-
   const [businessNickname, setBusinessNickname] = useState("");
-
-  const [imageUri, setImageUri] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   // for financial statement pdf upload
   const [uploadText, setUploadText] = useState("Attach financial Statement"); // Default button text

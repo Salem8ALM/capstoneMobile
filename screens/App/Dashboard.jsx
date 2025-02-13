@@ -9,8 +9,6 @@ import {
 } from "react-native";
 import {
   useSharedValue,
-  useAnimatedStyle,
-  withSpring,
   withRepeat,
   withTiming,
   Easing,
@@ -157,12 +155,14 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={{ 
-      flex: 1, 
-      backgroundColor: "#1C1C1E", 
-      padding: 20,
-      paddingTop: 60, // Added top padding for iOS
-    }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#1C1C1E",
+        padding: 20,
+        paddingTop: 60, // Added top padding for iOS
+      }}
+    >
       {/* Welcome Message */}
       <View style={{ flexDirection: "row" }}>
         <Image

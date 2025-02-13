@@ -7,6 +7,7 @@ import UserContext from "../../context/UserContext";
 import { deleteToken, getToken } from "../../storage/TokenStorage";
 import axios from "axios";
 import { fetchImage } from "../../api/Generic";
+import instance from "../../api";
 
 export function Profile() {
   const { setAuthenticated, setOnboarded, business } = useContext(UserContext);
@@ -34,8 +35,8 @@ export function Profile() {
         }
 
         // Fetch user profile
-        const response = await axios.post(
-          'http://192.168.8.6:8080/user/v1/token-info',
+        const response = await instance.post(
+          "/user/v1/token-info",
           {},
           {
             headers: {
@@ -50,8 +51,8 @@ export function Profile() {
         setUserProfile({
           username: userData.username || "N/A",
           civilId: userData["civil Id"] || "N/A",
-          role: Array.isArray(userData.roles) 
-            ? userData.roles[0] 
+          role: Array.isArray(userData.roles)
+            ? userData.roles[0]
             : userData.roles || "N/A",
           bank: userData.bank || "N/A",
           firstName: userData.firstName || userData.username || "N/A",
@@ -60,7 +61,10 @@ export function Profile() {
 
         // Fetch business avatar if business exists
         if (business?.entity?.businessAvatarFileId) {
-          const image = await fetchImage(token, business.entity.businessAvatarFileId);
+          const image = await fetchImage(
+            token,
+            business.entity.businessAvatarFileId
+          );
           if (image) {
             setAvatarUri(image);
           }
@@ -98,34 +102,31 @@ export function Profile() {
   }
 
   const formatRole = (role) => {
-    return role?.toLowerCase()
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    return role
+      ?.toLowerCase()
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   const formatBank = (bank) => {
-    return bank?.toLowerCase()
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    return bank
+      ?.toLowerCase()
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   return (
     <View style={styles.container}>
       {/* Profile Header Section */}
       <View style={styles.profileHeader}>
-        <Image
-          source={profileImage}
-          style={styles.userAvatar}
-        />
+        <Image source={profileImage} style={styles.userAvatar} />
         <View style={styles.userInfo}>
           <Text style={styles.userName}>
             {userProfile.firstName} {userProfile.lastName}
           </Text>
-          <Text style={styles.userRole}>
-            {formatRole(userProfile.role)}
-          </Text>
+          <Text style={styles.userRole}>{formatRole(userProfile.role)}</Text>
         </View>
       </View>
 
@@ -133,10 +134,7 @@ export function Profile() {
       <View style={styles.businessCard}>
         <View style={styles.businessInfo}>
           {avatarUri ? (
-            <Image
-              source={{ uri: avatarUri }}
-              style={styles.businessAvatar}
-            />
+            <Image source={{ uri: avatarUri }} style={styles.businessAvatar} />
           ) : (
             <View style={styles.businessAvatarPlaceholder} />
           )}
@@ -145,7 +143,9 @@ export function Profile() {
               {business?.entity?.businessNickname || "Your Business"}
             </Text>
             <Text style={styles.licenseText}>
-              {`License ID: #${business?.entity?.businessLicense?.licenseNumber || "N/A"}`}
+              {`License ID: #${
+                business?.entity?.businessLicense?.licenseNumber || "N/A"
+              }`}
             </Text>
           </View>
         </View>
@@ -188,9 +188,7 @@ export function Profile() {
               <Text style={[styles.buttonText, { color: "#FF4444" }]}>
                 Logout
               </Text>
-              <Text style={styles.buttonSubtext}>
-                Sign out of your account
-              </Text>
+              <Text style={styles.buttonSubtext}>Sign out of your account</Text>
             </View>
           </View>
           <Feather name="chevron-right" size={24} color="#FF4444" />
@@ -312,22 +310,22 @@ const styles = StyleSheet.create({
     zIndex: 1, // Ensure it appears above other components if overlapping
   },
   loadingText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 18,
   },
   role: {
     fontSize: 16,
-    color: '#FFD700',
+    color: "#FFD700",
     marginTop: 4,
   },
   bank: {
     fontSize: 14,
-    color: '#A1A1AA',
+    color: "#A1A1AA",
     marginTop: 4,
   },
   civilId: {
     fontSize: 14,
-    color: '#A1A1AA',
+    color: "#A1A1AA",
     marginTop: 4,
   },
 });

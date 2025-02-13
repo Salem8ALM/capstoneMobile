@@ -10,7 +10,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import Routes from "../../../utils/constants/routes";
 import { useData } from "../../../context/DataContext";
-import LoanProgressBar from '../../../components/LoanProgressBar';
+import LoanProgressBar from "../../../components/LoanProgressBar";
 
 const { height } = Dimensions.get("window");
 
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     justifyContent: "center",
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
     paddingBottom: 40,
   },
   cardContainer: {
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#ccc",
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: 10,
   },
   symbols: {
     flex: 1,
@@ -180,23 +180,23 @@ const styles = StyleSheet.create({
   },
   progressContainer: {
     marginBottom: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   progressBar: {
-    width: '100%',
+    width: "100%",
     height: 6,
-    backgroundColor: '#2C2C2E',
+    backgroundColor: "#2C2C2E",
     borderRadius: 3,
     marginBottom: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   progressFill: {
-    height: '100%',
-    backgroundColor: '#FFD700',
+    height: "100%",
+    backgroundColor: "#FFD700",
     borderRadius: 3,
   },
   progressText: {
-    color: '#A1A1AA',
+    color: "#A1A1AA",
     fontSize: 14,
   },
 });

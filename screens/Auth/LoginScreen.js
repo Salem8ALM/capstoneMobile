@@ -1,5 +1,12 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import { StyleSheet, View, Animated, Alert, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Animated,
+  Alert,
+  Dimensions,
+  Image,
+} from "react-native";
 import { IconButton, Text } from "react-native-paper";
 
 import {
@@ -146,95 +153,53 @@ const LoginScreen = () => {
           checkToken();
         }
       } else {
-        Alert.alert(
-          "Biometric data not found.",
-          "Login in at least once to have data stored"
-        );
+        setNotificationMessage("Biometric data not found");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       }
     } catch (error) {
-      Alert.alert(
-        "Biometric data not found.",
-        "Login in at least once to have data stored"
-      );
+      setNotificationMessage("Biometric data not found");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
     setLogin("Login");
   };
 
-  // temporary hack to ensure no duplicate screens are piled
-  const resetStackUntilTwoScreens = () => {
-    // Temprorary hack for navigating from LoginScreen to RegisterScreen WITH SLIDING ANIMATION in place.
-    // For some reason, react navigation does not have animation for pop() function
-    // Therefore, I am using push() function to get that transition but also resetting the stack to avoid creating duplicates of the
-    // login and register screens. I am printing here the number of stacked screens to confirm its only two at the moment; login and register screens
-    // Again, this is a hack, not ideal in any way
-    // if you use pop()/goBack() with the 'presentation' defined as follows AuthNavigator:
-    //
-    // name={Routes.Auth.Register}
-    // component={RegisterScreen}
-    // options={{
-    //   headerShown: false,
-    //   presentation: transparentModal
-    // }}
-    // documentaion: https://reactnavigation.org/docs/stack-navigator/?config=dynamic#transparent-modals
-
-    // It would be removed instantly with no animation...very ugly
-    // If you don't include presentation and just use pop/goBack you will see white background during transition....Even uglier
-
-    let screenName = Routes.Auth.Register;
-    const navigationState = navigation.getState();
-    let routes = navigationState.routes;
-
-    console.log("Number of screens in the stack:", routes.length);
-
-    // Filter out duplicates by ensuring only one instance of each screen name
-    const uniqueRoutes = routes.filter(
-      (route, index, self) =>
-        index === self.findIndex((r) => r.name === route.name)
-    );
-
-    // If the screen is already in the unique routes, we need to handle it
-    const isScreenInStack = uniqueRoutes.some(
-      (route) => route.name === screenName
-    );
-
-    if (!isScreenInStack) {
-      // If the screen is not in the stack, push it to the stack with animation
-      navigation.push(screenName);
-    } else {
-      // If the screen is already in the stack, remove the duplicate and push it
-      // Filter out the duplicate screen from the stack
-      const filteredRoutes = routes.filter(
-        (route) => route.name !== screenName
-      );
-
-      // Push the screen to the top of the stack
-      navigation.reset({
-        index: filteredRoutes.length, // Keep the first screen at the top
-        routes: [...filteredRoutes, { name: screenName }],
-      });
-    }
-  };
-
   return (
     <LinearGradient
-      colors={["black", "rgba(14, 16, 12, 0.95)", "black"]} // Gradient colors
+      colors={["black", "rgb(31, 31, 22)", "black"]} // Gradient colors
       style={styles.gradient} // Full-screen gradient
       start={{ x: 0, y: 0 }} // Gradient starts at the top
       end={{ x: 0, y: 1 }} // Gradient ends at the bottom
     >
-      <NotificationBanner
-        message={notificationMessage}
-        visible={notificationVisible}
-      />
-
       <View style={styles.container}>
+        <NotificationBanner
+          message={notificationMessage}
+          visible={notificationVisible}
+        />
         <View style={styles.content}>
-          <Text style={styles.title}>Welcome back!</Text>
+          {/* <Text style={styles.title}>Welcome back!</Text> */}
+
+          <Image
+            source={require("../../assets/logo.png")}
+            style={{
+              width: width * 0.35, // 50% of screen width
+              height: width * 0.35 * (48 / 200), // Maintain aspect ratio
+              alignSelf: "center",
+              marginBottom: 50,
+            }}
+            resizeMode="contain"
+          />
+
           <View style={styles.subtitle}>
             <Text style={{ color: "white" }}>Login below or </Text>
             <Text>
               <TouchableRipple
-                onPress={resetStackUntilTwoScreens}
+                onPress={() => navigation.push(Routes.Auth.RegisterBasic)}
                 rippleColor="rgba(255, 238, 0, 0.51)"
               >
                 <Text style={styles.link}>create an account</Text>
@@ -402,7 +367,7 @@ const LoginScreen = () => {
             size={70}
             style={styles.biometric}
             onPress={authenticate}
-            iconColor="gray" // Set the icon color to white
+            iconColor="rgba(255, 255, 255, 0.2)" // Set the icon color to white
           />
           <Text style={styles.biometricText}>Login with Fingerprint</Text>
         </View>
@@ -477,7 +442,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     marginTop: 8,
-    color: "gray",
+    color: "rgba(255, 255, 255, 0.22)",
   },
 });
 
