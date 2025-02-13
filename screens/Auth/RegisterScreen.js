@@ -129,7 +129,7 @@ const RegisterScreen = () => {
                             let status = await handleBiometricLogin();
 
                             if (status) {
-                              resetStackUntilTwoScreens();
+                              navigation.pop();
 
                               try {
                                 setSignup("Signing Up...");

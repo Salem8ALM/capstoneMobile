@@ -160,61 +160,6 @@ const LoginScreen = () => {
     setLogin("Login");
   };
 
-  // temporary hack to ensure no duplicate screens are piled
-  const resetStackUntilTwoScreens = () => {
-    // Temprorary hack for navigating from LoginScreen to RegisterScreen WITH SLIDING ANIMATION in place.
-    // For some reason, react navigation does not have animation for pop() function
-    // Therefore, I am using push() function to get that transition but also resetting the stack to avoid creating duplicates of the
-    // login and register screens. I am printing here the number of stacked screens to confirm its only two at the moment; login and register screens
-    // Again, this is a hack, not ideal in any way
-    // if you use pop()/goBack() with the 'presentation' defined as follows AuthNavigator:
-    //
-    // name={Routes.Auth.Register}
-    // component={RegisterScreen}
-    // options={{
-    //   headerShown: false,
-    //   presentation: transparentModal
-    // }}
-    // documentaion: https://reactnavigation.org/docs/stack-navigator/?config=dynamic#transparent-modals
-
-    // It would be removed instantly with no animation...very ugly
-    // If you don't include presentation and just use pop/goBack you will see white background during transition....Even uglier
-
-    let screenName = Routes.Auth.Register;
-    const navigationState = navigation.getState();
-    let routes = navigationState.routes;
-
-    console.log("Number of screens in the stack:", routes.length);
-
-    // Filter out duplicates by ensuring only one instance of each screen name
-    const uniqueRoutes = routes.filter(
-      (route, index, self) =>
-        index === self.findIndex((r) => r.name === route.name)
-    );
-
-    // If the screen is already in the unique routes, we need to handle it
-    const isScreenInStack = uniqueRoutes.some(
-      (route) => route.name === screenName
-    );
-
-    if (!isScreenInStack) {
-      // If the screen is not in the stack, push it to the stack with animation
-      navigation.push(screenName);
-    } else {
-      // If the screen is already in the stack, remove the duplicate and push it
-      // Filter out the duplicate screen from the stack
-      const filteredRoutes = routes.filter(
-        (route) => route.name !== screenName
-      );
-
-      // Push the screen to the top of the stack
-      navigation.reset({
-        index: filteredRoutes.length, // Keep the first screen at the top
-        routes: [...filteredRoutes, { name: screenName }],
-      });
-    }
-  };
-
   return (
     <LinearGradient
       colors={["black", "rgba(14, 16, 12, 0.95)", "black"]} // Gradient colors
@@ -234,7 +179,7 @@ const LoginScreen = () => {
             <Text style={{ color: "white" }}>Login below or </Text>
             <Text>
               <TouchableRipple
-                onPress={resetStackUntilTwoScreens}
+                onPress={() => navigation.navigate(Routes.Auth.Register)}
                 rippleColor="rgba(255, 238, 0, 0.51)"
               >
                 <Text style={styles.link}>create an account</Text>

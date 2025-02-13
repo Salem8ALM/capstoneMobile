@@ -33,7 +33,7 @@ const AuthNavigator = () => {
           name={Routes.Auth.Login}
           component={LoginScreen}
           options={{
-            animation: "slide_from_left", // Apply the slide transition to all screens
+            animation: "fade", // Apply the slide transition to all screens
             headerShown: false,
           }}
         />
@@ -41,7 +41,7 @@ const AuthNavigator = () => {
           name={Routes.Auth.Register}
           component={RegisterScreen}
           options={{
-            animation: "slide_from_right", // Apply the slide transition to all screens
+            animation: "fade", // Apply the slide transition to all screens
             headerShown: false,
           }}
         />
