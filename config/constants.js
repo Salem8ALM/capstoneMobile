@@ -1,0 +1,1 @@
+export const WEBSOCKET_BASEURL = "wss://your-backend-domain.com/ws"; 

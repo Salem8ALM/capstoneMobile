@@ -11,6 +11,7 @@ import {
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
 import { useData } from "../../../context/DataContext";
+import LoanProgressBar from '../../../components/LoanProgressBar';
 
 const LoanRequestDetails = ({ navigation }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -59,25 +60,6 @@ const LoanRequestDetails = ({ navigation }) => {
     { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.2)" },
     { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
     { icon: "minus", size: 20, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "division", size: 60, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "minus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "minus", size: 20, color: "rgba(255, 215, 0, 0.2)" },
     { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
     { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.1)" },
     { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.1)" },
@@ -85,25 +67,6 @@ const LoanRequestDetails = ({ navigation }) => {
     { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.2)" },
     { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
     { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "division", size: 60, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "minus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "plus", size: 40, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "minus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "minus", size: 20, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "division", size: 30, color: "rgba(255, 215, 0, 0.2)" },
-    { icon: "plus", size: 30, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "division", size: 20, color: "rgba(255, 215, 0, 0.1)" },
-    { icon: "plus", size: 60, color: "rgba(255, 215, 0, 0.05)" },
-    { icon: "division", size: 40, color: "rgba(255, 215, 0, 0.1)" },
   ];
 
   const handleNext = async () => {
@@ -135,6 +98,9 @@ const LoanRequestDetails = ({ navigation }) => {
     ]).start();
   }, [scaleAnim]);
 
+  const totalSteps = 3;
+  const currentStep = 1;
+
   return (
     <View style={styles.container}>
       <NotificationBanner
@@ -142,7 +108,7 @@ const LoanRequestDetails = ({ navigation }) => {
         visible={notificationVisible}
       />
       <View style={styles.content}>
-        <Text style={styles.title}>Step 1/3: Loan Details</Text>
+        <LoanProgressBar step={1} totalSteps={3} />
         <Text style={styles.subtitle}>
           Give your loan a nickname and a purpose.
         </Text>
@@ -294,6 +260,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: "center",
+    paddingBottom: 40,
   },
   title: {
     fontSize: 28,
@@ -330,6 +297,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#000",
+  },
+  progressContainer: {
+    marginBottom: 30,
+    alignItems: 'center',
+  },
+  progressBar: {
+    width: '100%',
+    height: 6,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 3,
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#FFD700',
+    borderRadius: 3,
+  },
+  progressText: {
+    color: '#A1A1AA',
+    fontSize: 14,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#ccc',
+    textAlign: 'center',
+    marginBottom: 30,
   },
 });
 

@@ -157,7 +157,12 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#1C1C1E", padding: 20 }}>
+    <View style={{ 
+      flex: 1, 
+      backgroundColor: "#1C1C1E", 
+      padding: 20,
+      paddingTop: 60, // Added top padding for iOS
+    }}>
       {/* Welcome Message */}
       <View style={{ flexDirection: "row" }}>
         <Image

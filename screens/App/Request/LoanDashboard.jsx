@@ -15,6 +15,7 @@ import { getToken } from "../../../storage/TokenStorage";
 import { getAllRequestsAPI } from "../../../api/LoanRequest";
 import LottieView from "lottie-react-native";
 import UserContext from "../../../context/UserContext";
+import { useNotifications } from '../../../context/NotificationsContext';
 
 const loanTermMap = {
   SIX_MONTHS: "6 Months",
@@ -32,10 +33,12 @@ const formatRepaymentPlan = (plan) => {
 
 export default function LoanDashboard({ navigation }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const [previousLoans, setPreviousLoans] = useState({});
 
   useEffect(() => {
     console.log("Loan Requests:", loans); // Log the loans
   }, [loans]);
+  //to
 
   const handlePressIn = () => {
     Animated.timing(scaleAnim, {
@@ -54,42 +57,59 @@ export default function LoanDashboard({ navigation }) {
   };
 
   const { loans, setLoans } = useContext(UserContext);
+  const { addNotification } = useNotifications();
 
   const getAllRequests = async () => {
     try {
       const token = await getToken("access");
+      const response = await getAllRequestsAPI(token);
+      
+      if (response?.allRequests) {
+        const updatedRequests = response.allRequests.map((request) => ({
+          ...request,
+          loanTerm: loanTermMap[request.loanTerm] || "Unknown",
+          repaymentPlan: formatRepaymentPlan(request.repaymentPlan),
+          status: request.status.replace(/_/g, " "),
+        }));
 
-      try {
-        const response = await getAllRequestsAPI(token);
-        if (response?.allRequests) {
-          const updatedRequests = response.allRequests.map((request) => ({
-            ...request,
-            loanTerm: loanTermMap[request.loanTerm] || "Unknown", // Convert backend term to user-friendly text
-            repaymentPlan: formatRepaymentPlan(request.repaymentPlan), // Format repayment plan
-            status: request.status.replace(/_/g, " "), // Format repayment plan
+        // Check for new responses
+        updatedRequests.forEach(loan => {
+          const previousLoan = previousLoans[loan.id];
+          if (previousLoan && loan.status !== previousLoan.status && loan.status.includes("NEW_RESPONSE")) {
+            addNotification({
+              type: 'loan_response',
+              title: 'New Loan Response',
+              message: `You have received a new response for loan: ${loan.loanTitle}`,
+              loanId: loan.id,
+              responseId: `${loan.id}-${loan.statusDate}`, // Create unique response ID
+              timestamp: new Date(loan.statusDate)
+            });
+          }
+        });
 
-            isNew: request.status === "NEW_RESPONSE", // Default to true as required
-          }));
-          setLoans(updatedRequests);
-        }
-      } catch (error) {
-        console.error("Unable to retrieve loan requests:", error);
+        // Update previous loans state
+        const newPreviousLoans = {};
+        updatedRequests.forEach(loan => {
+          newPreviousLoans[loan.id] = loan;
+        });
+        setPreviousLoans(newPreviousLoans);
+
+        setLoans(updatedRequests);
       }
     } catch (error) {
-      console.error("Unable to retrieve token:", error);
+      console.error("Error fetching loans:", error);
     }
   };
 
   useEffect(() => {
-    // Fetch initially
+    // Initial fetch
     getAllRequests();
 
-    // Set up interval to fetch every 3 seconds
+    // Set up polling interval
     const interval = setInterval(() => {
       getAllRequests();
     }, 3000);
 
-    // Cleanup function to clear interval on unmount
     return () => clearInterval(interval);
   }, []);
 
@@ -153,7 +173,7 @@ export default function LoanDashboard({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 20,
+    paddingTop: 10,
     flex: 1,
     backgroundColor: "#1a1a1a",
   },
