@@ -1,44 +1,82 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, FlatList } from "react-native"
-import { useNavigation } from "@react-navigation/native"
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { getChatsAPI } from "../../../api/Chat";
+import { useEffect, useState } from "react";
+import { getToken } from "../../../storage/TokenStorage";
 
-// Dummy data for banks
-const banks = [
-  {
-    id: "1",
-    name: "NBK",
-    logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-BuMjrc8FZmLcRbUJvUvfpFZ9tZrfkV.png", // Replace with actual logo URL
-    lastMessage: "How are you today?",
-    timestamp: "2 min ago",
-    unreadCount: 3,
-    isActive: true,
-  },
-  {
-    id: "2",
-    name: "Boubyan",
-    logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-BuMjrc8FZmLcRbUJvUvfpFZ9tZrfkV.png", // Replace with actual logo URL
-    lastMessage: "Don't miss to attend the meeting.",
-    timestamp: "2 min ago",
-    unreadCount: 4,
-    isActive: true,
-  },
-  {
-    id: "3",
-    name: "KIB",
-    logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-BuMjrc8FZmLcRbUJvUvfpFZ9tZrfkV.png", // Replace with actual logo URL
-    lastMessage: "Can you join the meeting?",
-    timestamp: "2 min ago",
-    unreadCount: 0,
-    isActive: false,
-  },
-]
+const avatarMap = {
+  Me: require("../../../assets/bankers/ibrahim.png"),
+  BOUBYAN_BANK: require("../../../assets/bankers/mohamed.png"),
+  KUWAIT_INTERNATIONAL_BANK: require("../../../assets/bankers/fajri.png"),
+  WARBA_BANK: require("../../../assets/bankers/salem.png"),
+};
 
 export const ChatList = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
+  const [bankers, setBankers] = useState("");
+
+  useEffect(() => {
+    const fetchChatList = async () => {
+      try {
+        const token = await getToken("access");
+        if (!token) {
+          console.warn("No token found, skipping fetch.");
+          return;
+        }
+
+        const chats = await getChatsAPI(token);
+        console.log("Fetched chats:", chats);
+
+        // Map backend response to bankers structure
+        const mappedBankers = chats.map((chat) => ({
+          id: chat.id,
+          name: chat.banker.bank,
+          logo: avatarMap[chat.banker.bank] || "default-logo-url.png", // Use a default if missing
+          lastMessage:
+            chat.messages.length > 0
+              ? chat.messages.reduce((latest, msg) =>
+                  new Date(msg.timestamp) > new Date(latest.timestamp)
+                    ? msg
+                    : latest
+                ).text
+              : "No messages yet",
+          timestamp:
+            chat.messages.length > 0
+              ? new Date(
+                  chat.messages.reduce((latest, msg) =>
+                    new Date(msg.timestamp) > new Date(latest.timestamp)
+                      ? msg
+                      : latest
+                  ).timestamp
+                ).toLocaleTimeString()
+              : "No messages",
+          unreadCount: 0, // Update if backend provides unread count
+          isActive: true, // Update based on backend data if applicable
+        }));
+
+        setBankers(mappedBankers); // Update state
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+
+    fetchChatList();
+  }, []);
 
   const renderBankItem = ({ item }) => (
-    <TouchableOpacity style={styles.bankItem} onPress={() => navigation.navigate("ChatDetail", { bank: item })}>
+    <TouchableOpacity
+      style={styles.bankItem}
+      onPress={() => navigation.navigate("ChatDetail", { itemId: item.id })}
+    >
       <View style={styles.bankInfo}>
-        <Image source={{ uri: item.logo }} style={styles.bankLogo} />
+        <Image source={item.logo} style={styles.bankLogo} />
         {item.isActive && <View style={styles.activeIndicator} />}
         <View style={styles.messagePreview}>
           <Text style={styles.bankName}>{item.name}</Text>
@@ -54,7 +92,7 @@ export const ChatList = () => {
         </View>
       </View>
     </TouchableOpacity>
-  )
+  );
 
   return (
     <View style={styles.container}>
@@ -62,14 +100,14 @@ export const ChatList = () => {
         <Text style={styles.header}>Chats</Text>
       </View>
       <FlatList
-        data={banks}
+        data={bankers}
         renderItem={renderBankItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
       />
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -149,6 +187,6 @@ const styles = StyleSheet.create({
     color: "#000000",
     fontWeight: "600",
   },
-})
+});
 
 export default ChatList;
