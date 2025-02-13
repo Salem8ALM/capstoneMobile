@@ -167,12 +167,11 @@ const LoginScreen = () => {
       start={{ x: 0, y: 0 }} // Gradient starts at the top
       end={{ x: 0, y: 1 }} // Gradient ends at the bottom
     >
-      <NotificationBanner
-        message={notificationMessage}
-        visible={notificationVisible}
-      />
-
       <View style={styles.container}>
+        <NotificationBanner
+          message={notificationMessage}
+          visible={notificationVisible}
+        />
         <View style={styles.content}>
           <Text style={styles.title}>Welcome back!</Text>
           <View style={styles.subtitle}>
