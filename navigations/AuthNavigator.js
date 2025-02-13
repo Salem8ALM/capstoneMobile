@@ -1,11 +1,12 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/Auth/LoginScreen";
-import RegisterScreen from "../screens/Auth/RegisterScreen";
 import Routes from "../utils/constants/routes";
 import { View, StyleSheet, Dimensions } from "react-native";
 import DiagonalLines from "../utils/animations/DiagonalLines";
 import { LinearGradient } from "expo-linear-gradient";
+import RegisterScreenBasic from "../screens/Auth/RegisterScreenBasic";
+import RegisterScreenAdvance from "../screens/Auth/RegisterScreenAdvance";
 
 const Stack = createNativeStackNavigator();
 
@@ -14,7 +15,7 @@ const { width, height } = Dimensions.get("window");
 const AuthNavigator = () => {
   return (
     <LinearGradient
-      colors={["black", "rgba(14, 16, 12, 1)", "black"]}
+      colors={["black", "rgb(31, 31, 22)", "black"]} // Gradient colors
       style={styles.gradient}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
@@ -45,8 +46,16 @@ const AuthNavigator = () => {
             }}
           />
           <Stack.Screen
-            name={Routes.Auth.Register}
-            component={RegisterScreen}
+            name={Routes.Auth.RegisterBasic}
+            component={RegisterScreenBasic}
+            options={{
+              animation: "fade",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name={Routes.Auth.RegisterAdvance}
+            component={RegisterScreenAdvance}
             options={{
               animation: "fade",
               headerShown: false,

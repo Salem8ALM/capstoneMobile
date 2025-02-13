@@ -3,7 +3,8 @@ import DashboardScreen from "../../screens/DashboardScreen";
 const Routes = {
   Auth: {
     Login: "Login",
-    Register: "Registration",
+    RegisterBasic: "RegisterBasic",
+    RegisterAdvance: "RegisterAdvance",
   },
   App: {
     DashboardScreen: "Dashboard Screen",

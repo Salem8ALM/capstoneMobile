@@ -29,7 +29,7 @@ import NotificationBanner from "../../utils/animations/NotificationBanner";
 
 const { width, height } = Dimensions.get("window");
 
-const RegisterScreen = () => {
+const RegisterScreenAdvance = () => {
   const navigation = useNavigation();
 
   // useStates for fields and password visibility
@@ -215,7 +215,7 @@ const RegisterScreen = () => {
 
   return (
     <LinearGradient
-      colors={["black", "rgba(14, 16, 12, 1)", "black"]} // Gradient colors
+      colors={["black", "rgb(31, 31, 22)", "black"]} // Gradient colors
       style={styles.gradient} // Full-screen gradient
       start={{ x: 0, y: 0 }} // Gradient starts at the top
       end={{ x: 0, y: 1 }} // Gradient ends at the bottom
@@ -628,4 +628,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegisterScreen;
+export default RegisterScreenAdvance;

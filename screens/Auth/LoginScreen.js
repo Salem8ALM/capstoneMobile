@@ -171,7 +171,7 @@ const LoginScreen = () => {
 
   return (
     <LinearGradient
-      colors={["black", "rgba(14, 16, 12, 1)", "black"]} // Gradient colors
+      colors={["black", "rgb(31, 31, 22)", "black"]} // Gradient colors
       style={styles.gradient} // Full-screen gradient
       start={{ x: 0, y: 0 }} // Gradient starts at the top
       end={{ x: 0, y: 1 }} // Gradient ends at the bottom
@@ -198,7 +198,7 @@ const LoginScreen = () => {
             <Text style={{ color: "white" }}>Login below or </Text>
             <Text>
               <TouchableRipple
-                onPress={() => navigation.push(Routes.Auth.Register)}
+                onPress={() => navigation.push(Routes.Auth.RegisterBasic)}
                 rippleColor="rgba(255, 238, 0, 0.51)"
               >
                 <Text style={styles.link}>create an account</Text>
@@ -366,7 +366,7 @@ const LoginScreen = () => {
             size={70}
             style={styles.biometric}
             onPress={authenticate}
-            iconColor="gray" // Set the icon color to white
+            iconColor="rgba(255, 255, 255, 0.2)" // Set the icon color to white
           />
           <Text style={styles.biometricText}>Login with Fingerprint</Text>
         </View>
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     marginTop: 8,
-    color: "gray",
+    color: "rgba(255, 255, 255, 0.22)",
   },
 });
 
