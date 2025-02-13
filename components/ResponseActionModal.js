@@ -6,6 +6,8 @@ import * as Animatable from "react-native-animatable";
 import UserContext from "../context/UserContext";
 import { acceptOfferAPI, rejectOfferAPI } from "../api/LoanRequest";
 import { getToken } from "../storage/TokenStorage";
+import { createChatEntityAPI } from "../api/Chat";
+import { useNavigation } from "@react-navigation/native";
 
 async function capitalizeFirstLetter(input) {
   if (!input) return ""; // Return an empty string if input is falsy (undefined, null, etc.)
@@ -38,6 +40,7 @@ const ResponseActionModal = ({
   const { loans } = useContext(UserContext);
   let loan = loans.find((loan) => loan.id === loanId);
 
+  const navigation = useNavigation();
   const accpetOffer = async (response) => {
     try {
       const token = await getToken("access");
@@ -62,6 +65,36 @@ const ResponseActionModal = ({
         onDismiss();
       } catch (error) {
         console.error("Unable to reject loan request:", error);
+      }
+    } catch (error) {
+      console.error("Unable to retrieve token:", error);
+    }
+  };
+
+  const negotiateOffer = async (response) => {
+    try {
+      const token = await getToken("access");
+
+      console.log("before");
+
+      const bankerId = response.banker.id;
+
+      try {
+        const chatEntity = await createChatEntityAPI(token, bankerId);
+
+        console.log(loanId);
+        console.log(response.id);
+
+        onDismiss();
+
+        navigation.navigate("Chat", {
+          screen: "ChatDetail",
+          params: {
+            itemId: chatEntity.id, // Pass bankerId as a parameter
+          },
+        });
+      } catch (error) {
+        console.error("Unable to create chat entity:", error);
       }
     } catch (error) {
       console.error("Unable to retrieve token:", error);
@@ -192,7 +225,7 @@ const ResponseActionModal = ({
                 textColor="#FFD700"
                 style={[styles.actionButton, styles.counterButton]}
                 icon="chat-processing"
-                onPress={() => onAction("counter")}
+                onPress={() => negotiateOffer(response)}
               >
                 Negotiate
               </Button>
