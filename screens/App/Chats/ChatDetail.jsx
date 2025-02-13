@@ -209,7 +209,7 @@ export const ChatDetail = ({ route }) => {
     >
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.replace("ChatList")}
           style={styles.backButton}
         >
           <Feather name="arrow-left" size={24} color="#FFFFFF" />

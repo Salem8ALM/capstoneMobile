@@ -45,7 +45,7 @@ export const ChatList = () => {
                   new Date(msg.timestamp) > new Date(latest.timestamp)
                     ? msg
                     : latest
-                ).text
+                ).characters
               : "No messages yet",
           timestamp:
             chat.messages.length > 0
@@ -67,7 +67,11 @@ export const ChatList = () => {
       }
     };
 
-    fetchChatList();
+    // Call fetchChatList every 3 seconds
+    const intervalId = setInterval(fetchChatList, 3000);
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const renderBankItem = ({ item }) => (

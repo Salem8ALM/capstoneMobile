@@ -39,6 +39,7 @@ const getChatsAPI = async (token) => {
 const createChatEntityAPI = async (token, chatTargetId) => {
   console.log(`token: ${token}`);
 
+  console.log(chatTargetId);
   try {
     const response = await instance.post(
       `${controller}/create`,
@@ -52,7 +53,7 @@ const createChatEntityAPI = async (token, chatTargetId) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error accepting offer:", error.response);
+    console.error("Error accepting offer:", error.request);
     throw error;
   }
 };
@@ -78,4 +79,4 @@ const sendMessageAPI = async (token, chatId, content) => {
   }
 };
 
-export { getMessagesAPI, sendMessageAPI, getChatsAPI };
+export { getMessagesAPI, sendMessageAPI, getChatsAPI, createChatEntityAPI };
