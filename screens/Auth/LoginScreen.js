@@ -187,11 +187,12 @@ const LoginScreen = () => {
           <Image
             source={require("../../assets/logo.png")}
             style={{
-              width: 200,
-              height: 48,
-              justifyContent: "center",
+              width: width * 0.35, // 50% of screen width
+              height: width * 0.35 * (48 / 200), // Maintain aspect ratio
               alignSelf: "center",
+              marginBottom: 50,
             }}
+            resizeMode="contain"
           />
 
           <View style={styles.subtitle}>

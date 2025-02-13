@@ -26,25 +26,28 @@ import { signupAPI } from "../../api/Auth";
 import { setToken, getToken } from "../../storage/TokenStorage";
 import { LinearGradient } from "expo-linear-gradient";
 import NotificationBanner from "../../utils/animations/NotificationBanner";
+import LottieView from "lottie-react-native";
 
 const { width, height } = Dimensions.get("window");
 
-const RegisterScreenAdvance = () => {
+const RegisterScreenAdvance = ({ route }) => {
   const navigation = useNavigation();
+  const { mobileNumber, civilId } = route.params;
 
   // useStates for fields and password visibility
   const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [civilId, setCivilId] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   // Text when clicking on login
   const [signup, setSignup] = useState("Sign Up");
 
+  const [showAnimation, setShowAnimation] = useState(false);
+
   const theme = useTheme();
+  const inputRef = useRef(null);
 
   // use state for focused field
   const [focusedField, setFocusedField] = useState("");
@@ -69,145 +72,123 @@ const RegisterScreenAdvance = () => {
   const usernameAnim = useRef(new Animated.Value(0)).current;
   const firstNameAnim = useRef(new Animated.Value(0)).current;
   const lastNameAnim = useRef(new Animated.Value(0)).current;
-  const civilIdAnim = useRef(new Animated.Value(0)).current;
-  const mobileNumberAnim = useRef(new Animated.Value(0)).current;
   const passwordAnim = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(1)).current;
   const backgroundAnim = useRef(new Animated.Value(0)).current;
+  const animationRef = useRef(null);
 
   // function to submit account creation
   const submit = async () => {
-    const civilIdNumerics = civilId.replace(/[^0-9]/g, "");
-    const mobileNumberNumerics = mobileNumber.replace(/[^0-9]/g, "");
+    if (inputRef.current) {
+      inputRef.current.blur(); // Unfocus the TextInput
+    }
+    setFocusedField("");
 
-    if (
-      !civilId ||
-      !password ||
-      !username ||
-      !firstName ||
-      !lastName ||
-      !password
-    ) {
+    if (!password || !username || !firstName || !lastName) {
       setNotificationMessage("Please ensure all fields are filled!");
       setNotificationVisible(true);
       setTimeout(() => {
         setNotificationVisible(false);
       }, 3000); // Hide the banner after 3 seconds
     } else {
-      // Ensure civil id is exactly 12 digits long
-      if (civilIdNumerics.length != 12) {
-        setNotificationMessage("Your Civil Id must be 12 numbers long!");
-        setNotificationVisible(true);
-        setTimeout(() => {
-          setNotificationVisible(false);
-        }, 3000); // Hide the banner after 3 seconds
-      } else {
-        // Ensure the number entered is exactly 8 numbers long
-        if (mobileNumberNumerics.length != 8) {
-          setNotificationMessage("Your Mobile Number must be 8 numbers long!");
-          setNotificationVisible(true);
-          setTimeout(() => {
-            setNotificationVisible(false);
-          }, 3000); // Hide the banner after 3 seconds
-        } else {
-          const existingToken = checkToken();
-          if (existingToken) {
-            Alert.alert(
-              "Already a user!",
-              "It seems you have previously logged in on this device. Would you like to replace the data of your previous account on this device with this new one?",
-              [
-                {
-                  text: "Replace",
-                  onPress: () => {
-                    Alert.alert(
-                      "Almost there!",
-                      "Authenticate biometrically to complete the sign up process.",
-                      [
-                        {
-                          text: "Authenticate",
-                          onPress: async () => {
-                            let status = await handleBiometricLogin();
+      const existingToken = checkToken();
+      if (existingToken) {
+        Alert.alert(
+          "Already a user!",
+          "It seems you have previously logged in on this device. Would you like to replace the data of your previous account on this device with this new one?",
+          [
+            {
+              text: "Replace",
+              onPress: () => {
+                Alert.alert(
+                  "Almost there!",
+                  "Authenticate biometrically to complete the sign up process.",
+                  [
+                    {
+                      text: "Authenticate",
+                      onPress: async () => {
+                        let status = await handleBiometricLogin();
 
-                            if (status) {
-                              navigation.pop();
+                        if (status) {
+                          try {
+                            setSignup("Signing Up...");
 
-                              try {
-                                setSignup("Signing Up...");
+                            const response = await signupAPI(
+                              username,
+                              firstName,
+                              lastName,
+                              civilId,
+                              mobileNumber,
+                              password,
+                              "BUSINESS_OWNER",
+                              "NOT_BANK"
+                            );
 
-                                const response = await signupAPI(
-                                  username,
-                                  firstName,
-                                  lastName,
-                                  civilId,
-                                  mobileNumber,
-                                  password,
-                                  "BUSINESS_OWNER",
-                                  "NOT_BANK"
-                                );
+                            await setToken(response.refreshToken, "refresh");
+                            setShowAnimation(true);
 
-                                // uncomment this
-                                // await setToken(response.accessToken, "access");
-                                // checkToken();
-
-                                await setToken(
-                                  response.refreshToken,
-                                  "refresh"
-                                );
-                              } catch (error) {
-                                Alert.alert(
-                                  "Failed Signup",
-                                  "A user is already registered with your civil ID. Please login with your credentials!"
-                                );
-                                setSignup("Sign Up");
-                                return;
-                              } finally {
-                                setSignup("Sign Up");
-                              }
-
+                            setTimeout(() => {
+                              setShowAnimation(false);
+                              navigation.popToTop(); // Move navigation here
                               Alert.alert(
                                 "Successfully created Account!",
                                 "Please login using your credientals or biometrically."
                               );
-                            } else {
-                              Alert.alert(
-                                "Failed creating Account!",
-                                "Please try again."
-                              );
-                            }
-                            setSignup("Sign Up");
-                          },
-                        },
-                        {
-                          text: "Cancel",
-                          onPress: () => setSignup("Sign Up"),
-                          style: "cancel",
-                        },
-                      ],
-                      { cancelable: true } // Allows dismissing the alert by tapping outside
-                    );
-                  },
-                },
-                {
-                  text: "Cancel",
-                  onPress: () => {
-                    setSignup("Sign Up");
-                    return;
-                  },
+                            }, 3000);
+                          } catch (error) {
+                            setNotificationMessage(
+                              "Your civil Id is already registered with."
+                            );
 
-                  style: "cancel",
-                },
-              ]
-            );
-          } else {
-            setNotificationMessage(
-              "Failed signing up. Ensure you're connected to internet"
-            );
-            setNotificationVisible(true);
-            setTimeout(() => {
-              setNotificationVisible(false);
-            }, 3000); // Hide the banner after 3 seconds
-          }
-        }
+                            setNotificationVisible(true);
+                            setTimeout(() => {
+                              setNotificationVisible(false);
+                            }, 3000); // Hide the banner after 3 seconds
+
+                            setSignup("Sign Up");
+                            return;
+                          }
+                        } else {
+                          setNotificationMessage(
+                            "Failed creating account! Try again."
+                          );
+                          setNotificationVisible(true);
+                          setTimeout(() => {
+                            setNotificationVisible(false);
+                          }, 3000); // Hide the banner after 3 seconds
+                        }
+                        setSignup("Sign Up");
+                      },
+                    },
+                    {
+                      text: "Cancel",
+                      onPress: () => setSignup("Sign Up"),
+                      style: "cancel",
+                    },
+                  ],
+                  { cancelable: true } // Allows dismissing the alert by tapping outside
+                );
+              },
+            },
+            {
+              text: "Cancel",
+              onPress: () => {
+                setSignup("Sign Up");
+                return;
+              },
+
+              style: "cancel",
+            },
+          ]
+        );
+      } else {
+        setNotificationMessage(
+          "Failed signing up. Ensure you're connected to internet"
+        );
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       }
     }
     setSignup("Sign Up");
@@ -227,16 +208,10 @@ const RegisterScreenAdvance = () => {
 
       <View style={styles.container}>
         <View style={styles.content}>
-          <Text style={styles.title}>Sign Up</Text>
+          <Text style={styles.title}>Almost there!</Text>
           <View style={styles.subtitle}>
-            <Text style={{ color: "white" }}>Sign up below or </Text>
-            <Text>
-              <TouchableRipple
-                onPress={() => navigation.pop()}
-                rippleColor="rgba(255, 238, 0, 0.51)"
-              >
-                <Text style={styles.link}>Login with an Existing account</Text>
-              </TouchableRipple>
+            <Text style={{ color: "white" }}>
+              Lastly, We'll need the following details for banks
             </Text>
           </View>
 
@@ -260,6 +235,7 @@ const RegisterScreenAdvance = () => {
               value={username}
               onChangeText={setUsername}
               mode="outlined"
+              ref={inputRef}
               autoCapitalize="none" // Disable auto-capitalization
               keyboardType="default" // Default keyboard for mixed input
               textContentType="username" // Hints the type of input to autofill services
@@ -307,6 +283,7 @@ const RegisterScreenAdvance = () => {
               value={firstName}
               onChangeText={setFirstName}
               mode="outlined"
+              ref={inputRef}
               autoCapitalize="words" // Automatically capitalize the first letter of each word
               keyboardType="default" // Standard keyboard
               textContentType="name" // Hint for autofill services
@@ -355,6 +332,7 @@ const RegisterScreenAdvance = () => {
               value={lastName}
               onChangeText={setLastName}
               mode="outlined"
+              ref={inputRef}
               left={
                 <TextInput.Icon
                   icon="format-letter-ends-with"
@@ -386,91 +364,6 @@ const RegisterScreenAdvance = () => {
             style={[
               styles.inputContainer,
               {
-                // scales up and down the field
-                transform: [
-                  {
-                    scale: civilIdAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [1, 1.05],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            <TextInput
-              label="Civil ID"
-              value={civilId}
-              onChangeText={setCivilId}
-              mode="outlined"
-              left={
-                <TextInput.Icon
-                  icon="account"
-                  color={
-                    focusedField === "civilId"
-                      ? "#FFD700"
-                      : "rgba(255,255,255,0.2)"
-                  }
-                />
-              }
-              maxLength={12}
-              inputMode="numeric"
-              textColor="white"
-              style={[styles.input]}
-              onFocus={() => {
-                setFocusedField("civilId");
-                animateField(civilIdAnim, 1);
-              }}
-              onBlur={() => {
-                setFocusedField("");
-                animateField(civilIdAnim, 0);
-              }}
-              theme={{ colors: { primary: "#FFD700" } }} // Dark background
-            />
-          </Animated.View>
-
-          <Animated.View
-            style={[
-              styles.inputContainer,
-              {
-                // scales up and down the field
-                transform: [
-                  {
-                    scale: mobileNumberAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [1, 1.05],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            <TextInput
-              label="Mobile Number"
-              value={mobileNumber}
-              onChangeText={setMobileNumber}
-              mode="outlined"
-              left={<TextInput.Affix text="+965" />}
-              maxLength={8}
-              inputMode="numeric"
-              textColor="white"
-              style={[styles.input]}
-              onFocus={() => {
-                setFocusedField("mobileNumber");
-                animateField(mobileNumberAnim, 1);
-              }}
-              onBlur={() => {
-                setFocusedField("");
-                animateField(mobileNumberAnim, 0);
-              }}
-              theme={{ colors: { primary: "#FFD700" } }} // Dark background
-            />
-          </Animated.View>
-
-          <Animated.View
-            style={[
-              styles.inputContainer,
-              {
                 transform: [
                   {
                     scale: passwordAnim.interpolate({
@@ -489,6 +382,7 @@ const RegisterScreenAdvance = () => {
               onChangeText={setPassword}
               secureTextEntry={secureTextEntry}
               mode="outlined"
+              ref={inputRef}
               left={
                 <TextInput.Icon
                   icon="lock"
@@ -547,6 +441,17 @@ const RegisterScreenAdvance = () => {
           </Animated.View>
         </View>
       </View>
+      {showAnimation && (
+        <View style={styles.overlay}>
+          <LottieView
+            ref={animationRef}
+            source={require("../../assets/accountCreation.json")}
+            autoPlay
+            loop={false}
+            style={styles.animation}
+          />
+        </View>
+      )}
     </LinearGradient>
   );
 };
@@ -555,6 +460,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
+  },
+  overlay: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.9)", // Semi-transparent black
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  animation: {
+    width: 350,
+    height: 350,
   },
   gradient: {
     flex: 1, // Ensures the gradient covers the entire screen
@@ -600,13 +517,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   input: {
-    marginBottom: 20,
+    marginBottom: 10,
     backgroundColor: "rgb(8, 8, 8)24)", // Dark background for input
   },
   button: {
     backgroundColor: "#FFD700",
     padding: 5,
     borderRadius: 8,
+    marginTop: 20,
   },
   buttonText: {
     fontSize: 16,

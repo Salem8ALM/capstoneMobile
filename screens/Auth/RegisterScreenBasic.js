@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   Animated,
-  Alert,
   Dimensions,
   TouchableOpacity,
   Image,
@@ -17,15 +16,11 @@ import {
 } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import Routes from "../../utils/constants/routes";
-import UserContext from "../../context/UserContext";
 import { animateField } from "../../utils/animations/animations";
-import { handleBiometricLogin } from "./auth-utils/handleBiometricLogin";
 import {
   handlePressIn,
   handlePressOut,
 } from "../../utils/animations/buttonAnimations";
-import { signupAPI } from "../../api/Auth";
-import { setToken, getToken } from "../../storage/TokenStorage";
 import { LinearGradient } from "expo-linear-gradient";
 import NotificationBanner from "../../utils/animations/NotificationBanner";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -52,15 +47,11 @@ const RegisterScreenBasic = () => {
   const civilIdAnim = useRef(new Animated.Value(0)).current;
   const mobileNumberAnim = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(1)).current;
-  const backgroundAnim = useRef(new Animated.Value(0)).current;
 
   const avatarAnim = useRef(new Animated.Value(0)).current;
   const [avatar, setAvatar] = useState(null);
   const [avatarIcon, setAvatarIcon] = useState("account");
   const inputRef = useRef(null);
-
-  const [uploadText, setUploadText] = useState("Attach financial Statement"); // Default button text
-  const [uploadIcon, setUploadIcon] = useState("file-upload"); // Default button text
 
   const pressIn = () => {
     Animated.sequence([
@@ -84,10 +75,10 @@ const RegisterScreenBasic = () => {
 
   // for both financial statement pdf upload and
   const pickFile = async (setSelected) => {
-    setFocusedField("");
     if (inputRef.current) {
       inputRef.current.blur(); // Unfocus the TextInput
     }
+    setFocusedField("");
 
     try {
       // Request permission to access the media library
@@ -130,8 +121,12 @@ const RegisterScreenBasic = () => {
   };
 
   const submit = () => {
-    if (!civilId || !mobileNumber) {
-      setNotificationMessage("Please ensure both fields are filled!");
+    setFocusedField("");
+    if (inputRef.current) {
+      inputRef.current.blur(); // Unfocus the TextInput
+    }
+    if (!civilId || !mobileNumber || !avatar) {
+      setNotificationMessage("Please ensure all fields are filled!");
       setNotificationVisible(true);
       setTimeout(() => {
         setNotificationVisible(false);
@@ -151,7 +146,10 @@ const RegisterScreenBasic = () => {
             setNotificationVisible(false);
           }, 3000); // Hide the banner after 3 seconds
         } else {
-          navigation.navigate(Routes.Auth.RegisterAdvance);
+          navigation.navigate(Routes.Auth.RegisterAdvance, {
+            civilId: civilId,
+            mobileNumber: mobileNumber,
+          });
         }
       }
     }
@@ -239,6 +237,7 @@ const RegisterScreenBasic = () => {
               value={civilId}
               onChangeText={setCivilId}
               mode="outlined"
+              ref={inputRef}
               left={
                 <TextInput.Icon
                   icon="account"
@@ -286,6 +285,7 @@ const RegisterScreenBasic = () => {
               value={mobileNumber}
               onChangeText={setMobileNumber}
               mode="outlined"
+              ref={inputRef}
               left={
                 <TextInput.Icon
                   icon="phone"
