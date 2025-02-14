@@ -227,6 +227,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    borderRadius: 30,
   },
   scrollContent: {
     padding: 16,
