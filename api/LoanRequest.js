@@ -17,15 +17,12 @@ const sendLoanRequest = async (token, request) => {
 };
 
 const getAllRequestsAPI = async (token) => {
-  console.log(`token: ${token}`);
-
   try {
     const response = await instance.get(controller + "/request/all", {
       headers: {
         Authorization: `Bearer ${token}`, // Attach the token here
       },
     });
-    console.log(response.data);
 
     return response.data;
   } catch (error) {

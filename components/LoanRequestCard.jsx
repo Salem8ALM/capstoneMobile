@@ -13,15 +13,15 @@ const formatDateTime = (dateTimeString) => {
 };
 
 export const LoanRequestCard = ({
-  loanTitle,
-  loanPurpose,
-  status,
-  amount,
-  loanTerm,
-  repaymentPlan,
-  statusDate,
-  isNew,
-  onPress,
+  loanTitle = "No title provided",
+  loanPurpose = "No purpose specified",
+  status = "Unknown",
+  amount = 0,
+  loanTerm = "N/A",
+  repaymentPlan = "N/A",
+  statusDate = "N/A",
+  isNew = false,
+  onPress = () => {},
 }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -103,7 +103,7 @@ export const LoanRequestCard = ({
                   />
 
                   <Text variant="titleMedium" style={styles.title}>
-                    {loanTitle}
+                    {loanTitle ? loanTitle : "no title provided"}
                   </Text>
                   {status === "NEW RESPONSE" && (
                     <Badge style={styles.newBadge}>Pending</Badge>
@@ -123,7 +123,7 @@ export const LoanRequestCard = ({
               </View>
 
               <Text variant="bodySmall" style={styles.purpose}>
-                {loanPurpose}
+                {loanPurpose ? loanPurpose : "no purpose provided"}
               </Text>
 
               <View style={styles.detailsGrid}>
@@ -133,7 +133,9 @@ export const LoanRequestCard = ({
                   </Text>
                   <View style={styles.amountContainer}>
                     <Text variant="bodyMedium" style={styles.value}>
-                      {amount.toLocaleString() + " KWD"}
+                      {amount
+                        ? amount.toLocaleString() + " KWD"
+                        : "No amount provided"}
                     </Text>
                   </View>
                 </View>
@@ -143,7 +145,7 @@ export const LoanRequestCard = ({
                     Loan Term
                   </Text>
                   <Text variant="bodyMedium" style={styles.value}>
-                    {loanTerm}
+                    {loanTerm ? loanTerm : "No term provided"}
                   </Text>
                 </View>
 
@@ -152,7 +154,9 @@ export const LoanRequestCard = ({
                     Repayment Plan
                   </Text>
                   <Text variant="bodyMedium" style={styles.value}>
-                    {repaymentPlan}
+                    {repaymentPlan
+                      ? repaymentPlan
+                      : "No Repayment plan is provided"}
                   </Text>
                 </View>
 
@@ -161,7 +165,7 @@ export const LoanRequestCard = ({
                     Last Updated
                   </Text>
                   <Text variant="bodyMedium" style={styles.value}>
-                    {formatDateTime(statusDate)}
+                    {statusDate ? formatDateTime(statusDate) : "No status Date"}
                   </Text>
                 </View>
               </View>

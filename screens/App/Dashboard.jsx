@@ -141,6 +141,7 @@ const HomeScreen = () => {
           token,
           business.entity.businessAvatarFileId
         );
+        
         if (image) {
           setAvatarUri(image);
         } else {
