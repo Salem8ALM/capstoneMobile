@@ -16,6 +16,7 @@ import { getAllRequestsAPI } from "../../../api/LoanRequest";
 import LottieView from "lottie-react-native";
 import UserContext from "../../../context/UserContext";
 import { useNotifications } from "../../../context/NotificationsContext";
+import NotificationBanner from "../../../utils/animations/NotificationBanner";
 
 const loanTermMap = {
   SIX_MONTHS: "6 Months",
@@ -35,10 +36,10 @@ export default function LoanDashboard({ navigation }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const [previousLoans, setPreviousLoans] = useState({});
 
-  useEffect(() => {
-    console.log("Loan Requests:", loans); // Log the loans
-  }, [loans]);
-  //to
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
+  const { loans, setLoans } = useContext(UserContext);
+  const { addNotification } = useNotifications();
 
   const handlePressIn = () => {
     Animated.timing(scaleAnim, {
@@ -56,15 +57,12 @@ export default function LoanDashboard({ navigation }) {
     }).start(() => navigation.navigate(Routes.LoanRequest.LoanRequestIntro));
   };
 
-  const { loans, setLoans } = useContext(UserContext);
-  const { addNotification } = useNotifications();
-
   const getAllRequests = async () => {
     try {
       const token = await getToken("access");
       const response = await getAllRequestsAPI(token);
 
-      if (response?.allRequests) {
+      if (response && response.allRequests) {
         const updatedRequests = response.allRequests.map((request) => ({
           ...request,
           loanTerm: loanTermMap[request.loanTerm] || "Unknown",
@@ -99,9 +97,20 @@ export default function LoanDashboard({ navigation }) {
         setPreviousLoans(newPreviousLoans);
 
         setLoans(updatedRequests);
+      } else {
+        // Handle cases where the response doesn't have the expected structure
+        setNotificationMessage("Invalid response format");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       }
     } catch (error) {
-      console.error("Error fetching loans:", error);
+      setNotificationMessage("unable to fetch loans at the moment");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
   };
 
@@ -119,6 +128,10 @@ export default function LoanDashboard({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
       <Appbar.Header style={styles.header}>
         <Appbar.Content title="Loan Requests" titleStyle={styles.headerTitle} />
         <TouchableOpacity
@@ -138,12 +151,11 @@ export default function LoanDashboard({ navigation }) {
           </Animated.View>
         </TouchableOpacity>
       </Appbar.Header>
-
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
       >
-        {loans.length === 0 ? (
+        {!loans || loans.length === 0 ? (
           <View style={styles.noMessagesContainer}>
             <LottieView
               source={require("../../../assets/no-message.json")}
@@ -215,6 +227,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    borderRadius: 30,
   },
   scrollContent: {
     padding: 16,

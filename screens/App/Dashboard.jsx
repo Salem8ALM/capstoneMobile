@@ -32,6 +32,7 @@ import UserContext from "../../context/UserContext";
 import { fetchImage } from "../../api/Generic";
 import { getToken } from "../../storage/TokenStorage";
 import FinancialAnalysisModal from "../../components/FinancialAnalysisModal";
+import NotificationBanner from "../../utils/animations/NotificationBanner";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -40,6 +41,9 @@ const HomeScreen = () => {
 
   const translateXButton1 = useRef(new Animated.Value(-screenWidth)).current;
   const translateXButton2 = useRef(new Animated.Value(-screenWidth)).current;
+
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   const scoreWidth = useRef(new Animated.Value(0)).current; // Initial width of 0%
 
@@ -68,10 +72,6 @@ const HomeScreen = () => {
     businessAvatar,
     setBusinessAvatar,
   } = useContext(UserContext);
-
-  const onPress = () => {
-    console.log();
-  };
 
   useEffect(() => {
     // Animation for Button 1 (faster pace)
@@ -127,7 +127,13 @@ const HomeScreen = () => {
       try {
         const token = await getToken("access");
         if (!token) {
-          console.warn("No token found, skipping image fetch.");
+          setNotificationMessage(
+            "Unable to fetch business information. Ensure your logged in"
+          );
+          setNotificationVisible(true);
+          setTimeout(() => {
+            setNotificationVisible(false);
+          }, 3000); // Hide the banner after 3 seconds
           return;
         }
 
@@ -135,13 +141,26 @@ const HomeScreen = () => {
           token,
           business.entity.businessAvatarFileId
         );
+        
         if (image) {
           setAvatarUri(image);
         } else {
-          console.warn("Fetched image is null or undefined.");
+          setNotificationMessage(
+            "Unable to fetch business avatar. Ensure internet connection"
+          );
+          setNotificationVisible(true);
+          setTimeout(() => {
+            setNotificationVisible(false);
+          }, 3000); // Hide the banner after 3 seconds
         }
       } catch (error) {
-        console.error("Error fetching business avatar:", error);
+        setNotificationMessage(
+          "Unable to fetch business avatar. Ensure internet connection"
+        );
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       }
     };
 
@@ -149,7 +168,6 @@ const HomeScreen = () => {
   }, []); // Runs only on mount
 
   const handleSubmit = async () => {
-    console.log("apply for a logn");
     navigation.navigate("Requests", {
       screen: Routes.LoanRequest.LoanRequestIntro,
     });
@@ -162,6 +180,11 @@ const HomeScreen = () => {
         Platform.OS === "ios" && { paddingTop: 60 },
       ]}
     >
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
+
       {/* Welcome Message */}
       <View style={{ flexDirection: "row" }}>
         <Image

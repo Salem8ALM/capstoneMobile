@@ -17,15 +17,12 @@ const sendLoanRequest = async (token, request) => {
 };
 
 const getAllRequestsAPI = async (token) => {
-  console.log(`token: ${token}`);
-
   try {
     const response = await instance.get(controller + "/request/all", {
       headers: {
         Authorization: `Bearer ${token}`, // Attach the token here
       },
     });
-    console.log(response.data);
 
     return response.data;
   } catch (error) {
@@ -48,14 +45,11 @@ const acceptOfferAPI = async (token, loanRequestId, loanResponseId) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error accepting offer:", error);
     throw error;
   }
 };
 
 const withdrawLoanRequestAPI = async (token, id) => {
-  console.log(`token: ${token}`);
-
   try {
     const response = await instance.post(
       `${controller}/offer/withdraw/${id}`,
@@ -69,13 +63,13 @@ const withdrawLoanRequestAPI = async (token, id) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error accepting offer:", error.response);
+    console.log("Error to withdraw:", error);
+
     throw error;
   }
 };
 
 const rejectOfferAPI = async (token, loanRequestId, loanResponseId) => {
-  console.log(`token: ${token}`);
   try {
     const response = await instance.post(
       `${controller}/offer/reject`,
@@ -88,7 +82,7 @@ const rejectOfferAPI = async (token, loanRequestId, loanResponseId) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error accepting offer:", error);
+    console.log("Error accepting offer:", error);
     throw error;
   }
 };

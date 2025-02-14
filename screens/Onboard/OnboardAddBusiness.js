@@ -297,6 +297,8 @@ const OnboardAddBusiness = () => {
               const businessData = await checkBusinessEntity(token);
               setBusiness(businessData); // Store business data in state
 
+              setBusiness(businessData); // Store business data in state
+
               setAnimationState("success");
 
               // ✅ Ensure the animation plays before setting onboarded

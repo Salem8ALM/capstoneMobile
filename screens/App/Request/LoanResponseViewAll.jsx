@@ -25,6 +25,7 @@ import LottieView from "lottie-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { Dimensions } from "react-native";
+import NotificationBanner from "../../../utils/animations/NotificationBanner";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -71,8 +72,6 @@ const statusPriority = {
 };
 
 const LoanRequestDetails = ({ route, navigation }) => {
-  const { loanId } = route.params;
-
   const { loans, setLoans } = useContext(UserContext);
 
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
@@ -81,8 +80,12 @@ const LoanRequestDetails = ({ route, navigation }) => {
 
   const translateXAnim = useRef(new Animated.Value(-screenWidth * 1.5)).current;
 
-  let loan = loans.find((loan) => loan.id === loanId);
+  const { loanId } = route.params;
+  let loan = loans.find((loan) => loan.id === loanId) || {};
   const [responses, setResponses] = useState([]);
+
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   const withdrawRequest = async () => {
     try {
@@ -95,8 +98,14 @@ const LoanRequestDetails = ({ route, navigation }) => {
       await getAllRequests();
       navigation.pop();
     } catch (error) {
-      
-      console.error("Unable to retrieve loan requests:", error);
+      setSelectedResponse(false);
+      setNotificationMessage(
+        "Unable to withdraw loan request at the moment. Try later."
+      );
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
   };
 
@@ -117,7 +126,13 @@ const LoanRequestDetails = ({ route, navigation }) => {
         setLoans(updatedRequests);
       }
     } catch (error) {
-      console.error("Unable to retrieve loan requests:", error);
+      setNotificationMessage(
+        "Unable to retrieve loan responses. Check internet connection"
+      );
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
   };
 
@@ -135,6 +150,12 @@ const LoanRequestDetails = ({ route, navigation }) => {
     // Fetch initially
     getAllRequests();
   }, []);
+
+  useEffect(() => {
+    if (!showWithdrawDialog) {
+      console.log("Dialog should be closed now");
+    }
+  }, [showWithdrawDialog]);
 
   useEffect(() => {
     Animated.loop(
@@ -155,9 +176,11 @@ const LoanRequestDetails = ({ route, navigation }) => {
   }, []);
 
   useEffect(() => {
-    const loan = loans.find((loan) => loan.id === loanId);
-    setResponses(loan ? loan.loanResponses : []);
-  }, [loans, loanId]); // <- This ensures responses update when loans change
+    if (loanId) {
+      loan = loans.find((loan) => loan.id === loanId) || {};
+      setResponses(loan ? loan.loanResponses : []);
+    }
+  }, [loanId, loans]); // Re-run when loanId or loans change
 
   const handleResponsePress = (response) => {
     if (
@@ -241,6 +264,11 @@ const LoanRequestDetails = ({ route, navigation }) => {
       )}
       scrollEventThrottle={16}
     >
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
+
       <Animatable.View
         animation="fadeInDown"
         duration={1000}
@@ -257,13 +285,17 @@ const LoanRequestDetails = ({ route, navigation }) => {
             size={24}
             color="#FFD700"
           />
-          <Text style={styles.title}>{loan.loanTitle}</Text>
+          <Text style={styles.title}>
+            {loan ? loan.loanTitle : "No title found"}
+          </Text>
           <Animatable.View
             animation="pulse"
             iterationCount="infinite"
             duration={2000}
           >
-            <Badge style={styles.statusBadge}>{loan.status}</Badge>
+            <Badge style={styles.statusBadge}>
+              {loan ? loan.status : "No status found"}
+            </Badge>
           </Animatable.View>
         </Animated.View>
 
@@ -273,14 +305,18 @@ const LoanRequestDetails = ({ route, navigation }) => {
               <View style={styles.detailItem}>
                 {renderIcon("cash-multiple")}
                 <Text style={styles.label}>Loan Amount</Text>
-                <Text
-                  style={styles.value}
-                >{`${loan.amount.toLocaleString()} KWD`}</Text>
+                <Text style={styles.value}>
+                  {loan
+                    ? `${loan.amount.toLocaleString()} KWD`
+                    : "No amount found"}
+                </Text>
               </View>
               <View style={styles.detailItem}>
                 {renderIcon("calendar-clock")}
                 <Text style={styles.label}>Loan Term</Text>
-                <Text style={styles.value}>{loan.loanTerm}</Text>
+                <Text style={styles.value}>
+                  {loan ? loan.loanTerm : "No loan Term found"}
+                </Text>
               </View>
             </View>
 
@@ -288,13 +324,17 @@ const LoanRequestDetails = ({ route, navigation }) => {
               <View style={styles.detailItem}>
                 {renderIcon("calendar-sync")}
                 <Text style={styles.label}>Repayment Plan</Text>
-                <Text style={styles.value}>{loan.repaymentPlan}</Text>
+                <Text style={styles.value}>
+                  {loan ? loan.repaymentPlan : "No repayment plan found"}
+                </Text>
               </View>
               <View style={styles.detailItem}>
                 {renderIcon("clock-outline")}
                 <Text style={styles.label}>Status Date</Text>
                 <Text style={styles.value}>
-                  {formatDateTime(loan.statusDate)}
+                  {loan
+                    ? formatDateTime(loan.statusDate)
+                    : "No Status Date found."}
                 </Text>
               </View>
             </View>
@@ -302,7 +342,9 @@ const LoanRequestDetails = ({ route, navigation }) => {
             <View style={styles.purposeSection}>
               {renderIcon("text-box-outline")}
               <Text style={styles.label}>Purpose/Description</Text>
-              <Text style={styles.description}>{loan.loanPurpose}</Text>
+              <Text style={styles.description}>
+                {loan ? loan.loanPurpose : "no purpose"}
+              </Text>
             </View>
 
             {loan.status !== "APPROVED" && (
@@ -329,7 +371,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
       </Animatable.View>
 
       <View style={styles.responsesSection}>
-        {sortedResponses.length === 0 ? (
+        {!sortedResponses || sortedResponses.length === 0 ? (
           <View style={styles.noMessagesContainer}>
             <LottieView
               source={require("../../../assets/responses_waiting.json")}
@@ -337,6 +379,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
               loop
               style={styles.lottieAnimation}
             />
+            
             <Text style={styles.noMessagesText}>No Bank Offers so far</Text>
           </View>
         ) : (
@@ -531,11 +574,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
             >
               Cancel
             </Button>
-            <Button
-              onPress={() => withdrawRequest()}
-              textColor="#F44336"
-              icon="check"
-            >
+            <Button onPress={withdrawRequest} textColor="#F44336" icon="check">
               Withdraw
             </Button>
           </Dialog.Actions>
