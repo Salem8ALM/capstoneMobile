@@ -98,7 +98,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
       await getAllRequests();
       navigation.pop();
     } catch (error) {
-      setSelectedResponse(false);
+      setShowWithdrawDialog(null);
       setNotificationMessage(
         "Unable to withdraw loan request at the moment. Try later."
       );
@@ -379,7 +379,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
               loop
               style={styles.lottieAnimation}
             />
-            
+
             <Text style={styles.noMessagesText}>No Bank Offers so far</Text>
           </View>
         ) : (
@@ -462,7 +462,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
                             )}
                           </Text>
                           <Text style={{ color: "rgb(104, 104, 104)" }}>
-                            {`+(965)${response.banker.mobileNumber}`}
+                            {`+(965) ${response.banker.mobileNumber}`}
                           </Text>
                           <View style={styles.dateContainer}>
                             {renderIcon("clock-outline", "#9E9E9E")}

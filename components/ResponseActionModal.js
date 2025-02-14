@@ -45,15 +45,12 @@ const ResponseActionModal = ({
     try {
       const token = await getToken("access");
 
-      try {
-        await acceptOfferAPI(token, loanId, response.id);
-        onDismiss();
-      } catch (error) {
-        console.error("Unable to retrieve loan requests:", error);
-      }
+      // await acceptOfferAPI(token, loanId, response.id);
+      await acceptOfferAPI();
     } catch (error) {
       console.error("Unable to retrieve token:", error);
     }
+    onDismiss();
   };
 
   const rejectOffer = async (response) => {
@@ -132,7 +129,7 @@ const ResponseActionModal = ({
               <MaterialCommunityIcons name="bank" size={40} color="#FFD700" />
             </View>
             <Image
-              source={bankIcons[response?.banker.bank]}
+              source={response ? bankIcons[response?.banker.bank] : null}
               style={{
                 width: 70,
                 height: 70,
@@ -194,12 +191,14 @@ const ResponseActionModal = ({
               />
               <Text style={styles.detailText}>
                 Representative:
-                {capitalizeFirstLetter(
-                  "_" +
-                    response?.banker.firstName +
-                    "_" +
-                    response?.banker.lastName
-                )}
+                {response
+                  ? capitalizeFirstLetter(
+                      "_" +
+                        response?.banker.firstName +
+                        "_" +
+                        response?.banker.lastName
+                    )
+                  : "No one Assigned"}
               </Text>
             </View>
           </Animatable.View>
