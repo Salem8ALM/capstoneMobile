@@ -64,9 +64,6 @@ export default function LoanRequestBankSelection({ navigation, route }) {
     }).start();
   }, [reviewAnim]);
 
-  const totalSteps = 3;
-  const currentStep = 3;
-
   return (
     <View style={styles.container}>
       <NotificationBanner

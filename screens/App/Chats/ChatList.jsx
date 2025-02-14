@@ -8,9 +8,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getChatsAPI } from "../../../api/Chat";
-import { useEffect, useState ,SafeAreaView} from "react";
+import { useEffect, useState, SafeAreaView } from "react";
 import { getToken } from "../../../storage/TokenStorage";
-import { useNotifications } from '../../../context/NotificationsContext';
+import { useNotifications } from "../../../context/NotificationsContext";
 
 const avatarMap = {
   Me: require("../../../assets/bankers/ibrahim.png"),
@@ -35,39 +35,44 @@ export const ChatList = () => {
         }
 
         const chats = await getChatsAPI(token);
-        
+
         // Map backend response to bankers structure
         const mappedBankers = chats.map((chat) => ({
           id: chat.id,
           name: chat.banker.bank,
           logo: avatarMap[chat.banker.bank] || "default-logo-url.png",
-          lastMessage: chat.messages.length > 0 
-            ? chat.messages[chat.messages.length - 1].characters 
-            : "No messages yet",
-          timestamp: chat.messages.length > 0 
-            ? new Date(chat.messages[chat.messages.length - 1].timestamp).toLocaleTimeString()
-            : "No messages",
+          lastMessage:
+            chat.messages.length > 0
+              ? chat.messages[chat.messages.length - 1].characters
+              : "No messages yet",
+          timestamp:
+            chat.messages.length > 0
+              ? new Date(
+                  chat.messages[chat.messages.length - 1].timestamp
+                ).toLocaleTimeString()
+              : "No messages",
           messages: chat.messages,
           unreadCount: 0,
           isActive: true,
         }));
 
         // Check for new messages and create notifications
-        mappedBankers.forEach(banker => {
+        mappedBankers.forEach((banker) => {
           const previousChat = previousMessages[banker.id];
           if (previousChat) {
-            const newMessages = banker.messages.filter(msg => 
-              !previousChat.messages.find(prevMsg => prevMsg.id === msg.id)
+            const newMessages = banker.messages.filter(
+              (msg) =>
+                !previousChat.messages.find((prevMsg) => prevMsg.id === msg.id)
             );
-            
-            newMessages.forEach(msg => {
+
+            newMessages.forEach((msg) => {
               addNotification({
-                type: 'message',
+                type: "message",
                 title: `New message from ${banker.name}`,
                 message: msg.characters,
                 chatId: banker.id,
                 messageId: msg.id,
-                timestamp: new Date(msg.timestamp)
+                timestamp: new Date(msg.timestamp),
               });
             });
           }
@@ -75,14 +80,14 @@ export const ChatList = () => {
 
         // Update previous messages state
         const newPreviousMessages = {};
-        mappedBankers.forEach(banker => {
+        mappedBankers.forEach((banker) => {
           newPreviousMessages[banker.id] = banker;
         });
         setPreviousMessages(newPreviousMessages);
 
         setBankers(mappedBankers);
       } catch (error) {
-        console.error("Error fetching messages:", error);
+        console.log("Error fetching messages:", error);
       }
     };
 
@@ -122,10 +127,10 @@ export const ChatList = () => {
 
   const handleNewMessage = (message) => {
     addNotification({
-      type: 'message',
+      type: "message",
       title: `New message from ${message.senderName}`,
       message: message.preview,
-      chatId: message.chatId
+      chatId: message.chatId,
     });
   };
 

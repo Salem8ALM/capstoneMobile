@@ -15,7 +15,7 @@ import { getToken } from "../../../storage/TokenStorage";
 import { getAllRequestsAPI } from "../../../api/LoanRequest";
 import LottieView from "lottie-react-native";
 import UserContext from "../../../context/UserContext";
-import { useNotifications } from '../../../context/NotificationsContext';
+import { useNotifications } from "../../../context/NotificationsContext";
 
 const loanTermMap = {
   SIX_MONTHS: "6 Months",
@@ -63,7 +63,7 @@ export default function LoanDashboard({ navigation }) {
     try {
       const token = await getToken("access");
       const response = await getAllRequestsAPI(token);
-      
+
       if (response?.allRequests) {
         const updatedRequests = response.allRequests.map((request) => ({
           ...request,
@@ -73,23 +73,27 @@ export default function LoanDashboard({ navigation }) {
         }));
 
         // Check for new responses
-        updatedRequests.forEach(loan => {
+        updatedRequests.forEach((loan) => {
           const previousLoan = previousLoans[loan.id];
-          if (previousLoan && loan.status !== previousLoan.status && loan.status.includes("NEW_RESPONSE")) {
+          if (
+            previousLoan &&
+            loan.status !== previousLoan.status &&
+            loan.status.includes("NEW_RESPONSE")
+          ) {
             addNotification({
-              type: 'loan_response',
-              title: 'New Loan Response',
+              type: "loan_response",
+              title: "New Loan Response",
               message: `You have received a new response for loan: ${loan.loanTitle}`,
               loanId: loan.id,
               responseId: `${loan.id}-${loan.statusDate}`, // Create unique response ID
-              timestamp: new Date(loan.statusDate)
+              timestamp: new Date(loan.statusDate),
             });
           }
         });
 
         // Update previous loans state
         const newPreviousLoans = {};
-        updatedRequests.forEach(loan => {
+        updatedRequests.forEach((loan) => {
           newPreviousLoans[loan.id] = loan;
         });
         setPreviousLoans(newPreviousLoans);

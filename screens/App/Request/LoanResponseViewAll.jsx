@@ -95,6 +95,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
       await getAllRequests();
       navigation.pop();
     } catch (error) {
+      
       console.error("Unable to retrieve loan requests:", error);
     }
   };
@@ -674,7 +675,6 @@ const styles = StyleSheet.create({
   responseDate: {
     color: "#9E9E9E",
     fontSize: 12,
-    marginTop: 5,
   },
   decisionSection: {
     borderLeftWidth: 4,
