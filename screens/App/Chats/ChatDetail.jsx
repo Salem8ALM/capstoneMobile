@@ -19,6 +19,7 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { getToken } from "../../../storage/TokenStorage";
 import { getMessagesAPI, sendMessageAPI } from "../../../api/Chat";
+import LottieView from "lottie-react-native";
 
 const formatRepaymentPlan = (plan) => {
   return plan
@@ -38,6 +39,10 @@ const avatarMap = {
   KUWAIT_INTERNATIONAL_BANK: require("../../../assets/bankers/fajri.png"),
   WARBA_BANK: require("../../../assets/bankers/salem.png"),
 };
+
+function capitalizeFirstLetter(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 export const ChatDetail = ({ route }) => {
   const navigation = useNavigation();
@@ -205,11 +210,21 @@ export const ChatDetail = ({ route }) => {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[
+        styles.container,
+        {
+          paddingTop: Platform.OS === "ios" ? 10 : 0, // Apply paddingTop based on the platform
+        },
+      ]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          { paddingVertical: Platform.OS === "ios" ? 20 : 0 },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => navigation.replace("ChatList")}
           style={styles.backButton}
@@ -220,9 +235,15 @@ export const ChatDetail = ({ route }) => {
           <Image source={avatarMap[banker.bank]} style={styles.bankLogo} />
           <View>
             <Text style={styles.bankName}>
-              {banker?.bank ? formatRepaymentPlan(banker.bank) : "Loading..."}
+              {banker?.bank
+                ? formatRepaymentPlan(banker.bank)
+                : "Connecting you to"}
             </Text>
-            <Text style={styles.bankName}>{banker.firstName}</Text>
+            <Text style={styles.bankName}>
+              {banker
+                ? capitalizeFirstLetter(banker.firstName)
+                : "a Representative"}
+            </Text>
 
             <Text style={styles.activeStatus}>Active now</Text>
           </View>
@@ -232,14 +253,25 @@ export const ChatDetail = ({ route }) => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        // data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.messagesList}
-        inverted={true}
-        data={[...messages].reverse()}
-      />
+      {!banker ? (
+        <View style={styles.loadingMessages}>
+          <LottieView
+            source={require("../../../assets/orangeHourglass")}
+            autoPlay
+            loop
+            style={styles.lottieAnimation}
+          />
+        </View>
+      ) : (
+        <FlatList
+          // data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.messagesList}
+          inverted={true}
+          data={[...messages].reverse()}
+        />
+      )}
 
       <View style={styles.bottomContainer}>
         <View style={styles.inputContainer}>
@@ -280,13 +312,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1C1C1E",
-    paddingTop: 10,
   },
+  lottieAnimation: {
+    width: 200, // Adjust to your preferred size
+    height: 200,
+  },
+  loadingMessages: {
+    alignItems: "center",
+    marginTop: "100",
+  },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    paddingVertical: 20,
+    padding: 10,
+    paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#2C2C2E",
   },
