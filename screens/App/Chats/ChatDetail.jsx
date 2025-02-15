@@ -410,6 +410,23 @@ export const ChatDetail = ({ route }) => {
         visible={notificationVisible}
       />
 
+      <ChatAnimations
+        toValueSequence={[0.5, 0]}
+        duration={2000000}
+        outputRange={["45deg", "100deg"]}
+        lineSpacing={50}
+        lineOffset={0}
+        verticalOffset={50} // Shift the entire animation down by 50 units
+      />
+
+      <ChatAnimations
+        toValueSequence={[2, 0]}
+        duration={20000}
+        outputRange={["45deg", "10deg"]}
+        lineSpacing={100}
+        lineOffset={0}
+        verticalOffset={-30} // Shift the entire animation up by 30 units
+      />
       <View
         style={[
           styles.header,
@@ -514,20 +531,6 @@ export const ChatDetail = ({ route }) => {
           </View>
         </View>
       )}
-      <ChatAnimations
-        toValueSequence={[0.5, 0]}
-        duration={2000000}
-        outputRange={["45deg", "10000deg"]}
-        lineSpacing={5}
-        lineOffset={0}
-      />
-      <ChatAnimations
-        toValueSequence={[0.2, 0]}
-        duration={20000}
-        outputRange={["45deg", "1000deg"]}
-        lineSpacing={10}
-        lineOffset={5}
-      />
     </KeyboardAvoidingView>
   );
 };
