@@ -360,12 +360,12 @@ const styles = StyleSheet.create({
   },
   loadingMessages: {
     alignItems: "center",
-    marginTop: "100",
   },
   loadingContainer: {
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+    marginTop: 50,
   },
   loadingTitle: {
     fontSize: 20,
