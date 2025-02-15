@@ -224,13 +224,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1a1a1a",
-    paddingHorizontal: 20,
+    alignItems: "center",
+    justifyContent: "center",
 
-    paddingTop: 20,
+    paddingHorizontal: 20,
   },
   header: {
-    paddingTop: 30,
-
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -280,7 +279,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 20,
     borderRadius: 8,
-    marginTop: 20,
+    marginTop: 30,
   },
   buttonText: {
     fontSize: 16,

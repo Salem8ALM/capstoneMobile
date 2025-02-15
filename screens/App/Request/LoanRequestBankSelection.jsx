@@ -30,7 +30,7 @@ export default function LoanRequestBankSelection({ navigation, route }) {
 
     // ensure the bank selection is not empty
     if (!banksSelected || banksSelected.length === 0) {
-      setNotificationMessage("Please fill in all fields.");
+      setNotificationMessage("Select at least one bank");
       setNotificationVisible(true);
       setTimeout(() => {
         setNotificationVisible(false);
@@ -76,7 +76,11 @@ export default function LoanRequestBankSelection({ navigation, route }) {
           Select the banks you'd like to receive offers from.
         </Text>
 
-        <BankList setBanksSelected={setBanksSelected} />
+        <BankList
+          setBanksSelected={setBanksSelected}
+          setNotificationMessage={setNotificationMessage}
+          setNotificationVisible={setNotificationVisible}
+        />
 
         <Animated.View style={[{ transform: [{ scale: reviewAnim }] }]}>
           <Button
