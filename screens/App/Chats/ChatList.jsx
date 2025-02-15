@@ -11,6 +11,14 @@ import { getChatsAPI } from "../../../api/Chat";
 import { useEffect, useState, SafeAreaView } from "react";
 import { getToken } from "../../../storage/TokenStorage";
 import { useNotifications } from "../../../context/NotificationsContext";
+import ChatAnimations from "../../../utils/animations/chatAnimations";
+
+const formatRepaymentPlan = (plan) => {
+  return plan
+    .toLowerCase() // Convert to lowercase
+    .replace(/_/g, " ") // Replace underscores with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize each word
+};
 
 const avatarMap = {
   Me: require("../../../assets/bankers/ibrahim.png"),
@@ -39,7 +47,7 @@ export const ChatList = () => {
         // Map backend response to bankers structure
         const mappedBankers = chats.map((chat) => ({
           id: chat.id,
-          name: chat.banker.bank,
+          name: formatRepaymentPlan(chat.banker.bank),
           logo: avatarMap[chat.banker.bank] || "default-logo-url.png",
           lastMessage:
             chat.messages.length > 0
@@ -153,7 +161,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1C1C1E",
-    paddingTop: 50, // Add padding for status bar
   },
   headerContainer: {
     paddingHorizontal: 16,

@@ -3,6 +3,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ChatList } from "./ChatList";
 import { ChatDetail } from "./ChatDetail";
 import { Platform, View } from "react-native";
+import ChatAnimations from "../../../utils/animations/chatAnimations";
 
 const Stack = createNativeStackNavigator();
 

@@ -132,6 +132,7 @@ export default function LoanDashboard({ navigation }) {
         message={notificationMessage}
         visible={notificationVisible}
       />
+
       <Appbar.Header style={styles.header}>
         <Appbar.Content title="Loan Requests" titleStyle={styles.headerTitle} />
         <TouchableOpacity
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 10,
     flex: 1,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#1C1C1E",
   },
   shineWrapper: {
     position: "absolute",

@@ -11,7 +11,7 @@ import {
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
 import { useData } from "../../../context/DataContext";
-import LoanProgressBar from '../../../components/LoanProgressBar';
+import LoanProgressBar from "../../../components/LoanProgressBar";
 
 const LoanRequestDetails = ({ navigation }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -253,7 +253,7 @@ const LoanRequestDetails = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#1C1C1E",
     justifyContent: "center",
     paddingHorizontal: 20,
   },
@@ -300,29 +300,29 @@ const styles = StyleSheet.create({
   },
   progressContainer: {
     marginBottom: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   progressBar: {
-    width: '100%',
+    width: "100%",
     height: 6,
-    backgroundColor: '#2C2C2E',
+    backgroundColor: "#2C2C2E",
     borderRadius: 3,
     marginBottom: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   progressFill: {
-    height: '100%',
-    backgroundColor: '#FFD700',
+    height: "100%",
+    backgroundColor: "#FFD700",
     borderRadius: 3,
   },
   progressText: {
-    color: '#A1A1AA',
+    color: "#A1A1AA",
     fontSize: 14,
   },
   subtitle: {
     fontSize: 16,
-    color: '#ccc',
-    textAlign: 'center',
+    color: "#ccc",
+    textAlign: "center",
     marginBottom: 30,
   },
 });
