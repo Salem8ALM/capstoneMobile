@@ -25,6 +25,7 @@ import LottieView from "lottie-react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { useTabBar } from "../../../navigations/TabBarProvider";
 import { getUser } from "../../../storage/UserStorage";
+import NotificationBanner from "../../../utils/animations/NotificationBanner";
 
 const formatRepaymentPlan = (plan) => {
   return plan
@@ -67,6 +68,9 @@ export const ChatDetail = ({ route }) => {
   const [videoCallUrl, setVideoCallUrl] = useState("");
   const { setShowTabBar } = useTabBar();
 
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
+
   // Load video call information
   useEffect(() => {
     const loadVideoCallInformation = async () => {
@@ -75,7 +79,11 @@ export const ChatDetail = ({ route }) => {
         const user = await getUser();
 
         if (!token || !user) {
-          console.error("Missing authentication information");
+          setNotificationMessage("Missing authentication information");
+          setNotificationVisible(true);
+          setTimeout(() => {
+            setNotificationVisible(false);
+          }, 3000); // Hide the banner after 3 seconds
           return;
         }
 
@@ -86,7 +94,11 @@ export const ChatDetail = ({ route }) => {
         console.log(url);
         setVideoCallUrl(url);
       } catch (error) {
-        console.error("Error loading video call information:", error);
+        setNotificationMessage("Error loading video call information");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       }
     };
 
@@ -101,14 +113,25 @@ export const ChatDetail = ({ route }) => {
         if (supported) {
           await Linking.openURL(videoCallUrl);
         } else {
-          Alert.alert("Error", "Cannot open video call URL");
+          setNotificationMessage("Cannot open video call URL");
+          setNotificationVisible(true);
+          setTimeout(() => {
+            setNotificationVisible(false);
+          }, 3000); // Hide the banner after 3 seconds
         }
       } catch (error) {
-        console.error("Error opening video call URL:", error);
-        Alert.alert("Error", "Failed to open video call");
+        setNotificationMessage("Error opening video call URL");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       }
     } else {
-      Alert.alert("Notice", "Video call link is not ready yet");
+      setNotificationMessage("Video call link is not ready yet");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
   };
 
@@ -140,12 +163,23 @@ export const ChatDetail = ({ route }) => {
       try {
         const token = await getToken("access");
         if (!token) {
-          console.warn("No token found, skipping image fetch.");
+          setNotificationMessage(
+            "Unable to send message. Make sure you are authenticated"
+          );
+          setNotificationVisible(true);
+          setTimeout(() => {
+            setNotificationVisible(false);
+          }, 3000); // Hide the banner after 3 seconds
+
           return;
         }
         const response = await sendMessageAPI(token, chatId, message);
       } catch (error) {
-        console.error("Error sending message:", error);
+        setNotificationMessage("Error sending message.");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       }
 
       message;
@@ -160,7 +194,13 @@ export const ChatDetail = ({ route }) => {
       try {
         const token = await getToken("access");
         if (!token) {
-          console.warn("No token found, skipping image fetch.");
+          setNotificationMessage(
+            "Unable to retrieve messages. Make sure you are authenticated"
+          );
+          setNotificationVisible(true);
+          setTimeout(() => {
+            setNotificationVisible(false);
+          }, 3000); // Hide the banner after 3 seconds
           return;
         }
 
@@ -177,7 +217,13 @@ export const ChatDetail = ({ route }) => {
         setBanker(messages?.banker);
         setMessages(formattedMessages);
       } catch (error) {
-        console.error("Error fetching messages:", error);
+        setNotificationMessage(
+          "Error fetching messages. Ensure Internet connection"
+        );
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       }
     };
 
@@ -194,10 +240,13 @@ export const ChatDetail = ({ route }) => {
       const permissionResult =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permissionResult.granted) {
-        Alert.alert(
-          "Permission required",
-          "You need to allow access to the library to pick files."
+        setNotificationMessage(
+          "You need to allow access to the library to pick files"
         );
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
         return;
       }
 
@@ -228,7 +277,11 @@ export const ChatDetail = ({ route }) => {
       }
     } catch (error) {
       console.log("Error picking file:", error);
-      Alert.alert("Error", "Something went wrong while picking the file.");
+      setNotificationMessage("Something went wrong while picking the file");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
   };
 
@@ -281,15 +334,19 @@ export const ChatDetail = ({ route }) => {
               onPress={() => {
                 if (videoCallUrl) {
                   Linking.openURL(videoCallUrl).catch((err) => {
-                    console.error("Error opening video call:", err);
-                    Alert.alert("Error", "Could not open video call");
+                    console.log("Error opening video call:", err);
+                    setNotificationMessage("Error opening video call");
+                    setNotificationVisible(true);
+                    setTimeout(() => {
+                      setNotificationVisible(false);
+                    }, 3000); // Hide the banner after 3 seconds
                   });
                 }
               }}
             >
               <Text style={styles.joinCallText}>Join Call</Text>
             </TouchableOpacity>
-            <Text style={styles.messageTimestamp}>{item.timestamp}</Text>
+            <Text style={styles.messageTimestamp}>{item?.timestamp}</Text>
           </View>
         </View>
       );
@@ -299,37 +356,37 @@ export const ChatDetail = ({ route }) => {
       <View
         style={[
           styles.messageContainer,
-          item.sent ? styles.sentMessage : styles.receivedMessage,
+          item?.sent ? styles.sentMessage : styles.receivedMessage,
         ]}
       >
         {!item.sent && (
-          <Image source={avatarMap[banker.bank]} style={styles.messageLogo} />
+          <Image source={avatarMap[banker?.bank]} style={styles.messageLogo} />
         )}
         <View
           style={[
             styles.messageBubble,
-            item.sent ? styles.sentBubble : styles.receivedBubble,
+            item?.sent ? styles.sentBubble : styles.receivedBubble,
           ]}
         >
           <Text
             style={[
               styles.senderName,
-              item.sent ? styles.sentMessageText : styles.receivedMessageText,
+              item?.sent ? styles.sentMessageText : styles.receivedMessageText,
             ]}
           >
-            {item.sent ? "You" : capitalizeFirstLetter(banker.firstName)}
+            {item?.sent ? "You" : capitalizeFirstLetter(banker?.firstName)}
           </Text>
-          {item.isFile ? (
+          {item?.isFile ? (
             <View style={styles.fileMessage}>
               <Feather
                 name="file"
                 size={24}
-                color={item.sent ? "#000" : "#000"}
+                color={item?.sent ? "#000" : "#000"}
               />
               <Text
                 style={[
                   styles.messageText,
-                  item.sent
+                  item?.sent
                     ? styles.sentMessageText
                     : styles.receivedMessageText,
                 ]}
@@ -341,13 +398,15 @@ export const ChatDetail = ({ route }) => {
             <Text
               style={[
                 styles.messageText,
-                item.sent ? styles.sentMessageText : styles.receivedMessageText,
+                item?.sent
+                  ? styles.sentMessageText
+                  : styles.receivedMessageText,
               ]}
             >
-              {item.text}
+              {item?.text}
             </Text>
           )}
-          <Text style={styles.messageTimestamp}>{item.timestamp}</Text>
+          <Text style={styles.messageTimestamp}>{item?.timestamp}</Text>
         </View>
       </View>
     );
@@ -358,12 +417,16 @@ export const ChatDetail = ({ route }) => {
       style={[
         styles.container,
         {
-          paddingTop: Platform.OS === "ios" ? 10 : 0, // Apply paddingTop based on the platform
+          paddingTop: Platform.OS === "ios" ? 10 : 10, // Apply paddingTop based on the platform
         },
       ]}
       behavior={Platform.OS === "ios" ? "padding" : "padding"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
       <View
         style={[
           styles.header,
@@ -387,17 +450,17 @@ export const ChatDetail = ({ route }) => {
               style={styles.bankLogo}
             />
           ) : (
-            <Image source={avatarMap[banker.bank]} style={styles.bankLogo} />
+            <Image source={avatarMap[banker?.bank]} style={styles.bankLogo} />
           )}
           <View>
             <Text style={styles.bankName}>
               {banker?.bank
-                ? formatRepaymentPlan(banker.bank)
+                ? formatRepaymentPlan(banker?.bank)
                 : "Connecting you to"}
             </Text>
             <Text style={styles.bankName}>
-              {banker
-                ? capitalizeFirstLetter(banker.firstName)
+              {banker?.firstName
+                ? capitalizeFirstLetter(banker?.firstName)
                 : "a Representative"}
             </Text>
 

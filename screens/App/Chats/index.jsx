@@ -15,7 +15,7 @@ export const Chat = () => {
             headerShown: false,
             contentStyle: {
               backgroundColor: "#1C1C1E",
-              paddingTop: Platform.OS === "ios" ? 30 : 20, // Apply paddingTop based on the platform
+              paddingTop: Platform.OS === "ios" ? 30 : 0, // Apply paddingTop based on the platform
             },
           }}
         >
