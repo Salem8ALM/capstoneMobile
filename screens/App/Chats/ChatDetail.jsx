@@ -34,7 +34,11 @@ const formatRepaymentPlan = (plan) => {
 };
 
 const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString) return "Invalid date"; // Handle undefined/null cases
+
   const date = new Date(dateTimeString);
+  if (isNaN(date.getTime())) return "Invalid date"; // Handle invalid date cases
+
   return date.toLocaleString(); // Formats to local date & time
 };
 
@@ -369,14 +373,13 @@ export const ChatDetail = ({ route }) => {
         <TouchableOpacity
           onPress={() => {
             navigation.pop();
-            navigation.replace("ChatList");
           }}
           style={styles.backButton}
         >
           <Feather name="arrow-left" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={styles.bankInfo}>
-          {!banker ? (
+          {!banker?.bank ? (
             <LottieView
               source={require("../../../assets/orangeHourglass")}
               autoPlay

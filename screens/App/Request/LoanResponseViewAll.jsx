@@ -199,7 +199,11 @@ const LoanRequestDetails = ({ route, navigation }) => {
   };
 
   const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return "Invalid date"; // Handle undefined/null cases
+
     const date = new Date(dateTimeString);
+    if (isNaN(date.getTime())) return "Invalid date"; // Handle invalid date cases
+
     return date.toLocaleString(); // Formats to local date & time
   };
 
@@ -467,7 +471,9 @@ const LoanRequestDetails = ({ route, navigation }) => {
                           <View style={styles.dateContainer}>
                             {renderIcon("clock-outline", "#9E9E9E")}
                             <Text style={styles.responseDate}>
-                              {formatDateTime(response.statusDate)}
+                              {response?.statusDate
+                                ? formatDateTime(response.statusDate)
+                                : "Undefined"}
                             </Text>
                           </View>
                         </View>

@@ -14,7 +14,7 @@ const getMessagesAPI = async (token, id) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error accepting offer:", error.response);
+    console.log("Error getting messages:", error.response);
     throw error;
   }
 };
@@ -31,7 +31,7 @@ const getChatsAPI = async (token) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error accepting offer:", error.response);
+    console.log("Error chats for business owner:", error.response);
     throw error;
   }
 };
@@ -53,7 +53,7 @@ const createChatEntityAPI = async (token, chatTargetId) => {
 
     return response.data;
   } catch (error) {
-    console.log("Error accepting offer:", error.request);
+    console.log("Error creating chat entity:", error.request);
     throw error;
   }
 };
@@ -74,7 +74,7 @@ const sendMessageAPI = async (token, chatId, content) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error accepting offer:", error.response);
+    console.log("Error getting messages:", error.response);
     throw error;
   }
 };

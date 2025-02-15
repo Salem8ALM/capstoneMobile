@@ -8,7 +8,11 @@ import { LinearGradient } from "expo-linear-gradient";
 const screenWidth = Dimensions.get("window").width;
 
 const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString) return "Invalid date"; // Handle undefined/null cases
+
   const date = new Date(dateTimeString);
+  if (isNaN(date.getTime())) return "Invalid date"; // Handle invalid date cases
+
   return date.toLocaleString(); // Formats to local date & time
 };
 
@@ -118,7 +122,7 @@ export const LoanRequestCard = ({
                     },
                   ]}
                 >
-                  {status}
+                  {status ? status : ""}
                 </Badge>
               </View>
 
