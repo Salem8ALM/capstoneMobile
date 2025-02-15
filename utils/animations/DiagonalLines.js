@@ -41,7 +41,7 @@ const DiagonalLines = ({
       style={[
         StyleSheet.absoluteFillObject,
         {
-          opacity: 0.03,
+          opacity: 0.04,
           zIndex: 1,
           transform: [{ rotate }],
           pointerEvents: "none",
@@ -69,7 +69,7 @@ const DiagonalLines = ({
 const styles = StyleSheet.create({
   diagonalLine: {
     position: "absolute",
-    backgroundColor: "#FFD700", // Golden color for the lines
+    backgroundColor: "rgb(138, 141, 211)", // Golden color for the lines
   },
 });
 
