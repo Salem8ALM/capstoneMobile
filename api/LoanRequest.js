@@ -82,7 +82,7 @@ const rejectOfferAPI = async (token, loanRequestId, loanResponseId) => {
     );
     return response.data;
   } catch (error) {
-    console.log("Error accepting offer:", error);
+    console.log("Error rejecting offer:", error.request);
     throw error;
   }
 };

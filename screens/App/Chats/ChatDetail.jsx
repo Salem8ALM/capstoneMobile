@@ -13,12 +13,16 @@ import {
   Platform,
   Keyboard,
   Alert,
+  Animated,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { getToken } from "../../../storage/TokenStorage";
 import { getMessagesAPI, sendMessageAPI } from "../../../api/Chat";
+import LottieView from "lottie-react-native";
+import { ActivityIndicator } from "react-native-paper";
+import { useTabBar } from "../../../navigations/TabBarProvider";
 
 const formatRepaymentPlan = (plan) => {
   return plan
@@ -39,6 +43,10 @@ const avatarMap = {
   WARBA_BANK: require("../../../assets/bankers/salem.png"),
 };
 
+function capitalizeFirstLetter(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export const ChatDetail = ({ route }) => {
   const navigation = useNavigation();
   const { itemId } = route.params;
@@ -48,6 +56,21 @@ export const ChatDetail = ({ route }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [banker, setBanker] = useState("");
   const [chatId, setChatId] = useState(itemId);
+
+  const { setShowTabBar } = useTabBar();
+
+  useEffect(() => {
+    // Delay the tab bar hiding to give the animation a chance to play
+    const hideTabBarTimeout = setTimeout(() => {
+      setShowTabBar(false);
+    }, 100); // Adjust delay as necessary to allow animation time
+
+    // Reset the tab bar visibility when leaving the screen
+    return () => {
+      clearTimeout(hideTabBarTimeout); // Clear the timeout to prevent unnecessary calls
+      setShowTabBar(true);
+    };
+  }, []); // Empty dependency array ensures this runs only once when the screen is mounted
 
   const handleSendMessage = async () => {
     if (message.trim()) {
@@ -205,26 +228,54 @@ export const ChatDetail = ({ route }) => {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={[
+        styles.container,
+        {
+          paddingTop: Platform.OS === "ios" ? 10 : 0, // Apply paddingTop based on the platform
+        },
+      ]}
+      behavior={Platform.OS === "ios" ? "padding" : "padding"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          { paddingVertical: Platform.OS === "ios" ? 20 : 0 },
+        ]}
+      >
         <TouchableOpacity
-          onPress={() => navigation.replace("ChatList")}
+          onPress={() => {
+            navigation.pop();
+            navigation.replace("ChatList");
+          }}
           style={styles.backButton}
         >
           <Feather name="arrow-left" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={styles.bankInfo}>
-          <Image source={avatarMap[banker.bank]} style={styles.bankLogo} />
+          {!banker ? (
+            <LottieView
+              source={require("../../../assets/orangeHourglass")}
+              autoPlay
+              loop
+              style={styles.bankLogo}
+            />
+          ) : (
+            <Image source={avatarMap[banker.bank]} style={styles.bankLogo} />
+          )}
           <View>
             <Text style={styles.bankName}>
-              {banker?.bank ? formatRepaymentPlan(banker.bank) : "Loading..."}
+              {banker?.bank
+                ? formatRepaymentPlan(banker.bank)
+                : "Connecting you to"}
             </Text>
-            <Text style={styles.bankName}>{banker.firstName}</Text>
+            <Text style={styles.bankName}>
+              {banker
+                ? capitalizeFirstLetter(banker.firstName)
+                : "a Representative"}
+            </Text>
 
-            <Text style={styles.activeStatus}>Active now</Text>
+            {banker && <Text style={styles.activeStatus}>Active now</Text>}
           </View>
         </View>
         <TouchableOpacity style={styles.videoCall}>
@@ -232,46 +283,68 @@ export const ChatDetail = ({ route }) => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        // data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.messagesList}
-        inverted={true}
-        data={[...messages].reverse()}
-      />
-
-      <View style={styles.bottomContainer}>
-        <View style={styles.inputContainer}>
-          <TouchableOpacity style={styles.attachButton} onPress={pickFile}>
-            <Feather name="paperclip" size={24} color="#8E8E93" />
-          </TouchableOpacity>
-          <TextInput
-            ref={inputRef}
-            style={styles.input}
-            placeholder="Write your message"
-            placeholderTextColor="#8E8E93"
-            value={message}
-            onChangeText={setMessage}
-            multiline={true}
-            maxHeight={100}
-            returnKeyType="send"
-            enablesReturnKeyAutomatically={true}
-            onSubmitEditing={handleSendMessage}
-            blurOnSubmit={false}
+      {!banker ? (
+        <View style={styles.loadingContainer}>
+          <LottieView
+            source={require("../../../assets/digital-marketing-of-electronic-devices")}
+            autoPlay
+            loop
+            style={styles.lottieAnimation}
           />
-          <TouchableOpacity
-            style={styles.sendButton}
-            onPress={handleSendMessage}
-          >
-            <Feather
-              name="send"
-              size={24}
-              color={message.trim() ? "#FFD700" : "#8E8E93"}
-            />
-          </TouchableOpacity>
+          <Text style={styles.loadingTitle}>Loan Negotiation</Text>
+          <Text style={styles.loadingText}>
+            Negotiate wisely—convince the banker and secure your loan!
+          </Text>
+          <ActivityIndicator
+            size="large"
+            color="#fff"
+            style={styles.loadingIndicator}
+          />
         </View>
-      </View>
+      ) : (
+        <FlatList
+          // data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.messagesList}
+          inverted={true}
+          data={[...messages].reverse()}
+        />
+      )}
+
+      {banker && (
+        <View style={styles.bottomContainer}>
+          <View style={styles.inputContainer}>
+            <TouchableOpacity style={styles.attachButton} onPress={pickFile}>
+              <Feather name="paperclip" size={24} color="#8E8E93" />
+            </TouchableOpacity>
+            <TextInput
+              ref={inputRef}
+              style={styles.input}
+              placeholder="Write your message"
+              placeholderTextColor="#8E8E93"
+              value={message}
+              onChangeText={setMessage}
+              multiline={true}
+              maxHeight={100}
+              returnKeyType="send"
+              enablesReturnKeyAutomatically={true}
+              onSubmitEditing={handleSendMessage}
+              blurOnSubmit={false}
+            />
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={handleSendMessage}
+            >
+              <Feather
+                name="send"
+                size={24}
+                color={message.trim() ? "#FFD700" : "#8E8E93"}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 };
@@ -280,13 +353,42 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1C1C1E",
-    paddingTop: 10,
+  },
+  lottieAnimation: {
+    width: 250, // Adjust to your preferred size
+    height: 250,
+  },
+  loadingMessages: {
+    alignItems: "center",
+  },
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    marginTop: 50,
+  },
+  loadingTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginTop: 10,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 5,
+    opacity: 0.9,
+  },
+  loadingIndicator: {
+    marginTop: 15,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    paddingVertical: 20,
+    padding: 10,
+    paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#2C2C2E",
   },
@@ -370,7 +472,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#2C2C2E",
     backgroundColor: "#1C1C1E",
-    marginBottom: Platform.OS === "ios" ? 115 : 110,
+    marginBottom: Platform.OS === "ios" ? 115 : 10,
   },
   attachButton: {
     marginRight: 12,

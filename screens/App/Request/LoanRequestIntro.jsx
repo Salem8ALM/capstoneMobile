@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import AnimatedIntroContent from "../../../utils/animations/AnimatedIntroContent";
 import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "react-native-paper";
 import Routes from "../../../utils/constants/routes";
+import { useTabBar } from "../../../navigations/TabBarProvider";
 
 const LoanRequestIntro = () => {
   const symbols = [
@@ -51,6 +52,21 @@ const LoanRequestIntro = () => {
   ];
 
   const navigation = useNavigation();
+
+  const { setShowTabBar } = useTabBar();
+
+  useEffect(() => {
+    // Delay the tab bar hiding to give the animation a chance to play
+    const hideTabBarTimeout = setTimeout(() => {
+      setShowTabBar(false);
+    }, 100); // Adjust delay as necessary to allow animation time
+
+    // Reset the tab bar visibility when leaving the screen
+    return () => {
+      clearTimeout(hideTabBarTimeout); // Clear the timeout to prevent unnecessary calls
+      setShowTabBar(true);
+    };
+  }, []); // Empty dependency array ensures this runs only once when the screen is mounted
 
   return (
     <View style={styles.container}>

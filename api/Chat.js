@@ -53,7 +53,7 @@ const createChatEntityAPI = async (token, chatTargetId) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error accepting offer:", error.request);
+    console.log("Error accepting offer:", error.request);
     throw error;
   }
 };

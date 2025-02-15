@@ -18,6 +18,7 @@ import KFHRequest from "./KFHRequest";
 import WarbaRequest from "./WarbaRequest";
 import BurganRequest from "./BurganRequest";
 import KIBRequest from "./KIBRequest";
+import NotificationBanner from "../utils/animations/NotificationBanner";
 
 const bankData = [
   { name: "Boubyan", component: BoubyanRequest, isIslamic: true },
@@ -39,7 +40,11 @@ const bankMappings = {
   KIB: "KUWAIT_INTERNATIONAL_BANK",
 };
 
-export function BankList({ setBanksSelected }) {
+export function BankList({
+  setBanksSelected,
+  setNotificationMessage,
+  setNotificationVisible,
+}) {
   const [selectedCards, setSelectedCards] = useState(
     Object.fromEntries(bankData.map((bank) => [bank.name, false]))
   );
@@ -80,12 +85,21 @@ export function BankList({ setBanksSelected }) {
 
   // ✅ Use `useEffect` to update `setBanksSelected` when `selectedCards` changes
   useEffect(() => {
-    const selectedBanksList = Object.entries(selectedCards)
-      .filter(([_, isSelected]) => isSelected) // Only selected banks
-      .map(([name]) => bankMappings[name]); // Map to identifiers
+    try {
+      const selectedBanksList = Object.entries(selectedCards)
+        .filter(([_, isSelected]) => isSelected) // Only selected banks
+        .map(([name]) => bankMappings[name]); // Map to identifiers
 
-    setBanksSelected(selectedBanksList);
-    console.log(selectedBanksList);
+      setBanksSelected(selectedBanksList);
+      console.log(selectedBanksList);
+    } catch (error) {
+      console.log(`Error selecting bank:`, error);
+      setNotificationMessage("Choose wisely to secure the best loan");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000);
+    }
   }, [selectedCards, setBanksSelected]); // Depend on `selectedCards` to update `setBanksSelected`
 
   const selectAllBg = selectAllAnim.interpolate({
@@ -94,19 +108,31 @@ export function BankList({ setBanksSelected }) {
   });
 
   const handleCardSelect = (bankName) => {
-    setSelectedCards((prev) => {
-      const updatedState = { ...prev, [bankName]: !prev[bankName] };
+    try {
+      setSelectedCards((prev) => {
+        const updatedState = { ...prev, [bankName]: !prev[bankName] };
 
-      const selectedBanksList = Object.entries(updatedState)
-        .filter(([bankName, isSelected]) => isSelected) // Only keep selected banks
-        .map(([bankName]) => bankMappings[bankName]); // Map to corresponding identifier
+        const selectedBanksList = Object.entries(updatedState)
+          .filter(([bankName, isSelected]) => isSelected) // Only keep selected banks
+          .map(([bankName]) => bankMappings[bankName]); // Map to corresponding identifier
 
-      console.log(selectedBanksList);
+        console.log(selectedBanksList);
 
-      setBanksSelected(selectedBanksList);
+        setBanksSelected(selectedBanksList);
 
-      return updatedState;
-    });
+        return updatedState;
+      });
+    } catch (error) {
+      console.log(`Error selecting card:`, error);
+
+      setNotificationMessage(
+        "The right choice for a brighter financial future"
+      );
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000);
+    }
   };
 
   const toggleFilterModal = () => {
@@ -170,15 +196,27 @@ export function BankList({ setBanksSelected }) {
             showsVerticalScrollIndicator={false}
           >
             {filteredBanks.map((bank) => {
-              const BankComponent = bank.component;
-              return (
-                <View key={bank.name} style={styles.cardWrapper}>
-                  <BankComponent
-                    isSelected={selectedCards[bank.name]}
-                    onPress={() => handleCardSelect(bank.name)}
-                  />
-                </View>
-              );
+              try {
+                const BankComponent = bank.component;
+                if (!BankComponent)
+                  throw new Error(`Component for ${bank.name} is missing`);
+                return (
+                  <View key={bank.name} style={styles.cardWrapper}>
+                    <BankComponent
+                      isSelected={selectedCards[bank.name]}
+                      onPress={() => handleCardSelect(bank.name)}
+                    />
+                  </View>
+                );
+              } catch (error) {
+                setNotificationMessage("Shape your financial path tomorrow");
+                setNotificationVisible(true);
+                setTimeout(() => {
+                  setNotificationVisible(false);
+                }, 3000);
+                console.log(`Error rendering bank ${bank.name}:`, error);
+                return null;
+              }
             })}
           </ScrollView>
         </View>
@@ -220,7 +258,6 @@ const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
-    height: 460, // Fixed height
     backgroundColor: "#1a1a1a",
   },
   titleContainer: {
@@ -244,7 +281,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   banksSection: {
-    height: 460, // Ensure this section also has a fixed height
+    height: 540, // Ensure this section also has a fixed height
   },
   header: {
     flexDirection: "row",

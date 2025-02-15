@@ -1,27 +1,31 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { Animated, StyleSheet, TouchableOpacity, View } from "react-native"
-import { Feather } from "@expo/vector-icons"
-import { Requests } from "./../screens/App/Requests"
-import Chat from "../screens/App/Chats"
-import { Profile } from "./../screens/App/Profile"
-import Dashboard from "./../screens/App/Dashboard"
-import NotificationsModal from "../components/NotificationsModal.jsx"
-import TabBarBackground from "../components/TabBarBackground.jsx"
+import { useState, useRef, useEffect } from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Animated, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { Requests } from "./../screens/App/Requests";
+import Chat from "../screens/App/Chats";
+import { Profile } from "./../screens/App/Profile";
+import Dashboard from "./../screens/App/Dashboard";
+import NotificationsModal from "../components/NotificationsModal.jsx";
+import TabBarBackground from "../components/TabBarBackground.jsx";
+import { useTabBar } from "./TabBarProvider";
 
-const Tab = createBottomTabNavigator()
+const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
-  const [notificationsVisible, setNotificationsVisible] = useState(false)
+  const [notificationsVisible, setNotificationsVisible] = useState(false);
+
+  const { showTabBar } = useTabBar(); // Get the tab bar visibility state
+
   const tabAnimations = useRef({
     Dashboard: new Animated.Value(0),
     Requests: new Animated.Value(0),
     Notifications: new Animated.Value(0),
     Chat: new Animated.Value(0),
     Profile: new Animated.Value(0),
-  }).current
+  }).current;
 
   const animateTab = (tabName: string, focused: boolean) => {
     Animated.spring(tabAnimations[tabName], {
@@ -29,23 +33,27 @@ const AppNavigator = () => {
       tension: 50,
       friction: 4,
       useNativeDriver: true,
-    }).start()
-  }
+    }).start();
+  };
 
   const TabIcon = ({ name, color, size, focused, tabName }) => {
     const scale = tabAnimations[tabName].interpolate({
       inputRange: [0, 1],
       outputRange: [1, 1.2],
-    })
+    });
 
     return (
       <Animated.View
-        style={[styles.tabIconContainer, focused && styles.activeTabContainer, { transform: [{ scale }] }]}
+        style={[
+          styles.tabIconContainer,
+          focused && styles.activeTabContainer,
+          { transform: [{ scale }] },
+        ]}
       >
         <Feather name={name} size={size} color={focused ? "#292933" : color} />
       </Animated.View>
-    )
-  }
+    );
+  };
 
   const NotificationIcon = ({ color, size, focused }) => (
     <Animated.View
@@ -66,15 +74,27 @@ const AppNavigator = () => {
     >
       <TouchableOpacity
         onPress={() => {
-          setNotificationsVisible(true)
-          animateTab("Notifications", true)
+          setNotificationsVisible(true);
+          animateTab("Notifications", true);
         }}
         style={styles.notificationIconWrapper}
       >
         <Feather name="bell" size={size} color={focused ? "#292933" : color} />
       </TouchableOpacity>
     </Animated.View>
-  )
+  );
+
+  // Initialize Animated.Value to control sliding
+  const slideAnim = useRef(new Animated.Value(0)).current; // 0 means tab bar is visible initially
+
+  // Trigger the slide animation whenever showTabBar changes
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: showTabBar ? 0 : 60, // Slide up to 0 (show) when true, slide down to 60 (hide) when false
+      duration: 300, // Animation duration
+      useNativeDriver: true, // Use native driver for performance
+    }).start();
+  }, [showTabBar]); // Run animation when showTabBar changes
 
   return (
     <>
@@ -87,22 +107,24 @@ const AppNavigator = () => {
             borderTopWidth: 0,
             position: "absolute",
             elevation: 0,
+            display: showTabBar ? "flex" : "none", // Hide or show tab bar based on context
+            transform: [{ translateY: slideAnim }], // Apply sliding animation
           },
           tabBarBackground: () => <TabBarBackground />,
           tabBarActiveTintColor: "#FFD700",
           tabBarInactiveTintColor: "#8E8E93",
           tabBarShowLabel: false,
           tabBarHideOnKeyboard: true,
-          animation: 'none',
+          animation: "none",
           animationEnabled: false,
         }}
         screenListeners={{
           state: (e) => {
             // Animate the transition
-            const currentRoute = e.data.state.routes[e.data.state.index]
+            const currentRoute = e.data.state.routes[e.data.state.index];
             Object.keys(tabAnimations).forEach((tabName) => {
-              animateTab(tabName, tabName === currentRoute.name)
-            })
+              animateTab(tabName, tabName === currentRoute.name);
+            });
           },
         }}
       >
@@ -111,7 +133,13 @@ const AppNavigator = () => {
           component={Dashboard}
           options={{
             tabBarIcon: ({ color, size, focused }) => (
-              <TabIcon name="home" color={color} size={size} focused={focused} tabName="Dashboard" />
+              <TabIcon
+                name="home"
+                color={color}
+                size={size}
+                focused={focused}
+                tabName="Dashboard"
+              />
             ),
           }}
         />
@@ -120,7 +148,13 @@ const AppNavigator = () => {
           component={Requests}
           options={{
             tabBarIcon: ({ color, size, focused }) => (
-              <TabIcon name="file-text" color={color} size={size} focused={focused} tabName="Requests" />
+              <TabIcon
+                name="file-text"
+                color={color}
+                size={size}
+                focused={focused}
+                tabName="Requests"
+              />
             ),
           }}
         />
@@ -132,9 +166,9 @@ const AppNavigator = () => {
           }}
           listeners={{
             tabPress: (e) => {
-              e.preventDefault()
-              setNotificationsVisible(true)
-              animateTab("Notifications", true)
+              e.preventDefault();
+              setNotificationsVisible(true);
+              animateTab("Notifications", true);
             },
           }}
         />
@@ -143,7 +177,13 @@ const AppNavigator = () => {
           component={Chat}
           options={{
             tabBarIcon: ({ color, size, focused }) => (
-              <TabIcon name="message-circle" color={color} size={size} focused={focused} tabName="Chat" />
+              <TabIcon
+                name="message-circle"
+                color={color}
+                size={size}
+                focused={focused}
+                tabName="Chat"
+              />
             ),
           }}
         />
@@ -152,16 +192,25 @@ const AppNavigator = () => {
           component={Profile}
           options={{
             tabBarIcon: ({ color, size, focused }) => (
-              <TabIcon name="user" color={color} size={size} focused={focused} tabName="Profile" />
+              <TabIcon
+                name="user"
+                color={color}
+                size={size}
+                focused={focused}
+                tabName="Profile"
+              />
             ),
           }}
         />
       </Tab.Navigator>
 
-      <NotificationsModal visible={notificationsVisible} onClose={() => setNotificationsVisible(false)} />
+      <NotificationsModal
+        visible={notificationsVisible}
+        onClose={() => setNotificationsVisible(false)}
+      />
     </>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   tabIconContainer: {
@@ -188,7 +237,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-})
+});
 
-export default AppNavigator
-
+export default AppNavigator;

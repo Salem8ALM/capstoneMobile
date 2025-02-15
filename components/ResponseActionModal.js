@@ -8,6 +8,7 @@ import { acceptOfferAPI, rejectOfferAPI } from "../api/LoanRequest";
 import { getToken } from "../storage/TokenStorage";
 import { createChatEntityAPI } from "../api/Chat";
 import { useNavigation } from "@react-navigation/native";
+import NotificationBanner from "../utils/animations/NotificationBanner";
 
 async function capitalizeFirstLetter(input) {
   if (!input) return ""; // Return an empty string if input is falsy (undefined, null, etc.)
@@ -39,70 +40,71 @@ const ResponseActionModal = ({
 }) => {
   const { loans } = useContext(UserContext);
   let loan = loans.find((loan) => loan.id === loanId);
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   const navigation = useNavigation();
   const accpetOffer = async (response) => {
     try {
       const token = await getToken("access");
 
-      try {
-        await acceptOfferAPI(token, loanId, response.id);
-        onDismiss();
-      } catch (error) {
-        console.error("Unable to retrieve loan requests:", error);
-      }
+      await acceptOfferAPI(token, loanId, response.id);
     } catch (error) {
-      console.error("Unable to retrieve token:", error);
+      setNotificationMessage("Unable to accept at the moment. Try later");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
+    onDismiss();
   };
 
   const rejectOffer = async (response) => {
     try {
       const token = await getToken("access");
 
-      try {
-        await rejectOfferAPI(token, loanId, response.id);
-        onDismiss();
-      } catch (error) {
-        console.error("Unable to reject loan request:", error);
-      }
+      await rejectOfferAPI(token, loanId, response.id);
     } catch (error) {
-      console.error("Unable to retrieve token:", error);
+      setNotificationMessage("Unable to reject the loan offer at the moment");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
+    onDismiss();
   };
 
   const negotiateOffer = async (response) => {
     try {
       const token = await getToken("access");
 
-      console.log("before");
-
       const bankerId = response.banker.id;
 
-      try {
-        const chatEntity = await createChatEntityAPI(token, bankerId);
+      const chatEntity = await createChatEntityAPI(token, bankerId);
 
-        console.log(loanId);
-        console.log(response.id);
-
-        onDismiss();
-
-        navigation.navigate("Chat", {
-          screen: "ChatDetail",
-          params: {
-            itemId: chatEntity.id, // Pass bankerId as a parameter
-          },
-        });
-      } catch (error) {
-        console.error("Unable to create chat entity:", error);
-      }
+      navigation.navigate("Chat", {
+        screen: "ChatDetail",
+        params: {
+          itemId: chatEntity.id, // Pass bankerId as a parameter
+        },
+      });
     } catch (error) {
-      console.error("Unable to retrieve token:", error);
+      setNotificationMessage("Unable to negotiate at the moment. Try later");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
+    onDismiss();
   };
 
   return (
     <Portal>
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
+
       <Modal
         visible={visible}
         onDismiss={onDismiss}
@@ -132,7 +134,7 @@ const ResponseActionModal = ({
               <MaterialCommunityIcons name="bank" size={40} color="#FFD700" />
             </View>
             <Image
-              source={bankIcons[response?.banker.bank]}
+              source={response ? bankIcons[response?.banker.bank] : null}
               style={{
                 width: 70,
                 height: 70,
@@ -194,12 +196,14 @@ const ResponseActionModal = ({
               />
               <Text style={styles.detailText}>
                 Representative:
-                {capitalizeFirstLetter(
-                  "_" +
-                    response?.banker.firstName +
-                    "_" +
-                    response?.banker.lastName
-                )}
+                {response
+                  ? capitalizeFirstLetter(
+                      "_" +
+                        response?.banker.firstName +
+                        "_" +
+                        response?.banker.lastName
+                    )
+                  : "No one Assigned"}
               </Text>
             </View>
           </Animatable.View>
