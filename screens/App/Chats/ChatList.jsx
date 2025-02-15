@@ -12,6 +12,7 @@ import { useEffect, useState, SafeAreaView } from "react";
 import { getToken } from "../../../storage/TokenStorage";
 import { useNotifications } from "../../../context/NotificationsContext";
 import ChatAnimations from "../../../utils/animations/chatAnimations";
+import LottieView from "lottie-react-native";
 
 const formatRepaymentPlan = (plan) => {
   return plan
@@ -147,12 +148,29 @@ export const ChatList = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Chats</Text>
       </View>
-      <FlatList
-        data={bankers}
-        renderItem={renderBankItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-      />
+      {!bankers || bankers.length === 0 ? (
+        <View style={styles.noMessagesContainer}>
+          <LottieView
+            source={require("../../../assets/deskStudy.json")}
+            autoPlay
+            loop
+            style={styles.lottieAnimation}
+          />
+          <Text style={styles.loadingTitle}>
+            It’s a breezy day, no chats yet!
+          </Text>
+          <Text style={styles.loadingText}>
+            Your negotiation chats will pop up here
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={bankers}
+          renderItem={renderBankItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+        />
+      )}
     </View>
   );
 };
@@ -167,6 +185,35 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderBottomWidth: 1,
     borderBottomColor: "#2C2C2E",
+  },
+  noMessagesContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 100,
+  },
+  lottieAnimation: {
+    Top: 100,
+    width: 250, // Adjust to your preferred size
+    height: 250,
+  },
+  loadingTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginTop: 10,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 5,
+    opacity: 0.9,
+  },
+  noMessagesText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: "#fff", // You can adjust the color
   },
   header: {
     fontSize: 28,

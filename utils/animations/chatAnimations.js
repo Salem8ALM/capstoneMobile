@@ -46,7 +46,7 @@ const ChatAnimations = ({
       style={[
         StyleSheet.absoluteFillObject,
         {
-          opacity: 0.03, //0.04
+          opacity: 0.035, //0.04
           zIndex: 1,
           transform: [{ rotate }, { translateY: verticalOffset }], // Applying the vertical offset
           pointerEvents: "none", // Make sure child elements don't block interaction
