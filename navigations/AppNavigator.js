@@ -10,11 +10,15 @@ import { Profile } from "./../screens/App/Profile";
 import Dashboard from "./../screens/App/Dashboard";
 import NotificationsModal from "../components/NotificationsModal.jsx";
 import TabBarBackground from "../components/TabBarBackground.jsx";
+import { useTabBar } from "./TabBarProvider";
 
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
   const [notificationsVisible, setNotificationsVisible] = useState(false);
+
+  const { showTabBar } = useTabBar(); // Get the tab bar visibility state
+
   const tabAnimations = useRef({
     Dashboard: new Animated.Value(0),
     Requests: new Animated.Value(0),
@@ -91,6 +95,7 @@ const AppNavigator = () => {
             borderTopWidth: 0,
             position: "absolute",
             elevation: 0,
+            display: showTabBar ? "flex" : "none", // Hide or show tab bar based on context
           },
           tabBarBackground: () => <TabBarBackground />,
           tabBarActiveTintColor: "#FFD700",

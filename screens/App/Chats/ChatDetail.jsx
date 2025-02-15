@@ -26,6 +26,7 @@ import { getToken } from "../../../storage/TokenStorage";
 import { getMessagesAPI, sendMessageAPI } from "../../../api/Chat";
 import LottieView from "lottie-react-native";
 import { ActivityIndicator } from "react-native-paper";
+import { useTabBar } from "../../../navigations/TabBarProvider";
 
 const formatRepaymentPlan = (plan) => {
   return plan
@@ -59,6 +60,15 @@ export const ChatDetail = ({ route }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [banker, setBanker] = useState("");
   const [chatId, setChatId] = useState(itemId);
+
+  const { setShowTabBar } = useTabBar();
+  useEffect(() => {
+    // Hide the tab bar when this screen is shown
+    setShowTabBar(false);
+
+    // Show the tab bar again when leaving the screen
+    return () => setShowTabBar(true);
+  }, []);
 
   // const isFocused = useIsFocused();
   // const tabBarAnimation = useRef(new Animated.Value(1)).current; // 1 = visible, 0 = hidden

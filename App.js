@@ -10,7 +10,8 @@ import { StatusBar } from "react-native";
 import OnboardingNavigator from "./navigations/OnboardingNavigator";
 import { getToken } from "./storage/TokenStorage";
 import { getCompanyAPI } from "./api/Business";
-import { NotificationsProvider } from './context/NotificationsContext';
+import { NotificationsProvider } from "./context/NotificationsContext";
+import TabBarProvider from "./navigations/TabBarProvider";
 //----------
 
 export default function App() {
@@ -56,45 +57,48 @@ export default function App() {
   }, []);
 
   return (
-    <NotificationsProvider>
-      <SafeAreaView
-        style={{
-          flex: 1,
-          backgroundColor: "#292933",
-        }}
-        edges={[]}
-      >
-        <StatusBar barStyle="dark-content" backgroundColor="#292933" />
-        <PaperProvider>
-          <NavigationContainer>
-            <UserContext.Provider
-              value={{
-                authenticated,
-                setAuthenticated,
-                onboarded,
-                setOnboarded,
-                business, // Provide company data here
-                setBusiness, // You can provide a setter function for modifying the company data
-                businessAvatar,
-                setBusinessAvatar,
-                loans,
-                setLoans,
-              }}
-            >
-              {authenticated ? (
-                onboarded ? (
-                  <AppNavigator />
+    <TabBarProvider>
+      {/* Wrap your app with the TabBarProvider */}
+      <NotificationsProvider>
+        <SafeAreaView
+          style={{
+            flex: 1,
+            backgroundColor: "#292933",
+          }}
+          edges={[]}
+        >
+          <StatusBar barStyle="dark-content" backgroundColor="#292933" />
+          <PaperProvider>
+            <NavigationContainer>
+              <UserContext.Provider
+                value={{
+                  authenticated,
+                  setAuthenticated,
+                  onboarded,
+                  setOnboarded,
+                  business, // Provide company data here
+                  setBusiness, // You can provide a setter function for modifying the company data
+                  businessAvatar,
+                  setBusinessAvatar,
+                  loans,
+                  setLoans,
+                }}
+              >
+                {authenticated ? (
+                  onboarded ? (
+                    <AppNavigator />
+                  ) : (
+                    <OnboardingNavigator />
+                  )
                 ) : (
-                  <OnboardingNavigator />
-                )
-              ) : (
-                <AuthNavigator />
-              )}
-            </UserContext.Provider>
-          </NavigationContainer>
-        </PaperProvider>
-      </SafeAreaView>
-    </NotificationsProvider>
+                  <AuthNavigator />
+                )}
+              </UserContext.Provider>
+            </NavigationContainer>
+          </PaperProvider>
+        </SafeAreaView>
+      </NotificationsProvider>
+    </TabBarProvider>
   );
 }
 const styles = StyleSheet.create({
