@@ -27,7 +27,11 @@ const bankIcons = {
 };
 
 const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString) return "Invalid date"; // Handle undefined/null cases
+
   const date = new Date(dateTimeString);
+  if (isNaN(date.getTime())) return "Invalid date"; // Handle invalid date cases
+
   return date.toLocaleString(); // Formats to local date & time
 };
 
@@ -134,7 +138,9 @@ const ResponseActionModal = ({
               <MaterialCommunityIcons name="bank" size={40} color="#FFD700" />
             </View>
             <Image
-              source={response ? bankIcons[response?.banker.bank] : null}
+              source={
+                response?.banker?.bank ? bankIcons[response?.banker.bank] : null
+              }
               style={{
                 width: 70,
                 height: 70,
@@ -171,9 +177,13 @@ const ResponseActionModal = ({
                 : "Counter Offer"}
             </Text>
             <Text style={styles.amount}>
-              {response?.status === "APPROVED" && loan?.amount.toLocaleString()}
-              {response?.status === "COUNTER_OFFER" &&
-                response?.amount.toLocaleString()}
+              {response?.status === "APPROVED" && loan?.amount
+                ? loan.amount.toLocaleString()
+                : null}
+
+              {response?.status === "COUNTER_OFFER" && response?.amount
+                ? response.amount.toLocaleString()
+                : null}
             </Text>
 
             <View style={styles.detailsRow}>
@@ -184,7 +194,9 @@ const ResponseActionModal = ({
               />
               <Text style={styles.detailText}>
                 Response received on {"\n"}
-                {formatDateTime(response?.statusDate)}
+                {response?.statusDate
+                  ? formatDateTime(response?.statusDate)
+                  : "No status Date yet"}
               </Text>
             </View>
 
@@ -196,7 +208,7 @@ const ResponseActionModal = ({
               />
               <Text style={styles.detailText}>
                 Representative:
-                {response
+                {response?.banker?.firstName
                   ? capitalizeFirstLetter(
                       "_" +
                         response?.banker.firstName +

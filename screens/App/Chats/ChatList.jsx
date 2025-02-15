@@ -11,6 +11,15 @@ import { getChatsAPI } from "../../../api/Chat";
 import { useEffect, useState, SafeAreaView } from "react";
 import { getToken } from "../../../storage/TokenStorage";
 import { useNotifications } from "../../../context/NotificationsContext";
+import ChatAnimations from "../../../utils/animations/chatAnimations";
+import LottieView from "lottie-react-native";
+
+const formatRepaymentPlan = (plan) => {
+  return plan
+    .toLowerCase() // Convert to lowercase
+    .replace(/_/g, " ") // Replace underscores with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize each word
+};
 
 const avatarMap = {
   Me: require("../../../assets/bankers/ibrahim.png"),
@@ -39,7 +48,7 @@ export const ChatList = () => {
         // Map backend response to bankers structure
         const mappedBankers = chats.map((chat) => ({
           id: chat.id,
-          name: chat.banker.bank,
+          name: formatRepaymentPlan(chat.banker.bank),
           logo: avatarMap[chat.banker.bank] || "default-logo-url.png",
           lastMessage:
             chat.messages.length > 0
@@ -139,12 +148,29 @@ export const ChatList = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Chats</Text>
       </View>
-      <FlatList
-        data={bankers}
-        renderItem={renderBankItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-      />
+      {!bankers || bankers.length === 0 ? (
+        <View style={styles.noMessagesContainer}>
+          <LottieView
+            source={require("../../../assets/deskStudy.json")}
+            autoPlay
+            loop
+            style={styles.lottieAnimation}
+          />
+          <Text style={styles.loadingTitle}>
+            It’s a breezy day, no chats yet!
+          </Text>
+          <Text style={styles.loadingText}>
+            Your negotiation chats will pop up here
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={bankers}
+          renderItem={renderBankItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+        />
+      )}
     </View>
   );
 };
@@ -153,13 +179,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1C1C1E",
-    paddingTop: 50, // Add padding for status bar
   },
   headerContainer: {
     paddingHorizontal: 16,
     paddingVertical: 20,
     borderBottomWidth: 1,
     borderBottomColor: "#2C2C2E",
+  },
+  noMessagesContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 100,
+  },
+  lottieAnimation: {
+    Top: 100,
+    width: 250, // Adjust to your preferred size
+    height: 250,
+  },
+  loadingTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginTop: 10,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 5,
+    opacity: 0.9,
+  },
+  noMessagesText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: "#fff", // You can adjust the color
   },
   header: {
     fontSize: 28,

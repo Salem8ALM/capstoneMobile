@@ -10,7 +10,7 @@ import {
 } from "../../../utils/animations/buttonAnimations";
 import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
 import { useData } from "../../../context/DataContext";
-import LoanProgressBar from '../../../components/LoanProgressBar';
+import LoanProgressBar from "../../../components/LoanProgressBar";
 
 const AnimatedListItem = ({ item, onPress, style }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -461,7 +461,7 @@ const LoanRequestAmount = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#1C1C1E",
     paddingHorizontal: 20,
   },
   content: {

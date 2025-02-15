@@ -11,6 +11,7 @@ import Dashboard from "./../screens/App/Dashboard";
 import NotificationsModal from "../components/NotificationsModal.jsx";
 import TabBarBackground from "../components/TabBarBackground.jsx";
 import { useTabBar } from "./TabBarProvider";
+import ChatAnimations from "../utils/animations/chatAnimations";
 
 const Tab = createBottomTabNavigator();
 
@@ -98,6 +99,24 @@ const AppNavigator = () => {
 
   return (
     <>
+      <ChatAnimations
+        toValueSequence={[0.5, 0]}
+        duration={2000000}
+        outputRange={["45deg", "100deg"]}
+        lineSpacing={50}
+        lineOffset={0}
+        verticalOffset={50} // Shift the entire animation down by 50 units
+      />
+
+      <ChatAnimations
+        toValueSequence={[2, 0]}
+        duration={20000}
+        outputRange={["45deg", "100deg"]}
+        lineSpacing={100}
+        lineOffset={0}
+        verticalOffset={-30} // Shift the entire animation up by 30 units
+      />
+
       <Tab.Navigator
         screenOptions={{
           headerShown: false,

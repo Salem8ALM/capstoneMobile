@@ -223,7 +223,7 @@ export default function LoanRequestReview({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#1C1C1E",
     alignItems: "center",
     justifyContent: "center",
 

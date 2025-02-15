@@ -141,7 +141,7 @@ const HomeScreen = () => {
           token,
           business.entity.businessAvatarFileId
         );
-        
+
         if (image) {
           setAvatarUri(image);
         } else {
@@ -382,7 +382,7 @@ const HomeScreen = () => {
         height={220}
         chartConfig={{
           backgroundColor: "#2A2A2E",
-          backgroundGradientFrom: "#1C1C1E",
+          backgroundGradientFrom: "#2A2A2E",
           backgroundGradientTo: "#2A2A2E",
           decimalPlaces: 2,
           color: (opacity = 1) => `rgba(255, 215, 0, ${opacity})`,
@@ -407,6 +407,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     position: "relative",
     marginVertical: 10,
+    borderColor: "rgb(105, 105, 105)",
+    borderWidth: 0.3,
   },
   title: {
     fontSize: 18,

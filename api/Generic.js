@@ -14,13 +14,14 @@ const fetchImage = async (token, id) => {
         Buffer.from(response.data, "binary").toString("base64")
       )
       .catch((error) => {
-        console.error("Error fetching the image:", error);
-        throw new Error("Error fetching image. Please try again later.");
+        console.log("Error getting image: " + error.response.data);
+        throw error; // Re-throw to handle it in the calling function
       });
 
     return `data:image/png;base64,${base64Data}`;
   } catch (error) {
-    console.error(error.response.data);
+    console.log("Error getting image: " + error.response.data);
+    throw error; // Re-throw to handle it in the calling function
   }
 };
 

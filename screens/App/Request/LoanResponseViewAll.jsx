@@ -199,7 +199,11 @@ const LoanRequestDetails = ({ route, navigation }) => {
   };
 
   const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return "Invalid date"; // Handle undefined/null cases
+
     const date = new Date(dateTimeString);
+    if (isNaN(date.getTime())) return "Invalid date"; // Handle invalid date cases
+
     return date.toLocaleString(); // Formats to local date & time
   };
 
@@ -332,7 +336,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
                 {renderIcon("clock-outline")}
                 <Text style={styles.label}>Status Date</Text>
                 <Text style={styles.value}>
-                  {loan
+                  {loan?.statusDate
                     ? formatDateTime(loan.statusDate)
                     : "No Status Date found."}
                 </Text>
@@ -467,7 +471,9 @@ const LoanRequestDetails = ({ route, navigation }) => {
                           <View style={styles.dateContainer}>
                             {renderIcon("clock-outline", "#9E9E9E")}
                             <Text style={styles.responseDate}>
-                              {formatDateTime(response.statusDate)}
+                              {response?.statusDate
+                                ? formatDateTime(response.statusDate)
+                                : "Undefined"}
                             </Text>
                           </View>
                         </View>
@@ -595,7 +601,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1E1E1E",
+    backgroundColor: "#1C1C1E",
   },
   shineWrapper: {
     position: "absolute",

@@ -3,6 +3,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ChatList } from "./ChatList";
 import { ChatDetail } from "./ChatDetail";
 import { Platform, View } from "react-native";
+import ChatAnimations from "../../../utils/animations/chatAnimations";
 
 const Stack = createNativeStackNavigator();
 
@@ -15,7 +16,7 @@ export const Chat = () => {
             headerShown: false,
             contentStyle: {
               backgroundColor: "#1C1C1E",
-              paddingTop: Platform.OS === "ios" ? 30 : 20, // Apply paddingTop based on the platform
+              paddingTop: Platform.OS === "ios" ? 30 : 0, // Apply paddingTop based on the platform
             },
           }}
         >
