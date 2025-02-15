@@ -26,6 +26,8 @@ import { ActivityIndicator } from "react-native-paper";
 import { useTabBar } from "../../../navigations/TabBarProvider";
 import { getUser } from "../../../storage/UserStorage";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
+import { fetchMessages } from "./fetchMessages";
+import ChatAnimations from "../../../utils/animations/chatAnimations";
 
 const formatRepaymentPlan = (plan) => {
   return plan
@@ -105,35 +107,35 @@ export const ChatDetail = ({ route }) => {
     loadVideoCallInformation();
   });
 
-  const handleVideoCall = async () => {
-    if (videoCallUrl) {
-      try {
-        const supported = await Linking.canOpenURL(videoCallUrl);
+  // const handleVideoCall = async () => {
+  //   if (videoCallUrl) {
+  //     try {
+  //       const supported = await Linking.canOpenURL(videoCallUrl);
 
-        if (supported) {
-          await Linking.openURL(videoCallUrl);
-        } else {
-          setNotificationMessage("Cannot open video call URL");
-          setNotificationVisible(true);
-          setTimeout(() => {
-            setNotificationVisible(false);
-          }, 3000); // Hide the banner after 3 seconds
-        }
-      } catch (error) {
-        setNotificationMessage("Error opening video call URL");
-        setNotificationVisible(true);
-        setTimeout(() => {
-          setNotificationVisible(false);
-        }, 3000); // Hide the banner after 3 seconds
-      }
-    } else {
-      setNotificationMessage("Video call link is not ready yet");
-      setNotificationVisible(true);
-      setTimeout(() => {
-        setNotificationVisible(false);
-      }, 3000); // Hide the banner after 3 seconds
-    }
-  };
+  //       if (supported) {
+  //         await Linking.openURL(videoCallUrl);
+  //       } else {
+  //         setNotificationMessage("Cannot open video call URL");
+  //         setNotificationVisible(true);
+  //         setTimeout(() => {
+  //           setNotificationVisible(false);
+  //         }, 3000); // Hide the banner after 3 seconds
+  //       }
+  //     } catch (error) {
+  //       setNotificationMessage("Error opening video call URL");
+  //       setNotificationVisible(true);
+  //       setTimeout(() => {
+  //         setNotificationVisible(false);
+  //       }, 3000); // Hide the banner after 3 seconds
+  //     }
+  //   } else {
+  //     setNotificationMessage("Video call link is not ready yet");
+  //     setNotificationVisible(true);
+  //     setTimeout(() => {
+  //       setNotificationVisible(false);
+  //     }, 3000); // Hide the banner after 3 seconds
+  //   }
+  // };
 
   useEffect(() => {
     // Delay the tab bar hiding to give the animation a chance to play
@@ -188,52 +190,32 @@ export const ChatDetail = ({ route }) => {
       Keyboard.dismiss();
     }
   };
+  const intervalRef = useRef(null);
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const token = await getToken("access");
-        if (!token) {
-          setNotificationMessage(
-            "Unable to retrieve messages. Make sure you are authenticated"
-          );
-          setNotificationVisible(true);
-          setTimeout(() => {
-            setNotificationVisible(false);
-          }, 3000); // Hide the banner after 3 seconds
-          return;
-        }
+    const startFetchingMessages = () => {
+      if (intervalRef.current) return; // Prevent multiple intervals
 
-        const messages = await getMessagesAPI(token, chatId);
-
-        // Map backend messages to match the frontend format
-        const formattedMessages = messages.messages.map((msg) => ({
-          id: msg.id || "Unknown id",
-          text: msg.message || "Unknown message",
-          sent: msg.isYou || "Unknown recipient", // Assuming 'isYou' is a boolean (true if sent by the user)
-          timestamp: formatDateTime(msg.sentAt) || "Unknown Time", // If timestamp is not available, provide fallback
-        }));
-
-        setBanker(messages?.banker);
-        setMessages(formattedMessages);
-      } catch (error) {
-        setNotificationMessage(
-          "Error fetching messages. Ensure Internet connection"
+      intervalRef.current = setInterval(() => {
+        fetchMessages(
+          chatId,
+          setMessages,
+          setBanker,
+          setNotificationMessage,
+          setNotificationVisible
         );
-        setNotificationVisible(true);
-        setTimeout(() => {
-          setNotificationVisible(false);
-        }, 3000); // Hide the banner after 3 seconds
-      }
+      }, 3000);
     };
 
-    // Call fetchChatList every 3 seconds
-    const intervalId = setInterval(fetchMessages, 3000);
+    startFetchingMessages();
 
-    // Cleanup on unmount
-    return () => clearInterval(intervalId);
-  }, []); // Runs only on mount
-
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [chatId]); // Only restart if chatId changes
   const pickFile = async () => {
     try {
       // Request permission
@@ -427,6 +409,7 @@ export const ChatDetail = ({ route }) => {
         message={notificationMessage}
         visible={notificationVisible}
       />
+
       <View
         style={[
           styles.header,
@@ -531,6 +514,20 @@ export const ChatDetail = ({ route }) => {
           </View>
         </View>
       )}
+      <ChatAnimations
+        toValueSequence={[0.5, 0]}
+        duration={2000000}
+        outputRange={["45deg", "10000deg"]}
+        lineSpacing={5}
+        lineOffset={0}
+      />
+      <ChatAnimations
+        toValueSequence={[0.2, 0]}
+        duration={20000}
+        outputRange={["45deg", "1000deg"]}
+        lineSpacing={10}
+        lineOffset={5}
+      />
     </KeyboardAvoidingView>
   );
 };
