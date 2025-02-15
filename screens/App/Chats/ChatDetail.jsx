@@ -13,13 +13,19 @@ import {
   Platform,
   Keyboard,
   Alert,
+  Animated,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import {
+  useRoute,
+  useNavigation,
+  useIsFocused,
+} from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { getToken } from "../../../storage/TokenStorage";
 import { getMessagesAPI, sendMessageAPI } from "../../../api/Chat";
 import LottieView from "lottie-react-native";
+import { ActivityIndicator } from "react-native-paper";
 
 const formatRepaymentPlan = (plan) => {
   return plan
@@ -53,6 +59,36 @@ export const ChatDetail = ({ route }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [banker, setBanker] = useState("");
   const [chatId, setChatId] = useState(itemId);
+
+  // const isFocused = useIsFocused();
+  // const tabBarAnimation = useRef(new Animated.Value(1)).current; // 1 = visible, 0 = hidden
+
+  // useEffect(() => {
+  //   Animated.timing(tabBarAnimation, {
+  //     toValue: isFocused ? 0 : 1, // Hide when focused, show when not
+  //     duration: 300, // Smooth animation duration
+  //     useNativeDriver: true,
+  //   }).start();
+
+  //   navigation.getParent()?.setOptions({
+  //     tabBarStyle: {
+  //       backgroundColor: "transparent",
+  //       height: 60,
+  //       borderTopWidth: 0,
+  //       position: "absolute",
+  //       elevation: 0,
+  //       opacity: tabBarAnimation,
+  //       transform: [
+  //         {
+  //           translateY: tabBarAnimation.interpolate({
+  //             inputRange: [0, 1],
+  //             outputRange: [60, 0], // Moves down when hiding
+  //           }),
+  //         },
+  //       ],
+  //     },
+  //   });
+  // }, [isFocused]);
 
   const handleSendMessage = async () => {
     if (message.trim()) {
@@ -226,13 +262,25 @@ export const ChatDetail = ({ route }) => {
         ]}
       >
         <TouchableOpacity
-          onPress={() => navigation.replace("ChatList")}
+          onPress={() => {
+            navigation.pop();
+            navigation.replace("ChatList");
+          }}
           style={styles.backButton}
         >
           <Feather name="arrow-left" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={styles.bankInfo}>
-          <Image source={avatarMap[banker.bank]} style={styles.bankLogo} />
+          {!banker ? (
+            <LottieView
+              source={require("../../../assets/orangeHourglass")}
+              autoPlay
+              loop
+              style={styles.bankLogo}
+            />
+          ) : (
+            <Image source={avatarMap[banker.bank]} style={styles.bankLogo} />
+          )}
           <View>
             <Text style={styles.bankName}>
               {banker?.bank
@@ -245,7 +293,7 @@ export const ChatDetail = ({ route }) => {
                 : "a Representative"}
             </Text>
 
-            <Text style={styles.activeStatus}>Active now</Text>
+            {banker && <Text style={styles.activeStatus}>Active now</Text>}
           </View>
         </View>
         <TouchableOpacity style={styles.videoCall}>
@@ -254,12 +302,21 @@ export const ChatDetail = ({ route }) => {
       </View>
 
       {!banker ? (
-        <View style={styles.loadingMessages}>
+        <View style={styles.loadingContainer}>
           <LottieView
-            source={require("../../../assets/orangeHourglass")}
+            source={require("../../../assets/digital-marketing-of-electronic-devices")}
             autoPlay
             loop
             style={styles.lottieAnimation}
+          />
+          <Text style={styles.loadingTitle}>Loan Negotiation</Text>
+          <Text style={styles.loadingText}>
+            Negotiate wisely—convince the banker and secure your loan!
+          </Text>
+          <ActivityIndicator
+            size="large"
+            color="#fff"
+            style={styles.loadingIndicator}
           />
         </View>
       ) : (
@@ -273,37 +330,39 @@ export const ChatDetail = ({ route }) => {
         />
       )}
 
-      <View style={styles.bottomContainer}>
-        <View style={styles.inputContainer}>
-          <TouchableOpacity style={styles.attachButton} onPress={pickFile}>
-            <Feather name="paperclip" size={24} color="#8E8E93" />
-          </TouchableOpacity>
-          <TextInput
-            ref={inputRef}
-            style={styles.input}
-            placeholder="Write your message"
-            placeholderTextColor="#8E8E93"
-            value={message}
-            onChangeText={setMessage}
-            multiline={true}
-            maxHeight={100}
-            returnKeyType="send"
-            enablesReturnKeyAutomatically={true}
-            onSubmitEditing={handleSendMessage}
-            blurOnSubmit={false}
-          />
-          <TouchableOpacity
-            style={styles.sendButton}
-            onPress={handleSendMessage}
-          >
-            <Feather
-              name="send"
-              size={24}
-              color={message.trim() ? "#FFD700" : "#8E8E93"}
+      {banker && (
+        <View style={styles.bottomContainer}>
+          <View style={styles.inputContainer}>
+            <TouchableOpacity style={styles.attachButton} onPress={pickFile}>
+              <Feather name="paperclip" size={24} color="#8E8E93" />
+            </TouchableOpacity>
+            <TextInput
+              ref={inputRef}
+              style={styles.input}
+              placeholder="Write your message"
+              placeholderTextColor="#8E8E93"
+              value={message}
+              onChangeText={setMessage}
+              multiline={true}
+              maxHeight={100}
+              returnKeyType="send"
+              enablesReturnKeyAutomatically={true}
+              onSubmitEditing={handleSendMessage}
+              blurOnSubmit={false}
             />
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={handleSendMessage}
+            >
+              <Feather
+                name="send"
+                size={24}
+                color={message.trim() ? "#FFD700" : "#8E8E93"}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
     </KeyboardAvoidingView>
   );
 };
@@ -314,14 +373,35 @@ const styles = StyleSheet.create({
     backgroundColor: "#1C1C1E",
   },
   lottieAnimation: {
-    width: 200, // Adjust to your preferred size
-    height: 200,
+    width: 250, // Adjust to your preferred size
+    height: 250,
   },
   loadingMessages: {
     alignItems: "center",
     marginTop: "100",
   },
-
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  loadingTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginTop: 10,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 5,
+    opacity: 0.9,
+  },
+  loadingIndicator: {
+    marginTop: 15,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
