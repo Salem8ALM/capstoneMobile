@@ -16,11 +16,7 @@ import {
   Animated,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import {
-  useRoute,
-  useNavigation,
-  useIsFocused,
-} from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { getToken } from "../../../storage/TokenStorage";
 import { getMessagesAPI, sendMessageAPI } from "../../../api/Chat";
@@ -238,7 +234,7 @@ export const ChatDetail = ({ route }) => {
           paddingTop: Platform.OS === "ios" ? 10 : 0, // Apply paddingTop based on the platform
         },
       ]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : "padding"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       <View
@@ -476,7 +472,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#2C2C2E",
     backgroundColor: "#1C1C1E",
-    marginBottom: Platform.OS === "ios" ? 115 : 110,
+    marginBottom: Platform.OS === "ios" ? 115 : 10,
   },
   attachButton: {
     marginRight: 12,

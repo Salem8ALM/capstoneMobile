@@ -111,8 +111,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     justifyContent: "center",
-    // paddingHorizontal: 20,
-    paddingBottom: 40,
   },
   cardContainer: {
     flex: 1,
@@ -168,7 +166,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     margin: 10,
     marginTop: 20,
-    marginBottom: 40,
   },
   buttonText: {
     fontSize: 16,

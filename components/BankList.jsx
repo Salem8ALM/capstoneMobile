@@ -220,7 +220,6 @@ const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
-    height: 460, // Fixed height
     backgroundColor: "#1a1a1a",
   },
   titleContainer: {
@@ -244,7 +243,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   banksSection: {
-    height: 460, // Ensure this section also has a fixed height
+    height: 540, // Ensure this section also has a fixed height
   },
   header: {
     flexDirection: "row",
