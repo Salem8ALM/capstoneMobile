@@ -49,7 +49,7 @@ const OnboardAnimations = ({
       style={[
         StyleSheet.absoluteFillObject,
         {
-          opacity: 0.02,
+          opacity: 0.03,
           zIndex: 1,
           transform: [{ rotate }],
           pointerEvents: "none",
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: width * 2.5, // Extend width to cover rotated corners
     height: height * 2.5, // Extend height to ensure full coverage
-    backgroundColor: "#FFD700", // Golden color for the lines
+    backgroundColor: "rgb(138, 141, 211)", // Golden color for the lines
   },
 });
 export default OnboardAnimations;

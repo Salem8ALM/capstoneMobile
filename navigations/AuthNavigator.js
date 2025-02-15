@@ -15,7 +15,7 @@ const { width, height } = Dimensions.get("window");
 const AuthNavigator = () => {
   return (
     <LinearGradient
-      colors={["black", "rgb(31, 31, 22)", "black"]} // Gradient colors
+      colors={["black", "rgb(38, 38, 31)", "black"]} // Gradient colors
       style={styles.gradient}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}

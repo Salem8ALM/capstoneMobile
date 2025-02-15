@@ -48,6 +48,9 @@ import successAnimation from "../../assets/success.json";
 import failureAnimation from "../../assets/failure.json";
 import LoadingScreen from "../../components/LoadingScreen";
 import LottieAnimationDecision from "../../components/LottieAnimationDecision";
+import { LinearGradient } from "expo-linear-gradient";
+
+const { width, height } = Dimensions.get("window");
 
 const OnboardAddBusiness = () => {
   const [businessNickname, setBusinessNickname] = useState("");
@@ -347,201 +350,215 @@ const OnboardAddBusiness = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      {animationState === "waiting" && (
-        <View>
-          <LoadingScreen />
-        </View>
-      )}
+    <LinearGradient
+      colors={["black", "rgb(38, 38, 31)", "black"]} // Gradient colors
+      style={styles.gradient}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+    >
+      <View style={styles.container}>
+        {animationState === "waiting" && (
+          <View>
+            <LoadingScreen />
+          </View>
+        )}
 
-      <LottieAnimationDecision
-        source={successAnimation}
-        visible={animationState === "success"}
-        onAnimationFinish={handleAnimationFinish}
-      />
-      <LottieAnimationDecision
-        source={failureAnimation}
-        visible={animationState === "failure"}
-        onAnimationFinish={handleAnimationFinish}
-      />
-      <NotificationBanner
-        message={notificationMessage}
-        visible={notificationVisible}
-      />
-      <View style={styles.content}>
-        <Text style={styles.title}>Add Your Business</Text>
-        <Animated.View
-          style={[
-            styles.avatarContainer,
-            {
-              transform: [
-                {
-                  scale: avatarAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.1],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TouchableOpacity
-            onPressIn={pressIn} // Call the handle function when the press starts
-            onPressOut={pressOut} // Call the handle function when the press ends
-            onPress={() =>
-              pickFile(
-                setAvatar,
-                setUploadText,
-                setUploadIcon,
-                "Document Successfully Uploaded"
-              )
-            }
-            style={styles.avatarButton}
+        <LottieAnimationDecision
+          source={successAnimation}
+          visible={animationState === "success"}
+          onAnimationFinish={handleAnimationFinish}
+        />
+        <LottieAnimationDecision
+          source={failureAnimation}
+          visible={animationState === "failure"}
+          onAnimationFinish={handleAnimationFinish}
+        />
+        <NotificationBanner
+          message={notificationMessage}
+          visible={notificationVisible}
+        />
+        <View style={styles.content}>
+          <Text style={styles.title}>Add Your Business</Text>
+          <Animated.View
+            style={[
+              styles.avatarContainer,
+              {
+                transform: [
+                  {
+                    scale: avatarAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.1],
+                    }),
+                  },
+                ],
+              },
+            ]}
           >
-            {avatar ? (
-              <Image source={{ uri: avatar }} style={styles.avatarImage} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <MaterialCommunityIcons
-                  name={avatarIcon}
-                  size={40}
-                  color="#FFD700"
+            <TouchableOpacity
+              onPressIn={pressIn} // Call the handle function when the press starts
+              onPressOut={pressOut} // Call the handle function when the press ends
+              onPress={() =>
+                pickFile(
+                  setAvatar,
+                  setUploadText,
+                  setUploadIcon,
+                  "Document Successfully Uploaded"
+                )
+              }
+              style={styles.avatarButton}
+            >
+              {avatar ? (
+                <Image source={{ uri: avatar }} style={styles.avatarImage} />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <MaterialCommunityIcons
+                    name={avatarIcon}
+                    size={40}
+                    color="#FFD700"
+                  />
+                </View>
+              )}
+            </TouchableOpacity>
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                transform: [
+                  {
+                    scale: businessNicknameAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <TextInput
+              label="Bussiness Nickname"
+              value={businessNickname}
+              ref={inputRef}
+              onChangeText={setBusinessNickname}
+              mode="outlined"
+              keyboardType="default" // Default keyboard for mixed input
+              textContentType="username" // Hints the type of input to autofill services
+              left={
+                <TextInput.Icon
+                  icon="account-circle-outline"
+                  color={
+                    focusedField === "businessNickname"
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.2)"
+                  }
                 />
-              </View>
-            )}
-          </TouchableOpacity>
-        </Animated.View>
+              }
+              style={styles.input}
+              textColor="white"
+              onFocus={() => {
+                setFocusedField("businessNickname");
+                animateField(businessNicknameAnim, 1);
+              }}
+              onBlur={() => {
+                setFocusedField("");
+                animateField(businessNicknameAnim, 0);
+              }}
+              theme={{ colors: { primary: "#FFD700" } }} // Dark background
+            />
+          </Animated.View>
 
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            {
-              transform: [
-                {
-                  scale: businessNicknameAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.05],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <TextInput
-            label="Bussiness Nickname"
-            value={businessNickname}
-            ref={inputRef}
-            onChangeText={setBusinessNickname}
-            mode="outlined"
-            keyboardType="default" // Default keyboard for mixed input
-            textContentType="username" // Hints the type of input to autofill services
-            left={
-              <TextInput.Icon
-                icon="account-circle-outline"
-                color={
-                  focusedField === "businessNickname"
-                    ? "#FFD700"
-                    : "rgba(255,255,255,0.2)"
-                }
-              />
-            }
-            style={styles.input}
-            textColor="white"
-            onFocus={() => {
-              setFocusedField("businessNickname");
-              animateField(businessNicknameAnim, 1);
-            }}
-            onBlur={() => {
-              setFocusedField("");
-              animateField(businessNicknameAnim, 0);
-            }}
-            theme={{ colors: { primary: "#FFD700" } }} // Dark background
-          />
-        </Animated.View>
-
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            { transform: [{ scale: pdfUploadAnim }] },
-          ]}
-        >
-          <Button
-            icon={({ color }) => (
-              <MaterialCommunityIcons
-                name={uploadIcon}
-                size={24}
-                color={color}
-              />
-            )}
-            mode="outlined"
-            onPressIn={() => handlePressIn(pdfUploadAnim)}
-            onPressOut={() => handlePressOut(pdfUploadAnim)}
-            style={styles.secondaryButton}
-            labelStyle={styles.secondaryButtonText}
-            onPress={() =>
-              pickFile(
-                setSelectedDocument,
-                setUploadText,
-                setUploadIcon,
-                "Document Successfully Uploaded"
-              )
-            }
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { transform: [{ scale: pdfUploadAnim }] },
+            ]}
           >
-            {uploadText}
-          </Button>
-        </Animated.View>
+            <Button
+              icon={({ color }) => (
+                <MaterialCommunityIcons
+                  name={uploadIcon}
+                  size={24}
+                  color={color}
+                />
+              )}
+              mode="outlined"
+              onPressIn={() => handlePressIn(pdfUploadAnim)}
+              onPressOut={() => handlePressOut(pdfUploadAnim)}
+              style={styles.secondaryButton}
+              labelStyle={styles.secondaryButtonText}
+              onPress={() =>
+                pickFile(
+                  setSelectedDocument,
+                  setUploadText,
+                  setUploadIcon,
+                  "Document Successfully Uploaded"
+                )
+              }
+            >
+              {uploadText}
+            </Button>
+          </Animated.View>
 
-        <Animated.View
-          style={[styles.buttonContainer, { transform: [{ scale: scanAnim }] }]}
-        >
-          <Button
-            icon={({ color }) => (
-              <MaterialCommunityIcons name={scanIcon} size={24} color={color} />
-            )}
-            mode="outlined"
-            onPressIn={() => handlePressIn(scanAnim)}
-            onPressOut={() => handlePressOut(scanAnim)}
-            style={styles.secondaryButton}
-            labelStyle={styles.secondaryButtonText}
-            onPress={() =>
-              pickFile(
-                setSelectedPhoto,
-                setScanText,
-                setScanIcon,
-                "License Scanned and Attached"
-              )
-            }
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { transform: [{ scale: scanAnim }] },
+            ]}
           >
-            {scanText}
-          </Button>
-        </Animated.View>
+            <Button
+              icon={({ color }) => (
+                <MaterialCommunityIcons
+                  name={scanIcon}
+                  size={24}
+                  color={color}
+                />
+              )}
+              mode="outlined"
+              onPressIn={() => handlePressIn(scanAnim)}
+              onPressOut={() => handlePressOut(scanAnim)}
+              style={styles.secondaryButton}
+              labelStyle={styles.secondaryButtonText}
+              onPress={() =>
+                pickFile(
+                  setSelectedPhoto,
+                  setScanText,
+                  setScanIcon,
+                  "License Scanned and Attached"
+                )
+              }
+            >
+              {scanText}
+            </Button>
+          </Animated.View>
 
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            { transform: [{ scale: buttonAnim }] },
-          ]}
-        >
-          <Button
-            icon={({ color }) => (
-              <MaterialCommunityIcons
-                name="check-circle"
-                size={24}
-                color={color}
-              />
-            )}
-            mode="contained"
-            onPressIn={() => handlePressIn(buttonAnim)}
-            onPressOut={() => handlePressOut(buttonAnim)}
-            style={styles.submit}
-            labelStyle={styles.buttonText}
-            onPress={handleSubmit}
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { transform: [{ scale: buttonAnim }] },
+            ]}
           >
-            {submitText}
-          </Button>
-        </Animated.View>
+            <Button
+              icon={({ color }) => (
+                <MaterialCommunityIcons
+                  name="check-circle"
+                  size={24}
+                  color={color}
+                />
+              )}
+              mode="contained"
+              onPressIn={() => handlePressIn(buttonAnim)}
+              onPressOut={() => handlePressOut(buttonAnim)}
+              style={styles.submit}
+              labelStyle={styles.buttonText}
+              onPress={handleSubmit}
+            >
+              {submitText}
+            </Button>
+          </Animated.View>
+        </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -549,6 +566,11 @@ const styles = StyleSheet.create({
   container2: {
     justifyContent: "center",
     alignItems: "center",
+  },
+  gradient: {
+    flex: 1,
+    width: width,
+    height: height,
   },
   image: {
     width: 300,
@@ -561,7 +583,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
 
-    backgroundColor: "#1a1a1a",
+    // backgroundColor: "#1a1a1a",
   },
   input: {
     marginBottom: 20,

@@ -196,7 +196,7 @@ const RegisterScreenAdvance = ({ route }) => {
 
   return (
     <LinearGradient
-      colors={["black", "rgb(31, 31, 22)", "black"]} // Gradient colors
+      colors={["black", "rgb(38, 38, 31)", "black"]} // Gradient colors
       style={styles.gradient} // Full-screen gradient
       start={{ x: 0, y: 0 }} // Gradient starts at the top
       end={{ x: 0, y: 1 }} // Gradient ends at the bottom
