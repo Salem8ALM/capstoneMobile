@@ -14,6 +14,7 @@ import {
   Keyboard,
   Alert,
   Animated,
+  Linking,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -23,6 +24,7 @@ import { getMessagesAPI, sendMessageAPI } from "../../../api/Chat";
 import LottieView from "lottie-react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { useTabBar } from "../../../navigations/TabBarProvider";
+import { getUser } from "../../../storage/UserStorage";
 
 const formatRepaymentPlan = (plan) => {
   return plan
@@ -47,6 +49,8 @@ function capitalizeFirstLetter(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+const VIDEOCALL_URL = "https://4840-188-236-216-130.ngrok-free.app/chat";
+
 export const ChatDetail = ({ route }) => {
   const navigation = useNavigation();
   const { itemId } = route.params;
@@ -56,8 +60,53 @@ export const ChatDetail = ({ route }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [banker, setBanker] = useState("");
   const [chatId, setChatId] = useState(itemId);
-
+  const [videoCallUrl, setVideoCallUrl] = useState("");
   const { setShowTabBar } = useTabBar();
+
+  // Load video call information
+  useEffect(() => {
+    const loadVideoCallInformation = async () => {
+      try {
+        const token = await getToken("access");
+        const user = await getUser();
+
+        if (!token || !user) {
+          console.error("Missing authentication information");
+          return;
+        }
+
+        const url = `${VIDEOCALL_URL}/${chatId}?username=${
+          user.sub
+        }&token=${encodeURIComponent(token)}`;
+
+        console.log(url);
+        setVideoCallUrl(url);
+      } catch (error) {
+        console.error("Error loading video call information:", error);
+      }
+    };
+
+    loadVideoCallInformation();
+  });
+
+  const handleVideoCall = async () => {
+    if (videoCallUrl) {
+      try {
+        const supported = await Linking.canOpenURL(videoCallUrl);
+
+        if (supported) {
+          await Linking.openURL(videoCallUrl);
+        } else {
+          Alert.alert("Error", "Cannot open video call URL");
+        }
+      } catch (error) {
+        console.error("Error opening video call URL:", error);
+        Alert.alert("Error", "Failed to open video call");
+      }
+    } else {
+      Alert.alert("Notice", "Video call link is not ready yet");
+    }
+  };
 
   useEffect(() => {
     // Delay the tab bar hiding to give the animation a chance to play
@@ -179,29 +228,112 @@ export const ChatDetail = ({ route }) => {
     }
   };
 
-  const renderMessage = ({ item }) => (
-    <View
-      style={[
-        styles.messageContainer,
-        item.sent ? styles.sentMessage : styles.receivedMessage,
-      ]}
-    >
-      {!item.sent && (
-        <Image source={avatarMap[banker.bank]} style={styles.messageLogo} />
-      )}
+  const renderMessage = ({ item }) => {
+    const isCallMessage = item.text.endsWith("is calling");
+
+    if (isCallMessage) {
+      return (
+        <View
+          style={[
+            styles.messageContainer,
+            item.sent ? styles.sentMessage : styles.receivedMessage,
+          ]}
+        >
+          <Image source={avatarMap[banker.bank]} style={styles.messageLogo} />
+          <View
+            style={[
+              styles.messageBubble,
+              styles.callMessageBubble,
+              item.sent ? styles.sentBubble : styles.receivedBubble,
+            ]}
+          >
+            <Text
+              style={[
+                styles.senderName,
+                item.sent ? styles.sentMessageText : styles.receivedMessageText,
+              ]}
+            >
+              {item.sent ? "You" : capitalizeFirstLetter(banker.firstName)}
+            </Text>
+            <View style={styles.callInfoContainer}>
+              <Feather
+                name="video"
+                size={20}
+                color={item.sent ? "#000" : "#000"}
+              />
+              <Text
+                style={[
+                  styles.messageText,
+                  item.sent
+                    ? styles.sentMessageText
+                    : styles.receivedMessageText,
+                ]}
+              >
+                Started a video call
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.joinCallButton}
+              onPress={() => {
+                if (videoCallUrl) {
+                  Linking.openURL(videoCallUrl).catch((err) => {
+                    console.error("Error opening video call:", err);
+                    Alert.alert("Error", "Could not open video call");
+                  });
+                }
+              }}
+            >
+              <Text style={styles.joinCallText}>Join Call</Text>
+            </TouchableOpacity>
+            <Text style={styles.messageTimestamp}>{item.timestamp}</Text>
+          </View>
+        </View>
+      );
+    }
+
+    return (
       <View
         style={[
-          styles.messageBubble,
-          item.sent ? styles.sentBubble : styles.receivedBubble,
+          styles.messageContainer,
+          item.sent ? styles.sentMessage : styles.receivedMessage,
         ]}
       >
-        {item.isFile ? (
-          <View style={styles.fileMessage}>
-            <Feather
-              name="file"
-              size={24}
-              color={item.sent ? "#000" : "#FFF"}
-            />
+        {!item.sent && (
+          <Image source={avatarMap[banker.bank]} style={styles.messageLogo} />
+        )}
+        <View
+          style={[
+            styles.messageBubble,
+            item.sent ? styles.sentBubble : styles.receivedBubble,
+          ]}
+        >
+          <Text
+            style={[
+              styles.senderName,
+              item.sent ? styles.sentMessageText : styles.receivedMessageText,
+            ]}
+          >
+            {item.sent ? "You" : capitalizeFirstLetter(banker.firstName)}
+          </Text>
+          {item.isFile ? (
+            <View style={styles.fileMessage}>
+              <Feather
+                name="file"
+                size={24}
+                color={item.sent ? "#000" : "#000"}
+              />
+              <Text
+                style={[
+                  styles.messageText,
+                  item.sent
+                    ? styles.sentMessageText
+                    : styles.receivedMessageText,
+                ]}
+              >
+                {item.text}
+              </Text>
+            </View>
+          ) : (
             <Text
               style={[
                 styles.messageText,
@@ -210,21 +342,12 @@ export const ChatDetail = ({ route }) => {
             >
               {item.text}
             </Text>
-          </View>
-        ) : (
-          <Text
-            style={[
-              styles.messageText,
-              item.sent ? styles.sentMessageText : styles.receivedMessageText,
-            ]}
-          >
-            {item.text}
-          </Text>
-        )}
-        <Text style={styles.messageTimestamp}>{item.timestamp}</Text>
+          )}
+          <Text style={styles.messageTimestamp}>{item.timestamp}</Text>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -278,9 +401,9 @@ export const ChatDetail = ({ route }) => {
             {banker && <Text style={styles.activeStatus}>Active now</Text>}
           </View>
         </View>
-        <TouchableOpacity style={styles.videoCall}>
+        {/* <TouchableOpacity style={styles.videoCall} onPress={handleVideoCall}>
           <Feather name="video" size={24} color="#FFD700" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {!banker ? (
@@ -392,6 +515,38 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#2C2C2E",
   },
+  callMessageBubble: {
+    backgroundColor: "#FFD700",
+    padding: 16,
+  },
+
+  senderName: {
+    fontSize: 15,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+
+  callInfoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginVertical: 8,
+  },
+
+  joinCallButton: {
+    backgroundColor: "#FFFFFF",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
+    alignItems: "center",
+  },
+
+  joinCallText: {
+    color: "#000000",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+
   backButton: {
     marginRight: 16,
   },
