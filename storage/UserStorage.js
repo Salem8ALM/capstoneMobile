@@ -1,4 +1,4 @@
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { getToken, deleteToken } from "./TokenStorage";
 
 export async function getUser() {
@@ -19,4 +19,4 @@ export async function getUser() {
     console.error("Failed to decode token:", error);
     return null;
   }
-} 
+}
