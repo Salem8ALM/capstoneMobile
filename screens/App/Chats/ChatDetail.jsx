@@ -168,13 +168,13 @@ export const ChatDetail = ({ route }) => {
 
         // Map backend messages to match the frontend format
         const formattedMessages = messages.messages.map((msg) => ({
-          id: msg.id,
-          text: msg.message,
-          sent: msg.isYou, // Assuming 'isYou' is a boolean (true if sent by the user)
+          id: msg.id || "Unknown id",
+          text: msg.message || "Unknown message",
+          sent: msg.isYou || "Unknown recipient", // Assuming 'isYou' is a boolean (true if sent by the user)
           timestamp: formatDateTime(msg.sentAt) || "Unknown Time", // If timestamp is not available, provide fallback
         }));
 
-        setBanker(messages.banker);
+        setBanker(messages?.banker);
         setMessages(formattedMessages);
       } catch (error) {
         console.error("Error fetching messages:", error);
@@ -404,9 +404,6 @@ export const ChatDetail = ({ route }) => {
             {banker && <Text style={styles.activeStatus}>Active now</Text>}
           </View>
         </View>
-        {/* <TouchableOpacity style={styles.videoCall} onPress={handleVideoCall}>
-          <Feather name="video" size={24} color="#FFD700" />
-        </TouchableOpacity> */}
       </View>
 
       {!banker ? (

@@ -336,7 +336,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
                 {renderIcon("clock-outline")}
                 <Text style={styles.label}>Status Date</Text>
                 <Text style={styles.value}>
-                  {loan
+                  {loan?.statusDate
                     ? formatDateTime(loan.statusDate)
                     : "No Status Date found."}
                 </Text>
