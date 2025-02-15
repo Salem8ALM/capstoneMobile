@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Animated, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
@@ -84,6 +84,18 @@ const AppNavigator = () => {
     </Animated.View>
   );
 
+  // Initialize Animated.Value to control sliding
+  const slideAnim = useRef(new Animated.Value(0)).current; // 0 means tab bar is visible initially
+
+  // Trigger the slide animation whenever showTabBar changes
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: showTabBar ? 0 : 60, // Slide up to 0 (show) when true, slide down to 60 (hide) when false
+      duration: 300, // Animation duration
+      useNativeDriver: true, // Use native driver for performance
+    }).start();
+  }, [showTabBar]); // Run animation when showTabBar changes
+
   return (
     <>
       <Tab.Navigator
@@ -96,6 +108,7 @@ const AppNavigator = () => {
             position: "absolute",
             elevation: 0,
             display: showTabBar ? "flex" : "none", // Hide or show tab bar based on context
+            transform: [{ translateY: slideAnim }], // Apply sliding animation
           },
           tabBarBackground: () => <TabBarBackground />,
           tabBarActiveTintColor: "#FFD700",

@@ -62,43 +62,19 @@ export const ChatDetail = ({ route }) => {
   const [chatId, setChatId] = useState(itemId);
 
   const { setShowTabBar } = useTabBar();
+
   useEffect(() => {
-    // Hide the tab bar when this screen is shown
-    setShowTabBar(false);
+    // Delay the tab bar hiding to give the animation a chance to play
+    const hideTabBarTimeout = setTimeout(() => {
+      setShowTabBar(false);
+    }, 100); // Adjust delay as necessary to allow animation time
 
-    // Show the tab bar again when leaving the screen
-    return () => setShowTabBar(true);
-  }, []);
-
-  // const isFocused = useIsFocused();
-  // const tabBarAnimation = useRef(new Animated.Value(1)).current; // 1 = visible, 0 = hidden
-
-  // useEffect(() => {
-  //   Animated.timing(tabBarAnimation, {
-  //     toValue: isFocused ? 0 : 1, // Hide when focused, show when not
-  //     duration: 300, // Smooth animation duration
-  //     useNativeDriver: true,
-  //   }).start();
-
-  //   navigation.getParent()?.setOptions({
-  //     tabBarStyle: {
-  //       backgroundColor: "transparent",
-  //       height: 60,
-  //       borderTopWidth: 0,
-  //       position: "absolute",
-  //       elevation: 0,
-  //       opacity: tabBarAnimation,
-  //       transform: [
-  //         {
-  //           translateY: tabBarAnimation.interpolate({
-  //             inputRange: [0, 1],
-  //             outputRange: [60, 0], // Moves down when hiding
-  //           }),
-  //         },
-  //       ],
-  //     },
-  //   });
-  // }, [isFocused]);
+    // Reset the tab bar visibility when leaving the screen
+    return () => {
+      clearTimeout(hideTabBarTimeout); // Clear the timeout to prevent unnecessary calls
+      setShowTabBar(true);
+    };
+  }, []); // Empty dependency array ensures this runs only once when the screen is mounted
 
   const handleSendMessage = async () => {
     if (message.trim()) {
