@@ -8,6 +8,8 @@ import { deleteToken, getToken } from "../../storage/TokenStorage";
 import axios from "axios";
 import { fetchImage } from "../../api/Generic";
 import instance from "../../api";
+import LottieView from "lottie-react-native";
+import { ActivityIndicator } from "react-native-paper";
 
 export function Profile() {
   const { setAuthenticated, setOnboarded, business } = useContext(UserContext);
@@ -96,7 +98,24 @@ export function Profile() {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
+        <View style={styles.loadingContainer}>
+          <LottieView
+            source={require("../../assets/profileLoad.json")}
+            autoPlay
+            loop
+            style={styles.lottieAnimation}
+          />
+          <Text style={styles.loadingTitle}>Fetching Your Profile</Text>
+          <Text style={styles.loadingText}>
+            Hang tight—your profile is on its way!
+          </Text>
+
+          <ActivityIndicator
+            size="large"
+            color="#fff"
+            style={styles.loadingIndicator}
+          />
+        </View>
       </View>
     );
   }
@@ -210,6 +229,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 30,
   },
+  lottieAnimation: {
+    width: 250, // Adjust to your preferred size
+    height: 250,
+  },
+  loadingMessages: {
+    alignItems: "center",
+  },
+  loadingIndicator: {
+    marginTop: 15,
+  },
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    marginTop: 50,
+  },
+  loadingTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginTop: 10,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    textAlign: "center",
+
+    marginTop: 5,
+    opacity: 0.9,
+  },
+
   userAvatar: {
     width: 60, // Increased size
     height: 60, // Increased size
