@@ -13,19 +13,14 @@ import {
   Platform,
   Keyboard,
   Alert,
-  Modal,
-  SafeAreaView,
   Animated,
   Linking,
 } from "react-native";
-import { WebView } from "react-native-webview";
 import { Feather } from "@expo/vector-icons";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { getToken } from "../../../storage/TokenStorage";
 import { getMessagesAPI, sendMessageAPI } from "../../../api/Chat";
-import { getUser } from "../../../storage/UserStorage";
-import { CameraView, useCameraPermissions } from "expo-camera";
 import LottieView from "lottie-react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { useTabBar } from "../../../navigations/TabBarProvider";
@@ -50,8 +45,9 @@ const avatarMap = {
   WARBA_BANK: require("../../../assets/bankers/salem.png"),
 };
 
-const VIDEOCALL_URL = "https://8785-188-236-216-130.ngrok-free.app/chat";
-const CHATID = 1;
+function capitalizeFirstLetter(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 const VIDEOCALL_URL = "https://4840-188-236-216-130.ngrok-free.app/chat";
 
@@ -65,7 +61,6 @@ export const ChatDetail = ({ route }) => {
   const [banker, setBanker] = useState("");
   const [chatId, setChatId] = useState(itemId);
   const [videoCallUrl, setVideoCallUrl] = useState("");
-<<<<<<< HEAD
   const { setShowTabBar } = useTabBar();
 
   // Load video call information
@@ -113,18 +108,6 @@ export const ChatDetail = ({ route }) => {
     }
   };
 
-=======
-  const [showVideoCall, setShowVideoCall] = useState(false);
-  const [permission, requestPermission] = useCameraPermissions();
-  const [isPermissionGranted, setIsPermissionGranted] = useState(false);
-  const { setShowTabBar } = useTabBar();
-
-  function capitalizeFirstLetter(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  // Animation
->>>>>>> 9014d72a2d1c8e5f2a4f8ddaea61db6fbf6b9739
   useEffect(() => {
     // Delay the tab bar hiding to give the animation a chance to play
     const hideTabBarTimeout = setTimeout(() => {
@@ -137,31 +120,6 @@ export const ChatDetail = ({ route }) => {
       setShowTabBar(true);
     };
   }, []); // Empty dependency array ensures this runs only once when the screen is mounted
-
-  // Load call information
-  useEffect(() => {
-    const loadVideoCallInformation = async () => {
-      try {
-        const token = await getToken("access");
-        const user = await getUser();
-
-        if (!token || !user) {
-          console.error("Missing authentication information");
-          return;
-        }
-
-        const url = `${VIDEOCALL_URL}/${chatId}?username=${
-          user.sub
-        }&token=${encodeURIComponent(token)}`;
-
-        setVideoCallUrl(url);
-      } catch (error) {
-        console.error("Error loading video call information:", error);
-      }
-    };
-
-    loadVideoCallInformation();
-  });
 
   const handleSendMessage = async () => {
     if (message.trim()) {
@@ -391,24 +349,6 @@ export const ChatDetail = ({ route }) => {
     );
   };
 
-  // Camera permissions
-  useEffect(() => {
-    checkAndRequestPermissions();
-  }, []);
-
-  const checkAndRequestPermissions = async () => {
-    if (!permission?.granted) {
-      const permissionResult = await requestPermission();
-      setIsPermissionGranted(permissionResult.granted);
-    } else {
-      setIsPermissionGranted(true);
-    }
-  };
-
-  const handleVideoCallPress = () => {
-    setShowVideoCall(true);
-  };
-
   return (
     <KeyboardAvoidingView
       style={[
@@ -420,56 +360,6 @@ export const ChatDetail = ({ route }) => {
       behavior={Platform.OS === "ios" ? "padding" : "padding"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
-      {/* Video Call Modal */}
-      <Modal
-        visible={showVideoCall}
-        animationType="slide"
-        onRequestClose={() => setShowVideoCall(false)}
-      >
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <TouchableOpacity
-              onPress={() => setShowVideoCall(false)}
-              style={styles.closeButton}
-            >
-              <Feather name="x" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-            <Text style={styles.modalTitle}>Video Call</Text>
-          </View>
-
-          {!isPermissionGranted ? (
-            <View style={styles.permissionContainer}>
-              <Text style={styles.permissionText}>
-                We need camera permission for the video call
-              </Text>
-              <TouchableOpacity
-                style={styles.permissionButton}
-                onPress={checkAndRequestPermissions}
-              >
-                <Text style={styles.permissionButtonText}>
-                  Grant Permission
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <WebView
-              source={{ uri: videoCallUrl }}
-              style={styles.webview}
-              javaScriptEnabled={true}
-              domStorageEnabled={true}
-              startInLoadingState={true}
-              mediaPlaybackRequiresUserAction={false}
-              allowsInlineMediaPlayback={true}
-              mediaPlaybackRequiresUserAction={false}
-              onShouldStartLoadWithRequest={(request) => {
-                // Handle any special URLs or permissions here
-                return true;
-              }}
-            />
-          )}
-        </SafeAreaView>
-      </Modal>
-
       <View
         style={[
           styles.header,
@@ -511,14 +401,7 @@ export const ChatDetail = ({ route }) => {
             {banker && <Text style={styles.activeStatus}>Active now</Text>}
           </View>
         </View>
-<<<<<<< HEAD
         {/* <TouchableOpacity style={styles.videoCall} onPress={handleVideoCall}>
-=======
-        <TouchableOpacity
-          style={styles.videoCall}
-          onPress={handleVideoCallPress}
-        >
->>>>>>> 9014d72a2d1c8e5f2a4f8ddaea61db6fbf6b9739
           <Feather name="video" size={24} color="#FFD700" />
         </TouchableOpacity> */}
       </View>
@@ -593,13 +476,42 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1C1C1E",
-    paddingTop: 10,
+  },
+  lottieAnimation: {
+    width: 250, // Adjust to your preferred size
+    height: 250,
+  },
+  loadingMessages: {
+    alignItems: "center",
+  },
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    marginTop: 50,
+  },
+  loadingTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginTop: 10,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 5,
+    opacity: 0.9,
+  },
+  loadingIndicator: {
+    marginTop: 15,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    paddingVertical: 20,
+    padding: 10,
+    paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#2C2C2E",
   },
@@ -715,7 +627,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#2C2C2E",
     backgroundColor: "#1C1C1E",
-    marginBottom: Platform.OS === "ios" ? 115 : 110,
+    marginBottom: Platform.OS === "ios" ? 115 : 10,
   },
   attachButton: {
     marginRight: 12,
@@ -749,33 +661,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-  },
-
-  modalContainer: {
-    flex: 1,
-    backgroundColor: "#1C1C1E",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#2C2C2E",
-  },
-  closeButton: {
-    padding: 8,
-  },
-  modalTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#FFFFFF",
-    textAlign: "center",
-    marginRight: 40, // To offset the close button and center the title
-  },
-  webview: {
-    flex: 1,
-    backgroundColor: "#1C1C1E",
   },
 });
 
