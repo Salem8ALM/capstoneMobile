@@ -247,6 +247,7 @@ export const ChatDetail = ({ route }) => {
   const renderMessage = ({ item }) => {
     const isCallMessage = item.text.endsWith("is calling");
 
+    console.log(banker?.bank);
     if (isCallMessage) {
       return (
         <View
@@ -255,7 +256,7 @@ export const ChatDetail = ({ route }) => {
             item.sent ? styles.sentMessage : styles.receivedMessage,
           ]}
         >
-          <Image source={avatarMap[banker.bank]} style={styles.messageLogo} />
+          {/* <Image source={avatarMap[banker?.bank]} style={styles.messageLogo} /> */}
           <View
             style={[
               styles.messageBubble,
@@ -318,7 +319,7 @@ export const ChatDetail = ({ route }) => {
           item?.sent === true ? styles.sentMessage : styles.receivedMessage,
         ]}
       >
-        {!item.sent === true && (
+        {!(item.sent == true) && (
           <Image source={avatarMap[banker?.bank]} style={styles.messageLogo} />
         )}
         <View
