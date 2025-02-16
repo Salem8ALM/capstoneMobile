@@ -120,7 +120,15 @@ export const ChatList = () => {
 
   const renderBankItem = ({ item }) => (
     <TouchableOpacity
-      style={styles.bankItem}
+      style={[
+        styles.bankItem,
+        {
+          backgroundColor:
+            item.lastMessageBank !== "NOT_BANK"
+              ? "rgba(255, 255, 255, 0.1)"
+              : "rgba(0,0,0,0)",
+        },
+      ]}
       onPress={() => navigation.navigate("ChatDetail", { itemId: item.id })}
     >
       <View style={styles.bankInfo}>
@@ -231,11 +239,11 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    // paddingTop: 16,
   },
   bankItem: {
-    marginBottom: 16,
+    marginBottom: 5,
+    padding: 10,
   },
   bankInfo: {
     flexDirection: "row",
