@@ -46,24 +46,32 @@ export const ChatList = () => {
         const chats = await getChatsAPI(token);
 
         // Map backend response to bankers structure
-        const mappedBankers = chats.map((chat) => ({
-          id: chat.id,
-          name: formatRepaymentPlan(chat.banker.bank),
-          logo: avatarMap[chat.banker.bank] || "default-logo-url.png",
-          lastMessage:
+        const mappedBankers = chats.map((chat) => {
+          const lastMessage =
             chat.messages.length > 0
-              ? chat.messages[chat.messages.length - 1].characters
+              ? chat.messages[chat.messages.length - 1]
+              : null;
+
+          return {
+            id: chat.id,
+            name: formatRepaymentPlan(chat.banker.bank),
+            logo: avatarMap[chat.banker.bank] || "default-logo-url.png",
+            lastMessage:
+              chat.messages.length > 0
+                ? chat.messages[chat.messages.length - 1].characters
+                : "No messages yet",
+
+            lastMessageBank: lastMessage
+              ? lastMessage.sender.bank
               : "No messages yet",
-          timestamp:
-            chat.messages.length > 0
-              ? new Date(
-                  chat.messages[chat.messages.length - 1].timestamp
-                ).toLocaleTimeString()
+            timestamp: lastMessage
+              ? new Date(lastMessage.timestamp).toLocaleTimeString()
               : "No messages",
-          messages: chat.messages,
-          unreadCount: 0,
-          isActive: true,
-        }));
+            messages: chat.messages,
+            unreadCount: 0,
+            isActive: true,
+          };
+        });
 
         // Check for new messages and create notifications
         mappedBankers.forEach((banker) => {
@@ -124,6 +132,8 @@ export const ChatList = () => {
         </View>
         <View style={styles.rightContent}>
           <Text style={styles.timestamp}>{item.timestamp}</Text>
+          <Text style={styles.timestamp}>{item.lastMessageBank}</Text>
+
           {item.unreadCount > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{item.unreadCount}</Text>
