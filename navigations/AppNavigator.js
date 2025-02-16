@@ -12,6 +12,7 @@ import NotificationsModal from "../components/NotificationsModal.jsx";
 import TabBarBackground from "../components/TabBarBackground.jsx";
 import { useTabBar } from "./TabBarProvider";
 import ChatAnimations from "../utils/animations/chatAnimations";
+import Routes from "../utils/constants/routes";
 
 const Tab = createBottomTabNavigator();
 
@@ -148,7 +149,7 @@ const AppNavigator = () => {
         }}
       >
         <Tab.Screen
-          name="Dashboard"
+          name={Routes.Dashboard.DashboardHome}
           component={Dashboard}
           options={{
             tabBarIcon: ({ color, size, focused }) => (

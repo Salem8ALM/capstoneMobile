@@ -1,5 +1,3 @@
-import DashboardScreen from "../../screens/DashboardScreen";
-
 const Routes = {
   Auth: {
     Login: "Login",
@@ -24,6 +22,10 @@ const Routes = {
     LoanRequestBankSelection: "LoanRequestBankSelection",
     LoanRequestReview: "Loan Request Review",
     LoanResponseViewAll: "Loan Response View All",
+  },
+  Dashboard: {
+    DashboardHome: "Dashboard Home",
+    DashboardAnalysis: "Dashboard Analysis",
   },
 };
 
