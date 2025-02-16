@@ -374,7 +374,11 @@ const DashboardHome = () => {
         Financial Statement
       </Text>
       <TouchableOpacity
-        onPress={() => navigation.navigate(Routes.Dashboard.DashboardAnalysis)}
+        onPress={() => {
+          navigation.navigate(Routes.Dashboard.DashboardAnalysis, {
+            financialData: business?.entity,
+          });
+        }}
       >
         <LineChart
           data={{
@@ -393,12 +397,13 @@ const DashboardHome = () => {
           }}
           style={{ borderRadius: 10, paddingTop: 15 }}
         />
-        <FinancialAnalysisModal
-          visible={modalVisible}
-          onDismiss={() => setModalVisible(false)}
-          analysisText={business.entity.financialAnalysis}
-        />
       </TouchableOpacity>
+
+      <FinancialAnalysisModal
+        visible={modalVisible}
+        onDismiss={() => setModalVisible(false)}
+        analysisText={business.entity.financialAnalysis}
+      />
     </View>
   );
 };
