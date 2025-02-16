@@ -355,7 +355,35 @@ const FinancialAnalysisScreen = ({ route }) => {
         <Card.Content>
           <Title style={styles.whiteText}>Address:</Title>
           <Paragraph style={styles.periodText}>
-            Issue Date: {issueDate}
+            Address Reference Number: {addressReferenceNumber}
+          </Paragraph>
+          <Paragraph style={styles.periodText}>
+            Governorate: {governorate}
+          </Paragraph>
+          <Paragraph style={styles.periodText}>Area: {area}</Paragraph>
+          <Paragraph style={styles.periodText}>block: {block}</Paragraph>
+          <Paragraph style={styles.periodText}>section: {section}</Paragraph>
+          <Paragraph style={styles.periodText}>
+            Address Reference Number: {street}
+          </Paragraph>
+          <Paragraph style={styles.periodText}>
+            Building Name: {buildingName}
+          </Paragraph>
+          <Paragraph style={styles.periodText}>floor: {floor}</Paragraph>
+          <Paragraph style={styles.periodText}>
+            Unit Number: {unitNumber}
+          </Paragraph>
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.scoreCard}>
+        <Card.Content>
+          <Title style={styles.whiteText}>Other Relevant information:</Title>
+          <Paragraph style={styles.periodText}>
+            Last Transaction Date : {lastTransactionDate}
+          </Paragraph>
+          <Paragraph style={styles.periodText}>
+            Request Number : {requestNumber}
           </Paragraph>
         </Card.Content>
       </Card>
