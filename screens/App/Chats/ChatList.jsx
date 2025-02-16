@@ -5,14 +5,19 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  Animated,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getChatsAPI } from "../../../api/Chat";
-import { useEffect, useState, SafeAreaView } from "react";
+import { useEffect, useState, SafeAreaView, useRef } from "react";
 import { getToken } from "../../../storage/TokenStorage";
 import { useNotifications } from "../../../context/NotificationsContext";
 import ChatAnimations from "../../../utils/animations/chatAnimations";
 import LottieView from "lottie-react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Dimensions } from "react-native";
+
+const screenWidth = Dimensions.get("window").width;
 
 const formatRepaymentPlan = (plan) => {
   return plan
@@ -33,6 +38,25 @@ export const ChatList = () => {
   const [bankers, setBankers] = useState([]);
   const { addNotification } = useNotifications();
   const [previousMessages, setPreviousMessages] = useState({});
+
+  const translateXAnim = useRef(new Animated.Value(-screenWidth * 1.5)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(translateXAnim, {
+          toValue: screenWidth * 2,
+          duration: 750, // Faster pace
+          useNativeDriver: true,
+        }),
+        Animated.delay(500), // Add a 1-second delay before restarting
+        Animated.timing(translateXAnim, {
+          toValue: -screenWidth, // Reset back to the start position
+          duration: 0, // Instantly move back
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   useEffect(() => {
     const fetchChatList = async () => {
@@ -127,10 +151,33 @@ export const ChatList = () => {
             item.lastMessageBank !== "NOT_BANK"
               ? "rgba(255, 255, 255, 0.1)"
               : "rgba(0,0,0,0)",
+          borderColor:
+            item.lastMessageBank !== "NOT_BANK"
+              ? "rgba(255, 255, 255, 0.5)"
+              : "rgba(0,0,0,0)",
         },
       ]}
       onPress={() => navigation.navigate("ChatDetail", { itemId: item.id })}
     >
+      {item.lastMessageBank !== "NOT_BANK" && (
+        <Animated.View
+          style={[
+            styles.shineWrapper,
+            { transform: [{ translateX: translateXAnim }] },
+          ]}
+        >
+          <LinearGradient
+            colors={[
+              "rgba(255,255,255,0.1)",
+              "rgba(255, 255, 255, 0.5)",
+              "rgba(255,255,255,0.1)",
+            ]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={styles.shine}
+          />
+        </Animated.View>
+      )}
       <View style={styles.bankInfo}>
         <Image source={item.logo} style={styles.bankLogo} />
         {item.isActive && <View style={styles.activeIndicator} />}
@@ -140,7 +187,6 @@ export const ChatList = () => {
         </View>
         <View style={styles.rightContent}>
           <Text style={styles.timestamp}>{item.timestamp}</Text>
-          <Text style={styles.timestamp}>{item.lastMessageBank}</Text>
 
           {item.unreadCount > 0 && (
             <View style={styles.badge}>
@@ -198,6 +244,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1C1C1E",
   },
+  shineWrapper: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: "hidden",
+  },
+
+  shine: {
+    borderRadius: 8, // If you want rounded corners for the gradient
+    position: "absolute", // Make sure the gradient itself doesn't overflow
+
+    width: "100%",
+    height: "100%",
+    opacity: 0.4,
+    borderRadius: 8, // If you want rounded corners for the gradient
+  },
   headerContainer: {
     paddingHorizontal: 16,
     paddingVertical: 20,
@@ -242,8 +306,8 @@ const styles = StyleSheet.create({
     // paddingTop: 16,
   },
   bankItem: {
-    marginBottom: 5,
     padding: 10,
+    borderWidth: 0.2,
   },
   bankInfo: {
     flexDirection: "row",
