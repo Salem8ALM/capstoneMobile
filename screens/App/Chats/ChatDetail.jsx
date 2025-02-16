@@ -20,7 +20,11 @@ import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { getToken } from "../../../storage/TokenStorage";
-import { getMessagesAPI, sendMessageAPI } from "../../../api/Chat";
+import {
+  getMessagesAPI,
+  sendMessageAPI,
+  getZegoToken,
+} from "../../../api/Chat";
 import LottieView from "lottie-react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { useTabBar } from "../../../navigations/TabBarProvider";
@@ -56,7 +60,7 @@ function capitalizeFirstLetter(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-const VIDEOCALL_URL = "https://4840-188-236-216-130.ngrok-free.app/chat";
+const VIDEOCALL_URL = "https://8359-94-129-157-32.ngrok-free.app/chat";
 
 export const ChatDetail = ({ route }) => {
   const navigation = useNavigation();
@@ -77,8 +81,10 @@ export const ChatDetail = ({ route }) => {
   useEffect(() => {
     const loadVideoCallInformation = async () => {
       try {
-        const token = await getToken("access");
+        let token = await getToken("access");
         const user = await getUser();
+
+        token = await getZegoToken(token);
 
         if (!token || !user) {
           setNotificationMessage("Missing authentication information");
@@ -105,37 +111,7 @@ export const ChatDetail = ({ route }) => {
     };
 
     loadVideoCallInformation();
-  });
-
-  // const handleVideoCall = async () => {
-  //   if (videoCallUrl) {
-  //     try {
-  //       const supported = await Linking.canOpenURL(videoCallUrl);
-
-  //       if (supported) {
-  //         await Linking.openURL(videoCallUrl);
-  //       } else {
-  //         setNotificationMessage("Cannot open video call URL");
-  //         setNotificationVisible(true);
-  //         setTimeout(() => {
-  //           setNotificationVisible(false);
-  //         }, 3000); // Hide the banner after 3 seconds
-  //       }
-  //     } catch (error) {
-  //       setNotificationMessage("Error opening video call URL");
-  //       setNotificationVisible(true);
-  //       setTimeout(() => {
-  //         setNotificationVisible(false);
-  //       }, 3000); // Hide the banner after 3 seconds
-  //     }
-  //   } else {
-  //     setNotificationMessage("Video call link is not ready yet");
-  //     setNotificationVisible(true);
-  //     setTimeout(() => {
-  //       setNotificationVisible(false);
-  //     }, 3000); // Hide the banner after 3 seconds
-  //   }
-  // };
+  }, []);
 
   useEffect(() => {
     // Delay the tab bar hiding to give the animation a chance to play
@@ -216,6 +192,7 @@ export const ChatDetail = ({ route }) => {
       }
     };
   }, [chatId]); // Only restart if chatId changes
+
   const pickFile = async () => {
     try {
       // Request permission
@@ -338,37 +315,41 @@ export const ChatDetail = ({ route }) => {
       <View
         style={[
           styles.messageContainer,
-          item?.sent ? styles.sentMessage : styles.receivedMessage,
+          item?.sent === true ? styles.sentMessage : styles.receivedMessage,
         ]}
       >
-        {!item.sent && (
+        {!item.sent === true && (
           <Image source={avatarMap[banker?.bank]} style={styles.messageLogo} />
         )}
         <View
           style={[
             styles.messageBubble,
-            item?.sent ? styles.sentBubble : styles.receivedBubble,
+            item?.sent === true ? styles.sentBubble : styles.receivedBubble,
           ]}
         >
           <Text
             style={[
               styles.senderName,
-              item?.sent ? styles.sentMessageText : styles.receivedMessageText,
+              item?.sent === true
+                ? styles.sentMessageText
+                : styles.receivedMessageText,
             ]}
           >
-            {item?.sent ? "You" : capitalizeFirstLetter(banker?.firstName)}
+            {item?.sent === true
+              ? "You"
+              : capitalizeFirstLetter(banker?.firstName)}
           </Text>
           {item?.isFile ? (
             <View style={styles.fileMessage}>
               <Feather
                 name="file"
                 size={24}
-                color={item?.sent ? "#000" : "#000"}
+                color={item?.sent === true ? "#000" : "#000"}
               />
               <Text
                 style={[
                   styles.messageText,
-                  item?.sent
+                  item?.sent === true
                     ? styles.sentMessageText
                     : styles.receivedMessageText,
                 ]}
@@ -380,7 +361,7 @@ export const ChatDetail = ({ route }) => {
             <Text
               style={[
                 styles.messageText,
-                item?.sent
+                item?.sent === true
                   ? styles.sentMessageText
                   : styles.receivedMessageText,
               ]}

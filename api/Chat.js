@@ -36,6 +36,23 @@ const getChatsAPI = async (token) => {
   }
 };
 
+const getZegoToken = async (token) => {
+  // console.log(`token chat: ${token}`);
+
+  try {
+    const response = await instance.get(`zego/token`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    // console.log(response);
+    return response.data;
+  } catch (error) {
+    console.log("Error chats for business owner:", error.response);
+    throw error;
+  }
+};
+
 const createChatEntityAPI = async (token, chatTargetId) => {
   console.log(`token: ${token}`);
 
@@ -79,4 +96,10 @@ const sendMessageAPI = async (token, chatId, content) => {
   }
 };
 
-export { getMessagesAPI, sendMessageAPI, getChatsAPI, createChatEntityAPI };
+export {
+  getMessagesAPI,
+  sendMessageAPI,
+  getChatsAPI,
+  createChatEntityAPI,
+  getZegoToken,
+};
