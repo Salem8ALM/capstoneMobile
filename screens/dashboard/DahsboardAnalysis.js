@@ -26,7 +26,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 const screenWidth = Dimensions.get("window").width;
 
 const FinancialAnalysisScreen = ({ route }) => {
-  const { data, ownerAvatar, businessAvatar } = route.params;
+  const { data } = route.params;
 
   // Business owner data
   const firstName = data.businessOwnerUser.firstName;
