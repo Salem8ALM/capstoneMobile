@@ -60,6 +60,27 @@ const DashboardHome = () => {
     require("../../assets/bankers/ibrahim.png")
   );
 
+  const [scaleValue] = useState(new Animated.Value(1)); // Initial scale value is 1 (no scaling)
+
+  const handlePressIn = () => {
+    // Scale down the button when pressed
+    Animated.spring(scaleValue, {
+      toValue: 0.95, // Slightly scale it down
+      friction: 3,
+      tension: 100,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    // Scale it back to normal after releasing the press
+    Animated.spring(scaleValue, {
+      toValue: 1, // Return to original scale
+      friction: 3,
+      tension: 100,
+      useNativeDriver: true,
+    }).start();
+  };
   const [modalVisible, setModalVisible] = useState(false);
 
   const {
@@ -371,15 +392,25 @@ const DashboardHome = () => {
           marginBottom: 0,
         }}
       >
-        Financial Statement
+        {`Data Visualization for ${business?.entity.businessNickname}`}
       </Text>
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate(Routes.Dashboard.DashboardAnalysis, {
-            data: business?.entity,
-            ownerAvatar: profileImage,
-            businessAvatar: businessAvatar,
-          });
+          try {
+            console.log("Business Entity:", business?.entity);
+
+            if (!business?.entity) {
+              throw new Error("Missing required data");
+            }
+
+            navigation.navigate(Routes.Dashboard.DashboardAnalysis, {
+              data: business?.entity,
+            });
+          } catch (error) {
+            console.error("Navigation failed:", error);
+            // Optionally, show an alert or feedback to the user
+            alert("An error occurred while navigating. Please try again.");
+          }
         }}
       >
         <LineChart
@@ -391,7 +422,7 @@ const DashboardHome = () => {
           height={220}
           chartConfig={{
             backgroundColor: "#2A2A2E",
-            backgroundGradientFrom: "#2A2A2E",
+            backgroundGradientFrom: "rgb(23, 23, 23)",
             backgroundGradientTo: "#2A2A2E",
             decimalPlaces: 2,
             color: (opacity = 1) => `rgba(255, 215, 0, ${opacity})`,
