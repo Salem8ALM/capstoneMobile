@@ -39,6 +39,16 @@ export const ChatList = () => {
   const { addNotification } = useNotifications();
   const [previousMessages, setPreviousMessages] = useState({});
 
+  const [rawBankers, setRawBankers] = useState([]);
+
+  useEffect(() => {
+    // Sort the raw bankers data when it changes
+    const sortedBankers = [...rawBankers].sort(
+      (a, b) => b.timestamp - a.timestamp
+    );
+    setBankers(sortedBankers); // Update the sorted bankers
+  }, [rawBankers]); // This effect runs whenever rawBankers changes
+
   const translateXAnim = useRef(new Animated.Value(-screenWidth * 1.5)).current;
   useEffect(() => {
     Animated.loop(
@@ -76,6 +86,11 @@ export const ChatList = () => {
               ? chat.messages[chat.messages.length - 1]
               : null;
 
+          // Convert timestamp to Date for sorting
+          const timestamp = lastMessage
+            ? new Date(lastMessage.timestamp)
+            : new Date(0); // Use epoch if no messages
+
           return {
             id: chat.id,
             name: formatRepaymentPlan(chat.banker.bank),
@@ -84,18 +99,18 @@ export const ChatList = () => {
               chat.messages.length > 0
                 ? chat.messages[chat.messages.length - 1].characters
                 : "No messages yet",
-
             lastMessageBank: lastMessage
               ? lastMessage.sender.bank
               : "No messages yet",
-            timestamp: lastMessage
-              ? new Date(lastMessage.timestamp).toLocaleTimeString()
-              : "No messages",
+            timestamp: timestamp, // Store as Date object for sorting
             messages: chat.messages,
             unreadCount: 0,
             isActive: true,
           };
         });
+
+        // Update the rawBankers state
+        setRawBankers(mappedBankers);
 
         // Check for new messages and create notifications
         mappedBankers.forEach((banker) => {
@@ -126,12 +141,11 @@ export const ChatList = () => {
         });
         setPreviousMessages(newPreviousMessages);
 
-        setBankers(mappedBankers);
+        console.log(mappedBankers[1].timestamp); // This will print the timestamp of the second banker now sorted
       } catch (error) {
-        console.log("Error fetching messages:", error);
+        console.error("Error fetching chat list:", error);
       }
     };
-
     // Initial fetch
     fetchChatList();
 
@@ -155,6 +169,10 @@ export const ChatList = () => {
             item.lastMessageBank !== "NOT_BANK"
               ? "rgba(255, 255, 255, 0.5)"
               : "rgba(0,0,0,0)",
+          shadowColor:
+            item.lastMessageBank !== "NOT_BANK" ? "#ffffff" : "transparent",
+          shadowOpacity: item.lastMessageBank !== "NOT_BANK" ? 0.8 : 0,
+          shadowRadius: item.lastMessageBank !== "NOT_BANK" ? 6 : 0,
         },
       ]}
       onPress={() => navigation.navigate("ChatDetail", { itemId: item.id })}
@@ -178,19 +196,49 @@ export const ChatList = () => {
           />
         </Animated.View>
       )}
+      {/* Indicator for new banker message */}
+      {item.lastMessageBank !== "NOT_BANK" && (
+        <View style={styles.newMessageIndicator}>
+          <Text style={styles.newMessageText}>New Message</Text>
+        </View>
+      )}
+
       <View style={styles.bankInfo}>
         <Image source={item.logo} style={styles.bankLogo} />
         {item.isActive && <View style={styles.activeIndicator} />}
-        <View style={styles.messagePreview}>
-          <Text style={styles.bankName}>{item.name}</Text>
-          <Text style={styles.lastMessage}>{item.lastMessage}</Text>
-        </View>
-        <View style={styles.rightContent}>
-          <Text style={styles.timestamp}>{item.timestamp}</Text>
 
-          {item.unreadCount > 0 && (
+        <View style={styles.messagePreview}>
+          <Text
+            style={[
+              styles.bankName,
+              {
+                color:
+                  item.lastMessageBank !== "NOT_BANK"
+                    ? "#FFFFFF"
+                    : "rgba(255, 255, 255, 0.56)",
+              },
+            ]}
+          >
+            {item.name}
+          </Text>
+          <Text
+            style={[
+              styles.lastMessage,
+              item.lastMessageBank !== "NOT_BANK" && styles.waitingMessage,
+            ]}
+          >
+            {item.lastMessage}
+          </Text>
+        </View>
+
+        <View style={styles.rightContent}>
+          <Text style={styles.timestamp}>
+            {item.timestamp.toLocaleTimeString()}
+          </Text>
+
+          {item.lastMessageBank !== "NOT_BANK" && (
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>{item.unreadCount}</Text>
+              <Text style={styles.badgeText}>{1}</Text>
             </View>
           )}
         </View>
@@ -314,6 +362,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 12,
   },
+
   bankLogo: {
     width: 48,
     height: 48,
@@ -334,10 +383,29 @@ const styles = StyleSheet.create({
   messagePreview: {
     flex: 1,
   },
+
+  newMessageIndicator: {
+    position: "absolute",
+    top: 5,
+    right: 10,
+    backgroundColor: "rgba(162, 162, 162, 0.49)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  newMessageText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  waitingMessage: {
+    fontWeight: "bold",
+    color: "white", // Gold color for attention
+  },
+
   bankName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#FFFFFF",
     marginBottom: 4,
   },
   lastMessage: {
@@ -348,6 +416,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   timestamp: {
+    marginTop: 10,
     fontSize: 12,
     color: "#8E8E93",
     marginBottom: 4,
