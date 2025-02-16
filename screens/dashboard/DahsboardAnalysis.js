@@ -11,6 +11,7 @@ import { BarChart, LineChart, PieChart } from "react-native-chart-kit";
 import { Card, Paragraph, Title } from "react-native-paper";
 import LottieView from "lottie-react-native";
 import { Dimensions } from "react-native";
+import { useTabBar } from "../../navigations/TabBarProvider";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -162,6 +163,21 @@ const FinancialAnalysisScreen = ({ route }) => {
   const [selectedModal, setSelectedModal] = useState(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  const { setShowTabBar } = useTabBar();
+
+  useEffect(() => {
+    // Delay the tab bar hiding to give the animation a chance to play
+    const hideTabBarTimeout = setTimeout(() => {
+      setShowTabBar(false);
+    }, 100); // Adjust delay as necessary to allow animation time
+
+    // Reset the tab bar visibility when leaving the screen
+    return () => {
+      clearTimeout(hideTabBarTimeout); // Clear the timeout to prevent unnecessary calls
+      setShowTabBar(true);
+    };
+  }, []); // Empty dependency array ensures this runs only once when the screen is mounted
+
   // Profitability Ratios
   const profitabilityData = {
     labels: ["Gross", "Net", "ROA", "ROE"],
@@ -198,17 +214,17 @@ const FinancialAnalysisScreen = ({ route }) => {
     {
       name: "Operating",
       value: parseFloat(operatingCashFlow),
-      color: "#FF8C00",
+      color: "rgba(255, 221, 0, 0.58)",
     },
     {
       name: "Investing",
       value: Math.abs(parseFloat(investingCashFlow)),
-      color: "#00CED1",
+      color: "#rgba(255, 149, 0, 0.57)",
     },
     {
       name: "Financing",
       value: parseFloat(financingCashFlow),
-      color: "#FF69B4",
+      color: "#rgba(119, 77, 0, 0.58)",
     },
   ];
 
@@ -263,12 +279,6 @@ const FinancialAnalysisScreen = ({ route }) => {
       {/* Header with Financial Score */}
       <Card style={styles.scoreCard}>
         <Card.Content>
-          <Title style={styles.whiteText}>
-            Financial Score: {financialScore}
-          </Title>
-          <Paragraph style={styles.periodText}>
-            Period: {statementPeriod}
-          </Paragraph>
           <View style={styles.loanInfo}>
             <Text style={styles.whiteText}>
               Loan Feasibility: {loanFeasibility}
@@ -278,6 +288,75 @@ const FinancialAnalysisScreen = ({ route }) => {
               {parseFloat(recommendedLoanAmount).toLocaleString()}
             </Text>
           </View>
+          <Title style={styles.whiteText}>{businessName}</Title>
+          <Paragraph style={styles.periodText}>
+            {`Financial Score: ${financialScore}/10 (${businessState})`}
+          </Paragraph>
+          <Paragraph style={styles.periodText}>
+            license Number: #{licenseNumber}
+          </Paragraph>
+          <Paragraph style={styles.periodText}>
+            Issue Date: {issueDate}
+          </Paragraph>
+          <Paragraph style={styles.periodText}>
+            Central Number: {centralNumber}
+          </Paragraph>
+
+          <Paragraph style={styles.periodText}>
+            Commercial Registration Number: #{commercialRegistrationNumber}
+          </Paragraph>
+
+          <Paragraph style={styles.periodText}>
+            Legal Entity: {legalEntity}
+          </Paragraph>
+
+          <Paragraph style={styles.periodText}>
+            capital: {capital.toLocaleString()}
+          </Paragraph>
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.scoreCard}>
+        <Card.Content>
+          <Title style={styles.whiteText}>Business Details:</Title>
+
+          <Paragraph style={styles.periodText}>
+            File Number: {fileNumber}
+          </Paragraph>
+          <Paragraph style={styles.periodText}>
+            Expiry Date : {expiryDate}
+          </Paragraph>
+
+          <Paragraph style={styles.periodText}>
+            Civil Authority Number : {civilAuthorityNumber}
+          </Paragraph>
+
+          <Paragraph style={styles.periodText}>
+            License Type : {licenseType}
+          </Paragraph>
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.scoreCard}>
+        <Card.Content>
+          <Title style={styles.whiteText}>Business Activities:</Title>
+
+          <Paragraph style={styles.periodText}>
+            Activity Name: {activityName}
+          </Paragraph>
+
+          <Paragraph style={styles.periodText}>
+            Activity Code : {activityCode}
+          </Paragraph>
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.scoreCard}>
+        <Card.Content>
+          <Title style={styles.whiteText}>Address:</Title>
+          <Paragraph style={styles.periodText}>
+            Issue Date: {issueDate}
+          </Paragraph>
         </Card.Content>
       </Card>
 
@@ -423,6 +502,8 @@ const styles = StyleSheet.create({
     margin: 10,
     backgroundColor: "#1e1e1e",
     borderRadius: 10,
+    borderWidth: 0.1,
+    borderColor: "white",
   },
   card: {
     margin: 10,
