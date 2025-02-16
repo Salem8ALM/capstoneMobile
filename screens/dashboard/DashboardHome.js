@@ -377,6 +377,8 @@ const DashboardHome = () => {
         onPress={() => {
           navigation.navigate(Routes.Dashboard.DashboardAnalysis, {
             data: business?.entity,
+            ownerAvatar: profileImage,
+            businessAvatar: businessAvatar,
           });
         }}
       >
