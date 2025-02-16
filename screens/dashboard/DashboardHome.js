@@ -376,7 +376,7 @@ const DashboardHome = () => {
       <TouchableOpacity
         onPress={() => {
           navigation.navigate(Routes.Dashboard.DashboardAnalysis, {
-            financialData: business?.entity,
+            data: business?.entity,
           });
         }}
       >
