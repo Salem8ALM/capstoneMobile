@@ -8,10 +8,20 @@ import {
   Animated,
 } from "react-native";
 import { BarChart, LineChart, PieChart } from "react-native-chart-kit";
-import { Card, Paragraph, Title } from "react-native-paper";
+import {
+  Card,
+  Divider,
+  IconButton,
+  List,
+  Paragraph,
+  Title,
+  useTheme,
+} from "react-native-paper";
 import LottieView from "lottie-react-native";
 import { Dimensions } from "react-native";
 import { useTabBar } from "../../navigations/TabBarProvider";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -178,6 +188,50 @@ const FinancialAnalysisScreen = ({ route }) => {
     };
   }, []); // Empty dependency array ensures this runs only once when the screen is mounted
 
+  const [expandedSections, setExpandedSections] = useState({
+    loanInfo: true,
+    businessDetails: false,
+    businessActivities: false,
+    address: false,
+  });
+
+  const toggleSection = (section) => {
+    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const theme = useTheme();
+
+  const renderSection = (title, icon, content, section) => (
+    <Card style={styles.card}>
+      <LinearGradient
+        colors={["rgba(70, 70, 70, 0.27)", "rgba(0,0,0,0)"]}
+        style={styles.cardGradient}
+      >
+        <Card.Title
+          title={title}
+          left={(props) => (
+            <MaterialCommunityIcons
+              name={icon}
+              size={24}
+              color="#fff"
+              {...props}
+            />
+          )}
+          right={(props) => (
+            <IconButton
+              {...props}
+              icon={expandedSections[section] ? "chevron-up" : "chevron-down"}
+              onPress={() => toggleSection(section)}
+              color="#fff"
+            />
+          )}
+          titleStyle={styles.cardTitle}
+        />
+        {expandedSections[section] && <Card.Content>{content}</Card.Content>}
+      </LinearGradient>
+    </Card>
+  );
+
   // Profitability Ratios
   const profitabilityData = {
     labels: ["Gross", "Net", "ROA", "ROE"],
@@ -274,117 +328,50 @@ const FinancialAnalysisScreen = ({ route }) => {
     },
   ];
 
+  const InfoItem = ({ icon, label, value }) => (
+    <View style={styles.infoItem}>
+      <MaterialCommunityIcons
+        name={icon}
+        size={24}
+        color={theme.colors.primary}
+        style={styles.icon}
+      />
+      <View>
+        <Paragraph style={styles.label}>{label}</Paragraph>
+        <Paragraph style={styles.value}>{value}</Paragraph>
+      </View>
+    </View>
+  );
+
   return (
     <ScrollView style={styles.container}>
-      {/* Header with Financial Score */}
-      <Card style={styles.scoreCard}>
+      <Card style={styles.card}>
         <Card.Content>
-          <View style={styles.loanInfo}>
-            <Text style={styles.whiteText}>
-              Loan Feasibility: {loanFeasibility}
-            </Text>
-            <Text style={styles.whiteText}>
-              Recommended Amount: $
-              {parseFloat(recommendedLoanAmount).toLocaleString()}
-            </Text>
-          </View>
-          <Title style={styles.whiteText}>{businessName}</Title>
-          <Paragraph style={styles.periodText}>
-            {`Financial Score: ${financialScore}/10 (${businessState})`}
+          <Title style={styles.businessName}>{businessName}</Title>
+          <Paragraph style={styles.financialScore}>
+            Financial Score:{" "}
+            <Title style={styles.scoreValue}>{financialScore}/10</Title>
           </Paragraph>
-          <Paragraph style={styles.periodText}>
-            license Number: #{licenseNumber}
-          </Paragraph>
-          <Paragraph style={styles.periodText}>
-            Issue Date: {issueDate}
-          </Paragraph>
-          <Paragraph style={styles.periodText}>
-            Central Number: {centralNumber}
-          </Paragraph>
+          <Paragraph style={styles.businessState}>{businessState}</Paragraph>
 
-          <Paragraph style={styles.periodText}>
-            Commercial Registration Number: #{commercialRegistrationNumber}
-          </Paragraph>
+          <Divider style={styles.divider} />
 
-          <Paragraph style={styles.periodText}>
-            Legal Entity: {legalEntity}
-          </Paragraph>
+          <Title style={styles.sectionTitle}>Loan Information</Title>
+          <InfoItem
+            icon="check-circle"
+            label="Loan Feasibility"
+            value={loanFeasibility}
+          />
+          <InfoItem
+            icon="cash"
+            label="Recommended Amount"
+            value={`$${parseFloat(recommendedLoanAmount).toLocaleString()}`}
+          />
 
-          <Paragraph style={styles.periodText}>
-            capital: {capital.toLocaleString()}
-          </Paragraph>
-        </Card.Content>
-      </Card>
+          <Divider style={styles.divider} />
 
-      <Card style={styles.scoreCard}>
-        <Card.Content>
-          <Title style={styles.whiteText}>Business Details:</Title>
-
-          <Paragraph style={styles.periodText}>
-            File Number: {fileNumber}
-          </Paragraph>
-          <Paragraph style={styles.periodText}>
-            Expiry Date : {expiryDate}
-          </Paragraph>
-
-          <Paragraph style={styles.periodText}>
-            Civil Authority Number : {civilAuthorityNumber}
-          </Paragraph>
-
-          <Paragraph style={styles.periodText}>
-            License Type : {licenseType}
-          </Paragraph>
-        </Card.Content>
-      </Card>
-
-      <Card style={styles.scoreCard}>
-        <Card.Content>
-          <Title style={styles.whiteText}>Business Activities:</Title>
-
-          <Paragraph style={styles.periodText}>
-            Activity Name: {activityName}
-          </Paragraph>
-
-          <Paragraph style={styles.periodText}>
-            Activity Code : {activityCode}
-          </Paragraph>
-        </Card.Content>
-      </Card>
-
-      <Card style={styles.scoreCard}>
-        <Card.Content>
-          <Title style={styles.whiteText}>Address:</Title>
-          <Paragraph style={styles.periodText}>
-            Address Reference Number: {addressReferenceNumber}
-          </Paragraph>
-          <Paragraph style={styles.periodText}>
-            Governorate: {governorate}
-          </Paragraph>
-          <Paragraph style={styles.periodText}>Area: {area}</Paragraph>
-          <Paragraph style={styles.periodText}>block: {block}</Paragraph>
-          <Paragraph style={styles.periodText}>section: {section}</Paragraph>
-          <Paragraph style={styles.periodText}>
-            Address Reference Number: {street}
-          </Paragraph>
-          <Paragraph style={styles.periodText}>
-            Building Name: {buildingName}
-          </Paragraph>
-          <Paragraph style={styles.periodText}>floor: {floor}</Paragraph>
-          <Paragraph style={styles.periodText}>
-            Unit Number: {unitNumber}
-          </Paragraph>
-        </Card.Content>
-      </Card>
-
-      <Card style={styles.scoreCard}>
-        <Card.Content>
-          <Title style={styles.whiteText}>Other Relevant information:</Title>
-          <Paragraph style={styles.periodText}>
-            Last Transaction Date : {lastTransactionDate}
-          </Paragraph>
-          <Paragraph style={styles.periodText}>
-            Request Number : {requestNumber}
-          </Paragraph>
+          <Title style={styles.sectionTitle}>Market Overview</Title>
+          <Paragraph style={styles.marketOverview}>{marketOverview}</Paragraph>
         </Card.Content>
       </Card>
 
@@ -517,6 +504,88 @@ const FinancialAnalysisScreen = ({ route }) => {
           </Card.Content>
         </Card>
       </View>
+      <Card style={styles.card}>
+        <Card.Content>
+          <Title style={styles.sectionTitle}>Business Details</Title>
+          <InfoItem
+            icon="file-document"
+            label="License Number"
+            value={`#${licenseNumber}`}
+          />
+          <InfoItem icon="calendar" label="Issue Date" value={issueDate} />
+          <InfoItem icon="phone" label="Central Number" value={centralNumber} />
+          <InfoItem
+            icon="barcode"
+            label="Commercial Reg. Number"
+            value={`#${commercialRegistrationNumber}`}
+          />
+          <InfoItem icon="account" label="Legal Entity" value={legalEntity} />
+          <InfoItem
+            icon="currency-usd"
+            label="Capital"
+            value={capital.toLocaleString()}
+          />
+          <InfoItem
+            icon="file-document-box"
+            label="File Number"
+            value={fileNumber}
+          />
+          <InfoItem
+            icon="calendar-end"
+            label="Expiry Date"
+            value={expiryDate}
+          />
+          <InfoItem
+            icon="id-card"
+            label="Civil Authority Number"
+            value={civilAuthorityNumber}
+          />
+          <InfoItem icon="license" label="License Type" value={licenseType} />
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.card}>
+        <Card.Content>
+          <Title style={styles.sectionTitle}>Business Activities</Title>
+          <InfoItem
+            icon="briefcase"
+            label="Activity Name"
+            value={activityName}
+          />
+          <InfoItem icon="numeric" label="Activity Code" value={activityCode} />
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.card}>
+        <Card.Content>
+          <Title style={styles.sectionTitle}>Address</Title>
+          <InfoItem
+            icon="map-marker-radius"
+            label="Reference Number"
+            value={addressReferenceNumber}
+          />
+          <InfoItem
+            icon="map-marker-radius"
+            label="Governorate"
+            value={governorate}
+          />
+          <InfoItem icon="map-marker-radius" label="Area" value={area} />
+          <InfoItem icon="map-marker-radius" label="Block" value={block} />
+          <InfoItem icon="map-marker-radius" label="Section" value={section} />
+          <InfoItem icon="map-marker-radius" label="Street" value={street} />
+          <InfoItem
+            icon="map-marker-radius"
+            label="Building Name"
+            value={buildingName}
+          />
+          <InfoItem icon="map-marker-radius" label="Floor" value={floor} />
+          <InfoItem
+            icon="map-marker-radius"
+            label="Unit Number"
+            value={unitNumber}
+          />
+        </Card.Content>
+      </Card>
     </ScrollView>
   );
 };
@@ -524,19 +593,110 @@ const FinancialAnalysisScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: "#121212", // Dark background
   },
-  scoreCard: {
-    margin: 10,
-    backgroundColor: "#1e1e1e",
+  cardGradient: {
     borderRadius: 10,
-    borderWidth: 0.1,
-    borderColor: "white",
+  },
+
+  cardGradient: {
+    borderRadius: 10,
+  },
+  cardTitle: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  divider: {
+    marginVertical: 8,
+    backgroundColor: "#333333", // Dark grey divider
+  },
+  icon: {
+    marginRight: 12,
+    color: "rgb(255, 200, 0)",
+  },
+  value: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF", // White text
+  },
+  marketOverview: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#E0E0E0", // Light grey text
+  },
+  label: {
+    fontSize: 14,
+    color: "#BDBDBD", // Light grey text
+  },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: "#FFFFFF", // White text
+  },
+  businessName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+    marginVertical: 10,
+  },
+  businessState: {
+    fontSize: 14,
+    marginBottom: 5,
+    color: "#BDBDBD", // Light grey text
+  },
+
+  highlightText: {
+    color: "#4CAF50",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  scoreText: {
+    color: "#FFC107",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  scoreValue: {
+    color: "#4CAF50", // Keep green for emphasis
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+  listTitle: {
+    color: "rgb(122, 122, 122)",
+  },
+  listDescription: {
+    color: "#e0e0e0",
+  },
+
+  businessName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#FFFFFF", // White text
+  },
+  highlightText: {
+    color: "#4CAF50",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  scoreText: {
+    color: "#FFC107",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   card: {
     margin: 10,
     backgroundColor: "#1e1e1e",
     borderRadius: 10,
+    borderColor: "white",
+    borderWidth: 0.2,
   },
   whiteText: {
     color: "#ffffff",
@@ -553,8 +713,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   chart: {
-    marginVertical: 8,
-    borderRadius: 16,
+    borderColor: "white",
+    alignItems: "center",
   },
   metricsGrid: {
     flexDirection: "row",
@@ -565,6 +725,8 @@ const styles = StyleSheet.create({
     width: (screenWidth - 30) / 2,
     margin: 5,
     backgroundColor: "#1e1e1e",
+    borderColor: "white",
+    borderWidth: 0.2,
   },
   metricTitle: {
     color: "#ffffff",
@@ -574,6 +736,11 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     opacity: 0.7,
     marginTop: 5,
+  },
+  financialScore: {
+    fontSize: 16,
+    marginBottom: 4,
+    color: "#E0E0E0", // Light grey text
   },
 });
 
