@@ -415,9 +415,18 @@ const DashboardHome = () => {
               data: business?.entity,
             });
           } catch (error) {
-            console.error("Navigation failed:", error);
             // Optionally, show an alert or feedback to the user
-            alert("An error occurred while navigating. Please try again.");
+            console.log(
+              "An error occurred while navigating. Please try again:",
+              err
+            );
+            setNotificationMessage(
+              "Unable to navigate to Analysis screen. Please try again"
+            );
+            setNotificationVisible(true);
+            setTimeout(() => {
+              setNotificationVisible(false);
+            }, 3000); // Hide the banner after 3 seconds
           }
         }}
       >

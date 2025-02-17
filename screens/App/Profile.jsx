@@ -27,12 +27,24 @@ export function Profile() {
     require("../../assets/bankers/ibrahim.png")
   );
 
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = await getToken("access");
         if (!token) {
-          console.warn("No token found");
+          console.log("No token found");
+
+          setNotificationMessage(
+            "It seems you are un-authenticated. Please login"
+          );
+          setNotificationVisible(true);
+          setTimeout(() => {
+            setNotificationVisible(false);
+          }, 3000); // Hide the banner after 3 seconds
+
           return;
         }
 
@@ -72,10 +84,16 @@ export function Profile() {
           }
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.log("Error fetching data:", error);
+        setNotificationMessage("Unable to load profile");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
+
         if (error.response) {
-          console.error("Response data:", error.response.data);
-          console.error("Response status:", error.response.status);
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
         }
       } finally {
         setIsLoading(false);
@@ -91,7 +109,12 @@ export function Profile() {
       setAuthenticated(false);
       setOnboarded(false);
     } catch (error) {
-      console.error("Error during logout:", error);
+      console.log("Error during logout:", error);
+      setNotificationMessage("Unable to logout");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
   };
 
@@ -163,7 +186,8 @@ export function Profile() {
             </Text>
             <Text style={styles.licenseText}>
               {`License ID: #${
-                business?.entity?.businessLicense?.licenseNumber || "N/A"
+                business?.entity?.businessLicense?.licenseNumber ||
+                "29398492049"
               }`}
             </Text>
           </View>
