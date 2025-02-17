@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1C1C1E",
-    paddingTop: 60, // Increased top padding
+    paddingTop: 90, // Increased top padding
   },
   profileHeader: {
     flexDirection: "row",

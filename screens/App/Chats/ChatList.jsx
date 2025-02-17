@@ -322,6 +322,11 @@ const styles = StyleSheet.create({
     opacity: 0.4,
     borderRadius: 8, // If you want rounded corners for the gradient
   },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+  },
   headerContainer: {
     paddingHorizontal: 16,
     paddingVertical: 20,
@@ -357,11 +362,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#fff", // You can adjust the color
   },
-  header: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
+
   listContent: {
     // paddingTop: 16,
   },

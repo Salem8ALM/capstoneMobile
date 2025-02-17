@@ -263,25 +263,6 @@ const FinancialAnalysisScreen = ({ route }) => {
     ],
   };
 
-  // Cash Flow Components
-  const cashFlowData = [
-    {
-      name: "Operating",
-      value: parseFloat(operatingCashFlow),
-      color: "rgba(255, 221, 0, 0.58)",
-    },
-    {
-      name: "Investing",
-      value: Math.abs(parseFloat(investingCashFlow)),
-      color: "#rgba(255, 149, 0, 0.57)",
-    },
-    {
-      name: "Financing",
-      value: parseFloat(financingCashFlow),
-      color: "#rgba(119, 77, 0, 0.58)",
-    },
-  ];
-
   // Balance Sheet Components
   const balanceSheetData = {
     labels: ["Assets", "Liabilities", "Equity"],
@@ -328,6 +309,40 @@ const FinancialAnalysisScreen = ({ route }) => {
     },
   ];
 
+  const cashFlowData = [
+    {
+      name: "Operating",
+      value: Number.parseFloat(operatingCashFlow),
+      color: "rgba(255, 221, 0, 0.58)",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 0, // Set to 0 to hide the label
+    },
+    {
+      name: "Investing",
+      value: Math.abs(Number.parseFloat(investingCashFlow)),
+      color: "rgba(255, 149, 0, 0.57)",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 0, // Set to 0 to hide the label
+    },
+    {
+      name: "Financing",
+      value: Number.parseFloat(financingCashFlow),
+      color: "rgba(119, 77, 0, 0.58)",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 0, // Set to 0 to hide the label
+    },
+  ];
+
+  const CustomLegend = () => (
+    <View style={styles.legendContainer}>
+      {cashFlowData.map((item, index) => (
+        <View key={index} style={styles.legendItem}>
+          <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+          <Text style={styles.legendText}>{item.name}</Text>
+        </View>
+      ))}
+    </View>
+  );
   const InfoItem = ({ icon, label, value }) => (
     <View style={styles.infoItem}>
       <MaterialCommunityIcons
@@ -423,14 +438,16 @@ const FinancialAnalysisScreen = ({ route }) => {
           <PieChart
             data={cashFlowData}
             width={screenWidth - 40}
-            height={220}
+            height={180}
             chartConfig={{
               color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             }}
             accessor="value"
             backgroundColor="transparent"
-            paddingLeft="15"
+            paddingLeft="60"
+            center={[10, 0]} // Adjust the center to remove space for labels
           />
+          <CustomLegend />
         </Card.Content>
       </Card>
 
@@ -694,6 +711,29 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 0.2,
   },
+  legendContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    marginTop: 10,
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 20,
+    marginBottom: 10,
+  },
+  legendColor: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 5,
+  },
+  legendText: {
+    color: "white",
+    fontSize: 12,
+  },
+
   whiteText: {
     color: "#ffffff",
   },

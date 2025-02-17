@@ -4,7 +4,7 @@ import AuthNavigator from "./navigations/AuthNavigator";
 import { useState, useEffect } from "react";
 import UserContext from "./context/UserContext";
 import AppNavigator from "./navigations/AppNavigator";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "react-native";
 import OnboardingNavigator from "./navigations/OnboardingNavigator";
@@ -63,11 +63,15 @@ export default function App() {
         <SafeAreaView
           style={{
             flex: 1,
-            backgroundColor: "#292933",
+            backgroundColor: "#121212", // Dark background
           }}
           edges={[]}
         >
-          <StatusBar barStyle="dark-content" backgroundColor="#292933" />
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor="transparent"
+            translucent={true}
+          />
           <PaperProvider>
             <NavigationContainer>
               <UserContext.Provider

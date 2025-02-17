@@ -194,6 +194,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1C1C1E",
   },
+
   shineWrapper: {
     position: "absolute",
     top: 0,
@@ -220,10 +221,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingRight: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#2C2C2E",
   },
   headerTitle: {
     color: "white",
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
   },
   content: {
