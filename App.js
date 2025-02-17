@@ -67,11 +67,7 @@ export default function App() {
           }}
           edges={[]}
         >
-          <StatusBar
-            barStyle="light-content"
-            backgroundColor="transparent"
-            translucent={true}
-          />
+          <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
           <PaperProvider>
             <NavigationContainer>
               <UserContext.Provider

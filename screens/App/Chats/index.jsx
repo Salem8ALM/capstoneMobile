@@ -13,7 +13,6 @@ export const Chat = () => {
       style={{
         flex: 1,
         backgroundColor: "#1C1C1E",
-        paddingTop: 30,
       }}
     >
       <SafeAreaProvider>
