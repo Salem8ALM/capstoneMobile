@@ -49,6 +49,7 @@ import failureAnimation from "../../assets/failure.json";
 import LoadingScreen from "../../components/LoadingScreen";
 import LottieAnimationDecision from "../../components/LottieAnimationDecision";
 import { LinearGradient } from "expo-linear-gradient";
+import * as DocumentPicker from "expo-document-picker";
 
 const { width, height } = Dimensions.get("window");
 
@@ -141,6 +142,36 @@ const OnboardAddBusiness = () => {
     }
   };
 
+  const pickDocument = async (
+    setSelected,
+    setButtonText,
+    setButtonIcon,
+    message
+  ) => {
+    setFocusedField("");
+    if (inputRef.current) {
+      inputRef.current.blur(); // Unfocus the TextInput
+    }
+
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "*/*", // Select any file type
+        copyToCacheDirectory: true, // Store it temporarily
+      });
+
+      if (!result.canceled) {
+        const selectedAsset = result.assets[0];
+
+        setSelected(selectedAsset.uri);
+        setButtonText(message);
+        setButtonIcon("file-check-outline");
+      }
+    } catch (error) {
+      console.log("Error picking document:", error);
+      Alert.alert("Error", "Something went wrong.");
+    }
+  };
+
   // for both financial statement pdf upload and
   const pickFile = async (
     setSelected,
@@ -158,10 +189,14 @@ const OnboardAddBusiness = () => {
       const permissionResult =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permissionResult.granted) {
-        Alert.alert(
-          "Permission required",
-          "You need to allow access to the library to pick files."
+        setNotificationMessage(
+          "You need to allow access to the library to pick files"
         );
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
+
         return;
       }
 
@@ -184,7 +219,11 @@ const OnboardAddBusiness = () => {
       }
     } catch (error) {
       console.log("Error picking file:", error);
-      Alert.alert("Error", "Something went wrong while picking the file.");
+      setNotificationMessage("Something went wrong while picking the file.");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
   };
 
@@ -269,7 +308,7 @@ const OnboardAddBusiness = () => {
               formData.append("businessNickname", businessNickname); // Send the text parameter
               formData.append("financialStatementPDF", {
                 uri: selectedDocument, // Path or URI to the file
-                type: "image/jpeg", // Adjust the type based on your file
+                type: "application/pdf", // Correct MIME type for PDF
                 name: "financialStatementPDF.jpeg", // File name
               });
               formData.append("businessLicenseImage", {
@@ -488,7 +527,7 @@ const OnboardAddBusiness = () => {
               style={styles.secondaryButton}
               labelStyle={styles.secondaryButtonText}
               onPress={() =>
-                pickFile(
+                pickDocument(
                   setSelectedDocument,
                   setUploadText,
                   setUploadIcon,
