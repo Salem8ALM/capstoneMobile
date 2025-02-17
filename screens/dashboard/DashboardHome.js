@@ -400,7 +400,7 @@ const DashboardHome = () => {
           marginBottom: 0,
         }}
       >
-        {`Data Visualization for ${business?.entity.businessNickname}`}
+        {`Data Visualization`}
       </Text>
       <TouchableOpacity
         onPress={() => {
