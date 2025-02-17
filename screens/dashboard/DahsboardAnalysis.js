@@ -525,11 +525,7 @@ const FinancialAnalysisScreen = ({ route }) => {
             label="Capital"
             value={capital.toLocaleString()}
           />
-          <InfoItem
-            icon="file-document-box"
-            label="File Number"
-            value={fileNumber}
-          />
+          <InfoItem icon="file-upload" label="File Number" value={fileNumber} />
           <InfoItem
             icon="calendar-end"
             label="Expiry Date"

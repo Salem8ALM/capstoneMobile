@@ -52,8 +52,6 @@ const DashboardHome = () => {
   const [submitText, setSubmitText] = useState("Apply for Loans"); // Default button text
   const theme = useTheme();
 
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
   const [avatarUri, setAvatarUri] = useState(null);
 
   const [profileImage, setProfileImage] = useState(
@@ -61,10 +59,12 @@ const DashboardHome = () => {
   );
 
   const [scaleValue] = useState(new Animated.Value(1)); // Initial scale value is 1 (no scaling)
+  const [scaleValueAI] = useState(new Animated.Value(1)); // Initial scale value is 1 (no scaling)
+  const [scaleDataVisualization] = useState(new Animated.Value(1)); // Initial scale value is 1 (no scaling)
 
-  const handlePressIn = () => {
+  const handlePressIn = (scaleParameter) => {
     // Scale down the button when pressed
-    Animated.spring(scaleValue, {
+    Animated.spring(scaleParameter, {
       toValue: 0.95, // Slightly scale it down
       friction: 3,
       tension: 100,
@@ -72,9 +72,9 @@ const DashboardHome = () => {
     }).start();
   };
 
-  const handlePressOut = () => {
+  const handlePressOut = (scaleParameter) => {
     // Scale it back to normal after releasing the press
-    Animated.spring(scaleValue, {
+    Animated.spring(scaleParameter, {
       toValue: 1, // Return to original scale
       friction: 3,
       tension: 100,
@@ -303,13 +303,13 @@ const DashboardHome = () => {
         </View>
       </View>
 
-      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <Animated.View style={{ transform: [{ scale: scaleValueAI }] }}>
         <TouchableOpacity
           style={styles.card}
-          activeOpacity={0.3} // Slight dim on press
+          activeOpacity={0.4} // Slight dim on press
           onPress={() => setModalVisible(true)}
-          onPressIn={() => handlePressIn(scaleAnim)}
-          onPressOut={() => handlePressOut(scaleAnim)}
+          onPressIn={() => handlePressIn(scaleValueAI)}
+          onPressOut={() => handlePressOut(scaleValueAI)}
         >
           <View
             style={{
@@ -364,8 +364,8 @@ const DashboardHome = () => {
             />
           )}
           mode="contained"
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
+          onPressIn={() => handlePressIn(scaleValue)}
+          onPressOut={() => handlePressOut(scaleValue)}
           style={styles.submit}
           labelStyle={styles.buttonText}
           onPress={handleSubmit}
@@ -402,82 +402,88 @@ const DashboardHome = () => {
       >
         {`Data Visualization`}
       </Text>
-      <TouchableOpacity
-        onPress={() => {
-          try {
-            console.log("Business Entity:", business?.entity);
-
-            if (!business?.entity) {
-              throw new Error("Missing required data");
-            }
-
-            navigation.navigate(Routes.Dashboard.DashboardAnalysis, {
-              data: business?.entity,
-            });
-          } catch (error) {
-            // Optionally, show an alert or feedback to the user
-            console.log(
-              "An error occurred while navigating. Please try again:",
-              err
-            );
-            setNotificationMessage(
-              "Unable to navigate to Analysis screen. Please try again"
-            );
-            setNotificationVisible(true);
-            setTimeout(() => {
-              setNotificationVisible(false);
-            }, 3000); // Hide the banner after 3 seconds
-          }
-        }}
+      <Animated.View
+        style={[{ transform: [{ scale: scaleDataVisualization }] }]}
       >
-        <View style={styles.chartWrapper}>
-          <LineChart
-            data={{
-              labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-              datasets: [{ data: [400, 450, 420, 500, 520, 600] }],
-            }}
-            width={screenWidth - 40}
-            height={220}
-            chartConfig={{
-              // backgroundColor: "#2A2A2E",
-              backgroundGradientFrom: "rgb(38, 38, 38)",
-              backgroundGradientTo: "rgb(38, 38, 38)",
-              decimalPlaces: 2,
-              color: (opacity = 1) => `rgba(255, 215, 0, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            }}
-            style={{ borderRadius: 10 }}
-          />
+        <TouchableOpacity
+          activeOpacity={0.4} // Slight dim on press
+          onPressIn={() => handlePressIn(scaleDataVisualization)}
+          onPressOut={() => handlePressOut(scaleDataVisualization)}
+          onPress={() => {
+            try {
+              console.log("Business Entity:", business?.entity);
 
-          {/* Full Coverage Gradient Shine Effect */}
-          <Animated.View
-            style={[
-              styles.shineWrapper,
-              {
-                transform: [{ translateX: translateXButton1 }],
-                position: "absolute", // Position it over the chart
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 10,
-              },
-            ]}
-          >
-            <LinearGradient
-              colors={[
-                "rgba(255,255,255,0.1)",
-                "rgba(255, 255, 255, 0.4)",
-                "rgba(255,255,255,0.1)",
-              ]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={[styles.shine, { flex: 1 }]}
+              if (!business?.entity) {
+                throw new Error("Missing required data");
+              }
+
+              navigation.navigate(Routes.Dashboard.DashboardAnalysis, {
+                data: business?.entity,
+              });
+            } catch (error) {
+              // Optionally, show an alert or feedback to the user
+              console.log(
+                "An error occurred while navigating. Please try again:",
+                err
+              );
+              setNotificationMessage(
+                "Unable to navigate to Analysis screen. Please try again"
+              );
+              setNotificationVisible(true);
+              setTimeout(() => {
+                setNotificationVisible(false);
+              }, 3000); // Hide the banner after 3 seconds
+            }
+          }}
+        >
+          <View style={styles.chartWrapper}>
+            <LineChart
+              data={{
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                datasets: [{ data: [400, 450, 420, 500, 520, 600] }],
+              }}
+              width={screenWidth - 40}
+              height={220}
+              chartConfig={{
+                // backgroundColor: "#2A2A2E",
+                backgroundGradientFrom: "rgb(38, 38, 38)",
+                backgroundGradientTo: "rgb(38, 38, 38)",
+                decimalPlaces: 2,
+                color: (opacity = 1) => `rgba(255, 215, 0, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              }}
+              style={{ borderRadius: 10 }}
             />
-          </Animated.View>
-        </View>
-      </TouchableOpacity>
 
+            {/* Full Coverage Gradient Shine Effect */}
+            <Animated.View
+              style={[
+                styles.shineWrapper,
+                {
+                  transform: [{ translateX: translateXButton1 }],
+                  position: "absolute", // Position it over the chart
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  zIndex: 10,
+                },
+              ]}
+            >
+              <LinearGradient
+                colors={[
+                  "rgba(255,255,255,0.1)",
+                  "rgba(255, 255, 255, 0.4)",
+                  "rgba(255,255,255,0.1)",
+                ]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={[styles.shine, { flex: 1 }]}
+              />
+            </Animated.View>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
       <FinancialAnalysisModal
         visible={modalVisible}
         onDismiss={() => setModalVisible(false)}
