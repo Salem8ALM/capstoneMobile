@@ -159,7 +159,7 @@ export default function LoanDashboard({ navigation }) {
         {!loans || loans.length === 0 ? (
           <View style={styles.noMessagesContainer}>
             <LottieView
-              source={require("../../../assets/no-message.json")}
+              source={require("../../../assets/loanRequestWait.json")}
               autoPlay
               loop
               style={styles.lottieAnimation}
@@ -194,6 +194,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1C1C1E",
   },
+
   shineWrapper: {
     position: "absolute",
     top: 0,
@@ -214,16 +215,18 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#1C1C1E",
     elevation: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingRight: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#2C2C2E",
   },
   headerTitle: {
     color: "white",
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
   },
   content: {

@@ -16,6 +16,7 @@ import ChatAnimations from "../../../utils/animations/chatAnimations";
 import LottieView from "lottie-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Dimensions } from "react-native";
+import NotificationBanner from "../../../utils/animations/NotificationBanner";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -40,6 +41,9 @@ export const ChatList = () => {
   const [previousMessages, setPreviousMessages] = useState({});
 
   const [rawBankers, setRawBankers] = useState([]);
+
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   useEffect(() => {
     // Sort the raw bankers data when it changes
@@ -143,7 +147,11 @@ export const ChatList = () => {
 
         // console.log(mappedBankers[1].timestamp); // This will print the timestamp of the second banker now sorted
       } catch (error) {
-        console.error("Error fetching chat list:", error);
+        setNotificationMessage("Error loading chat list");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
       }
     };
     // Initial fetch
@@ -257,6 +265,10 @@ export const ChatList = () => {
 
   return (
     <View style={styles.container}>
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Chats</Text>
       </View>
@@ -310,6 +322,11 @@ const styles = StyleSheet.create({
     opacity: 0.4,
     borderRadius: 8, // If you want rounded corners for the gradient
   },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+  },
   headerContainer: {
     paddingHorizontal: 16,
     paddingVertical: 20,
@@ -345,11 +362,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#fff", // You can adjust the color
   },
-  header: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
+
   listContent: {
     // paddingTop: 16,
   },

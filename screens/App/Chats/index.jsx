@@ -9,7 +9,13 @@ const Stack = createNativeStackNavigator();
 
 export const Chat = () => {
   return (
-    <View style={{ flex: 1, backgroundColor: "#1C1C1E" }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#1C1C1E",
+        paddingTop: 30,
+      }}
+    >
       <SafeAreaProvider>
         <Stack.Navigator
           screenOptions={{
