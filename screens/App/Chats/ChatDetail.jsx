@@ -60,7 +60,8 @@ function capitalizeFirstLetter(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-const VIDEOCALL_URL = "https://8359-94-129-157-32.ngrok-free.app/chat";
+const VIDEOCALL_URL =
+  "https://cornerstone-frontend-n3e1q30ml-momadabs-projects.vercel.app/chat";
 
 export const ChatDetail = ({ route }) => {
   const navigation = useNavigation();

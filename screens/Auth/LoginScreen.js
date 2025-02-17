@@ -30,6 +30,7 @@ import { setToken, getToken } from "../../storage/TokenStorage";
 import { LinearGradient } from "expo-linear-gradient";
 import { getCompanyAPI } from "../../api/Business";
 import NotificationBanner from "../../utils/animations/NotificationBanner";
+import Title from "./Title";
 
 const { width, height } = Dimensions.get("window");
 
@@ -184,16 +185,7 @@ const LoginScreen = () => {
         <View style={styles.content}>
           {/* <Text style={styles.title}>Welcome back!</Text> */}
 
-          <Image
-            source={require("../../assets/logo.png")}
-            style={{
-              width: width * 0.35, // 50% of screen width
-              height: width * 0.35 * (48 / 200), // Maintain aspect ratio
-              alignSelf: "center",
-              marginBottom: 50,
-            }}
-            resizeMode="contain"
-          />
+          <Title />
 
           <View style={styles.subtitle}>
             <Text style={{ color: "white" }}>Login below or </Text>

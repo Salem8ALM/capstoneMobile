@@ -141,7 +141,7 @@ export const ChatList = () => {
         });
         setPreviousMessages(newPreviousMessages);
 
-        console.log(mappedBankers[1].timestamp); // This will print the timestamp of the second banker now sorted
+        // console.log(mappedBankers[1].timestamp); // This will print the timestamp of the second banker now sorted
       } catch (error) {
         console.error("Error fetching chat list:", error);
       }

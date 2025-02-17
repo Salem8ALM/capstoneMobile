@@ -194,6 +194,10 @@ const DashboardHome = () => {
     });
   };
 
+  function capitalizeFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
   return (
     <View
       style={[
@@ -226,7 +230,9 @@ const DashboardHome = () => {
             fontWeight: "bold",
           }}
         >
-          {`Welcome, ${business.entity.businessOwnerUser.firstName}`}
+          {`Welcome, ${capitalizeFirstLetter(
+            business.entity.businessOwnerUser.firstName
+          )}`}
         </Text>
       </View>
       {/* Business Card */}
