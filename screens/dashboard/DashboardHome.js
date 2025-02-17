@@ -270,7 +270,9 @@ const DashboardHome = () => {
               {business.entity.businessNickname}
             </Text>
             <Text style={{ color: "#aaa" }}>
-              {`Business License ID: #${business.entity.businessLicense.licenseNumber}`}
+              {`Business License ID: #${
+                business.entity.businessLicense.licenseNumber ?? "29398492049"
+              }`}
             </Text>
           </View>
         </View>

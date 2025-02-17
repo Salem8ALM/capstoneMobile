@@ -159,7 +159,7 @@ export default function LoanDashboard({ navigation }) {
         {!loans || loans.length === 0 ? (
           <View style={styles.noMessagesContainer}>
             <LottieView
-              source={require("../../../assets/no-message.json")}
+              source={require("../../../assets/loanRequestWait.json")}
               autoPlay
               loop
               style={styles.lottieAnimation}
