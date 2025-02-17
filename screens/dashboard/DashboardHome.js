@@ -318,13 +318,13 @@ const DashboardHome = () => {
               marginBottom: 10,
             }}
           >
-            <Text style={styles.title}>AI Financial Analysis</Text>
-            <MaterialCommunityIcons
+            <Text style={styles.title}>Get AI-powered insights</Text>
+            {/* <MaterialCommunityIcons
               name="chart-bar"
               size={28}
               color="white"
               style={styles.aiIcon}
-            />
+            /> */}
           </View>
           <Text style={styles.description}>
             Make smarter decisions with cutting-edge AI-driven reports.
