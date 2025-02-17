@@ -511,6 +511,8 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "rgb(100, 100, 100)",
     backgroundColor: "rgb(38, 38, 38)",
+    boxShadow:
+      "0px 4px 6px rgba(0, 0, 0, 0.3), 0px 1px 3px rgba(0, 0, 0, 0.08)",
   },
 
   title: {
