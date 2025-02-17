@@ -515,7 +515,7 @@ const LoanRequestDetails = ({ route, navigation }) => {
                         >
                           {response.status === "APPROVED" && "Loan Offered"}
                           {response.status === "COUNTER_OFFER" &&
-                            "Counter Offer"}
+                            "Counter Offer: " + response.reason}
                           {response.status === "REJECTED" &&
                             "Application Rejected: " + response.reason}
                           {response.status === "RESCINDED" &&
