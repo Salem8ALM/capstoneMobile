@@ -197,6 +197,7 @@ const LoanRequestAmount = ({ navigation }) => {
     { label: "50,000 KWD", value: "50000" },
     { label: "75,000 KWD", value: "75000" },
     { label: "100,000 KWD", value: "100000" },
+    { label: "250,000 KWD", value: "250000" },
   ];
 
   const loanTermList = [
