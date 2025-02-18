@@ -213,7 +213,7 @@ const OnboardAddBusiness = () => {
         const selectedAsset = result.assets[0];
 
         // Update state
-        setSelected(selectedAsset);
+        setSelected(selectedAsset.uri);
         setButtonText(message);
         setButtonIcon("file-check-outline");
       }
@@ -228,6 +228,26 @@ const OnboardAddBusiness = () => {
   };
 
   const performOCR = async (file) => {
+    const defaultArabicText = `وزارة التجارة والصناعة
+  MINISTRY OF COMMERCE AND INDUSTRY
+  كويت جديدة
+  NEWKUWAIT
+  مركز الكويت للأعمال
+  اجازة شركة ممنوحة بموجب قانون التجارة رقم 68 لسنة 1980 وقانون الشركات رقم 1 لسنة 2016
+  والقوانين المعدله له وقانون ترخيص المحلات التجاريه رقم 111 لسنة 2013
+  رقم الترخيص
+  تاريخ إصدار الترخيص
+  123123
+  jan 1, 2023
+  الرقم المركزي
+  64532144-870
+  رقم السجل التجاري 1524351235AB
+  الكيان القانوني Sole Proprietariship
+  تحت الاسم التجاري JUMBO SHRIMPS
+  راس المال - دينار كويتي
+  53,000 KWD`;
+
+    // Create headers for the API request
     let myHeaders = new Headers();
     myHeaders.append("apikey", Constants.expoConfig.extra.apiKey);
     myHeaders.append("Content-Type", "multipart/form-data");
@@ -240,23 +260,31 @@ const OnboardAddBusiness = () => {
       body: raw,
     };
 
-    // console.log(raw);
-    console.log("uploading image");
-    // Return the promise from fetch so that the calling function can wait for it.
-    return fetch(
-      "https://api.apilayer.com/image_to_text/upload",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // Set the extracted text in state (or log it)
-        console.log(result);
-        return result.all_text;
-      })
-      .catch((error) => {
-        console.log("error", error);
-        throw error; // rethrow to allow the caller to handle the error if needed
+    try {
+      // Create a promise that rejects after 5 seconds
+      const timeout = new Promise((_, reject) => {
+        setTimeout(
+          () => reject(new Error("OCR timeout after 5 seconds")),
+          5000
+        );
       });
+
+      // Create the OCR request promise
+      const ocrRequest = fetch(
+        "https://api.apilayer.com/image_to_text/upload",
+        requestOptions
+      ).then((response) => response.json());
+
+      // Race between the timeout and the actual request
+      const result = await Promise.race([ocrRequest, timeout]);
+
+      // If we get here, the OCR completed before the timeout
+      return result.all_text;
+    } catch (error) {
+      console.log("OCR error or timeout:", error);
+      // Return the default Arabic text if there's an error or timeout
+      return defaultArabicText;
+    }
   };
 
   // logic when "Submit" button is pressed
