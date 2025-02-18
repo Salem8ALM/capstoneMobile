@@ -452,7 +452,7 @@ export const ChatDetail = ({ route }) => {
             style={styles.loadingIndicator}
           />
         </View>
-      ) : (
+      ) : messages.length !== 0 ? (
         <FlatList
           // data={messages}
           renderItem={renderMessage}
@@ -461,6 +461,19 @@ export const ChatDetail = ({ route }) => {
           inverted={true}
           data={[...messages].reverse()}
         />
+      ) : (
+        <View style={styles.loadingContainer}>
+          <LottieView
+            source={require("../../../assets/FirstMove")}
+            autoPlay
+            loop
+            style={styles.lottieAnimation}
+          />
+          <Text style={styles.firstMoveTitle}>Make the first move</Text>
+          <Text style={styles.firstMoveDescription}>
+            Show the banker why your business deserves the best deal.
+          </Text>
+        </View>
       )}
 
       {banker && (
@@ -601,6 +614,22 @@ const styles = StyleSheet.create({
   videoCall: {
     padding: 8,
   },
+  firstMoveTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#2C3E50",
+    textAlign: "center",
+    marginBottom: 6,
+  },
+
+  firstMoveDescription: {
+    fontSize: 16,
+    color: "#7F8C8D",
+    textAlign: "center",
+    lineHeight: 22,
+    paddingHorizontal: 20,
+  },
+
   messagesList: {
     padding: 16,
     paddingTop: 200,

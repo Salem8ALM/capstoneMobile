@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Text } from "react-native-paper";
 import Routes from "../../../utils/constants/routes";
 import { useTabBar } from "../../../navigations/TabBarProvider";
+import LottieView from "lottie-react-native";
 
 const LoanRequestIntro = () => {
   const symbols = [
@@ -75,7 +76,7 @@ const LoanRequestIntro = () => {
         style={styles.backButton}
         onPress={() => navigation.replace(Routes.LoanRequest.LoanDashboard)}
       >
-        <Ionicons name="arrow-back" size={24} color="white" />
+        {/* <Ionicons name="arrow-back" size={24} color="white" /> */}
         <Text style={styles.backText}>Back</Text>
       </TouchableOpacity>
 
@@ -97,6 +98,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#1C1C1E",
   },
+
   backButton: {
     position: "absolute",
     top: 50,
