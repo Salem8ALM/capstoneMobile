@@ -12,6 +12,7 @@ import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
 import { useData } from "../../../context/DataContext";
 import LoanProgressBar from "../../../components/LoanProgressBar";
+import LottieView from "lottie-react-native";
 
 const LoanRequestDetails = ({ navigation }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -257,6 +258,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 20,
   },
+
   content: {
     flex: 1,
     justifyContent: "center",

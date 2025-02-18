@@ -5,6 +5,7 @@ import { Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import Routes from "../constants/routes";
 import { handlePressIn, handlePressOut } from "./buttonAnimations";
+import LottieView from "lottie-react-native";
 
 const AnimatedIntroContent = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -52,10 +53,17 @@ const AnimatedIntroContent = () => {
       <Animated.View
         style={[styles.iconWrapper, { transform: [{ scale: iconPulseAnim }] }]}
       >
-        <MaterialCommunityIcons
+        {/* <MaterialCommunityIcons
           name="cash-multiple"
           size={80}
           color="#FFD700"
+        /> */}
+
+        <LottieView
+          source={require("../../assets/loanDetails.json")}
+          autoPlay
+          loop
+          style={styles.lottieAnimation}
         />
       </Animated.View>
       <Text style={styles.title}>Your Loan, Your Future</Text>
@@ -85,6 +93,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     zIndex: 2,
+  },
+  lottieAnimation: {
+    width: 200, // Adjust to your preferred size
+    height: 200,
+    alignSelf: "center",
   },
   iconWrapper: {
     marginBottom: 20,
