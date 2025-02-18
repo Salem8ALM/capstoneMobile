@@ -8,18 +8,17 @@ const setToken = async (token, type) => {
     await setItemAsync(type, token);
     console.log(`${type} token set successfully`);
   } catch (error) {
-    console.error(`Error setting ${type} token:`, error);
+    console.log(`Error setting ${type} token:`, error);
+    return error;
   }
 };
-
-
 
 // Retrieve a token by type ('access' or 'refresh')
 const getToken = async (tokenType) => {
   try {
     return await getItemAsync(tokenType);
   } catch (error) {
-    console.error(`Error retrieving ${tokenType} token:`, error);
+    console.log(`Error retrieving ${tokenType} token:`, error);
     return null;
   }
 };
@@ -31,7 +30,8 @@ const deleteToken = async (type) => {
     await deleteItemAsync(type);
     console.log(`${type} token deleted successfully`);
   } catch (error) {
-    console.error(`Error deleting ${type} token:`, error);
+    console.log(`Error deleting ${type} token:`, error);
+    return error;
   }
 };
 
@@ -39,7 +39,7 @@ const deleteToken = async (type) => {
 // `tokenType` is either 'access' or 'refresh'
 const checkToken = async (tokenType) => {
   if (!tokenType || typeof tokenType !== "string") {
-    console.error("Invalid tokenType provided to checkToken:", tokenType);
+    console.log("Invalid tokenType provided to checkToken:", tokenType);
     return false;
   }
 
@@ -60,7 +60,7 @@ const checkToken = async (tokenType) => {
     console.warn(`${tokenType} token does not exist`);
     return false;
   } catch (error) {
-    console.error(`Error checking ${tokenType} token:`, error);
+    console.log(`Error checking ${tokenType} token:`, error);
     return false;
   }
 };

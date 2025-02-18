@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useContext } from "react";
-import { View, StyleSheet, Animated } from "react-native";
+import { View, StyleSheet, Animated, Dimensions } from "react-native";
 import { Text, Button, Card, Divider } from "react-native-paper";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import {
@@ -13,6 +13,8 @@ import { sendLoanRequest } from "../../../api/LoanRequest";
 import UserContext from "../../../context/UserContext";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import FinanceSymbol from "../../../utils/animations/FinanceSymbol";
+
+const { width } = Dimensions.get("window"); // Get screen width
 
 export default function LoanRequestReview({ navigation, route }) {
   const { loanAmount, loanTerm, repaymentPlan } = route.params; // Accessing passed params
@@ -246,10 +248,12 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    width: "100%",
+    width: width - 50, // Full width minus some padding for better spacing
     backgroundColor: "#2a2a2a",
     borderRadius: 8,
     paddingVertical: 15,
+    borderColor: "rgba(175, 175, 175, 0.69)",
+    borderWidth: 0.2,
   },
   row: {
     flexDirection: "row",
