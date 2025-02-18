@@ -76,10 +76,16 @@ export default function LoanAcceptance({ route }) {
   const handleMoveDraw = (e) => {
     if (lines.length > 0) {
       const { locationX, locationY } = e.nativeEvent;
-      const newLines = [...lines];
-      const currentLine = newLines[newLines.length - 1];
-      currentLine.points.push({ x: locationX, y: locationY });
-      setLines(newLines);
+      setLines((prevLines) => {
+        const newLines = [...prevLines];
+        const currentLine = { ...newLines[newLines.length - 1] };
+        currentLine.points = [
+          ...currentLine.points,
+          { x: locationX, y: locationY },
+        ];
+        newLines[newLines.length - 1] = currentLine;
+        return newLines;
+      });
     }
   };
 
