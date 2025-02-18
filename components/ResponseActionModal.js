@@ -52,10 +52,17 @@ const ResponseActionModal = ({
 
   const accpetOffer = async (response) => {
     try {
-      navigation.navigate(Routes.LoanRequest.LoanAcceptance, {
-        loanId: loanId,
-        responseId: response.id,
-      });
+      // for enabling signature screen for accepting offer, set this true
+      if (false) {
+        navigation.navigate(Routes.LoanRequest.LoanAcceptance, {
+          loanId: loanId,
+          responseId: response.id,
+        });
+      } else {
+        //for preivious method (no signature screen)
+        const token = await getToken("access");
+        await acceptOfferAPI(token, loanId, response.id);
+      }
     } catch (error) {
       setNotificationMessage("Unable to accept at the moment. Try later");
       setNotificationVisible(true);
