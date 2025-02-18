@@ -26,6 +26,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTabBar } from "../../../navigations/TabBarProvider";
+import { acceptOfferAPI } from "../../../api/LoanRequest";
+import { getToken } from "../../../storage/TokenStorage";
+import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
@@ -35,6 +38,9 @@ export default function LoanAcceptance({ route }) {
   const svgRef = useRef(null);
   const animationRef = useRef(null);
   const [modalTimeout, setModalTimeout] = useState(null);
+
+  const { loanId, responseId } = route.params;
+  const navigation = useNavigation();
 
   // Loan details would come from route.params in a real app
   const loanDetails = {
@@ -94,17 +100,19 @@ export default function LoanAcceptance({ route }) {
         quality: 1.0,
       });
 
-      // Save signature logic here...
-
       setShowSuccess(true);
       if (animationRef.current) {
         animationRef.current.play();
       }
 
-      // Set a timeout to automatically hide the modal after 3 seconds
+      const token = await getToken("access");
+      await acceptOfferAPI(token, loanId, responseId);
+
       const timeout = setTimeout(() => {
         setShowSuccess(false);
+        navigation.pop(); // Now it pops after the timeout
       }, 3000); // Adjust duration as needed
+
       setModalTimeout(timeout);
     } catch (error) {
       Alert.alert("Error", "Failed to process signature");
@@ -199,12 +207,14 @@ export default function LoanAcceptance({ route }) {
           >
             <LottieView
               ref={animationRef}
-              source={require("../../../assets/add_business_4.json")}
+              source={require("../../../assets/acceptOffer.json")}
               style={styles.lottie}
-              autoPlay={false}
-              loop={false}
+              autoPlay={true}
+              loop={true}
             />
-            <Text style={styles.successText}>Loan Accepted!</Text>
+            <Text style={styles.successText}>
+              Loan Accepted! The banker will get in contact with you
+            </Text>
           </Modal>
         </Portal>
       </PaperProvider>
@@ -290,8 +300,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   lottie: {
-    width: 150,
-    height: 150,
+    width: 300,
+    height: 300,
   },
   successText: {
     color: "#FFD700",

@@ -49,12 +49,13 @@ const ResponseActionModal = ({
   const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   const navigation = useNavigation();
+
   const accpetOffer = async (response) => {
     try {
-      navigation.navigate(Routes.LoanRequest.LoanAcceptance);
-      //   const token = await getToken("access");
-
-      //   await acceptOfferAPI(token, loanId, response.id);
+      navigation.navigate(Routes.LoanRequest.LoanAcceptance, {
+        loanId: loanId,
+        responseId: response.id,
+      });
     } catch (error) {
       setNotificationMessage("Unable to accept at the moment. Try later");
       setNotificationVisible(true);
