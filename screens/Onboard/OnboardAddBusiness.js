@@ -202,7 +202,7 @@ const OnboardAddBusiness = () => {
 
       // Launch the image picker
       let result = await ImagePicker.launchImageLibraryAsync({
-        // mediaTypes: ImagePicker.mediaTypes, // Specify media type
+        mediaTypes: ImagePicker.mediaTypes, // Specify media type
         allowsEditing: true,
         quality: 1,
         base64: true,
@@ -213,7 +213,7 @@ const OnboardAddBusiness = () => {
         const selectedAsset = result.assets[0];
 
         // Update state
-        setSelected(selectedAsset.uri);
+        setSelected(selectedAsset);
         setButtonText(message);
         setButtonIcon("file-check-outline");
       }
@@ -240,6 +240,7 @@ const OnboardAddBusiness = () => {
       body: raw,
     };
 
+    // console.log(raw);
     console.log("uploading image");
     // Return the promise from fetch so that the calling function can wait for it.
     return fetch(

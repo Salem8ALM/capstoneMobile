@@ -253,7 +253,7 @@ export const ChatDetail = ({ route }) => {
         <View
           style={[
             styles.messageContainer,
-            item.sent ? styles.sentMessage : styles.receivedMessage,
+            item.sent === true ? styles.sentMessage : styles.receivedMessage,
           ]}
         >
           {/* <Image source={avatarMap[banker?.bank]} style={styles.messageLogo} /> */}
@@ -261,27 +261,31 @@ export const ChatDetail = ({ route }) => {
             style={[
               styles.messageBubble,
               styles.callMessageBubble,
-              item.sent ? styles.sentBubble : styles.receivedBubble,
+              item.sent === true ? styles.sentBubble : styles.receivedBubble,
             ]}
           >
             <Text
               style={[
                 styles.senderName,
-                item.sent ? styles.sentMessageText : styles.receivedMessageText,
+                item.sent === true
+                  ? styles.sentMessageText
+                  : styles.receivedMessageText,
               ]}
             >
-              {item.sent ? "You" : capitalizeFirstLetter(banker.firstName)}
+              {item.sent === true
+                ? ""
+                : capitalizeFirstLetter(banker.firstName)}
             </Text>
             <View style={styles.callInfoContainer}>
               <Feather
                 name="video"
                 size={20}
-                color={item.sent ? "#000" : "#000"}
+                color={item.sent === true ? "#000" : "#000"}
               />
               <Text
                 style={[
                   styles.messageText,
-                  item.sent
+                  item.sent === true
                     ? styles.sentMessageText
                     : styles.receivedMessageText,
                 ]}
@@ -672,8 +676,8 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   messageTimestamp: {
-    fontSize: 10,
-    color: "#8E8E93",
+    fontSize: 9,
+    color: "#000000",
     alignSelf: "flex-end",
   },
   inputContainer: {
