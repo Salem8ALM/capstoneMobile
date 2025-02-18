@@ -5,7 +5,7 @@ export default {
     name: "capstoneMobile",
     slug: "capstoneMobile",
     extra: {
-      apiKey: process.env.API_KEY,
+      apiKey: "fJH1Ol9EeB4nPq1D6TQ2LoO5RdvjKkAd",
     },
   },
 };
