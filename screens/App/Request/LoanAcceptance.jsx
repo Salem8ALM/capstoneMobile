@@ -29,8 +29,18 @@ import { useTabBar } from "../../../navigations/TabBarProvider";
 import { acceptOfferAPI } from "../../../api/LoanRequest";
 import { getToken } from "../../../storage/TokenStorage";
 import { useNavigation } from "@react-navigation/native";
+import NotificationBanner from "../../../utils/animations/NotificationBanner";
 
 const { width } = Dimensions.get("window");
+
+async function capitalizeFirstLetter(input) {
+  if (!input) return ""; // Return an empty string if input is falsy (undefined, null, etc.)
+  return input
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
 export default function LoanAcceptance({ route }) {
   const [lines, setLines] = useState([]);
@@ -39,16 +49,20 @@ export default function LoanAcceptance({ route }) {
   const animationRef = useRef(null);
   const [modalTimeout, setModalTimeout] = useState(null);
 
-  const { loanId, responseId } = route.params;
+  const { loanId, response } = route.params;
   const navigation = useNavigation();
+
+  const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
+  const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   // Loan details would come from route.params in a real app
   const loanDetails = {
-    amount: "1,000 KWD",
-    term: "1 Year",
-    repaymentPlan: "Step Up",
-    bank: "Kuwait International Bank",
-    counterOffer: "100 KWD",
+    amount: response?.amount.toLocaleString() ?? "Not defined",
+    term: response?.loanTerm ?? "Not defined",
+    bank: response?.banker?.bank ?? "Not defined",
+
+    repaymentPlan: response?.repaymentPlan ?? "Not defined",
+    counterOffer: response?.amount ?? "Not defined",
   };
 
   const handleStartDraw = (e) => {
@@ -90,7 +104,12 @@ export default function LoanAcceptance({ route }) {
 
   const handleSubmit = async () => {
     if (lines.length === 0) {
-      Alert.alert("Error", "Please sign before submitting");
+      setNotificationMessage("Please sign before submitting!");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
+
       return;
     }
 
@@ -106,7 +125,7 @@ export default function LoanAcceptance({ route }) {
       }
 
       const token = await getToken("access");
-      await acceptOfferAPI(token, loanId, responseId);
+      await acceptOfferAPI(token, loanId, response.id);
 
       const timeout = setTimeout(() => {
         setShowSuccess(false);
@@ -115,12 +134,20 @@ export default function LoanAcceptance({ route }) {
 
       setModalTimeout(timeout);
     } catch (error) {
-      Alert.alert("Error", "Failed to process signature");
+      setNotificationMessage("Failed to process signature. Try again later.");
+      setNotificationVisible(true);
+      setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000); // Hide the banner after 3 seconds
     }
   };
 
   return (
     <View style={styles.container}>
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+      />
       <PaperProvider>
         <Animated.View
           entering={FadeInDown.duration(800).easing(Easing.ease)}
@@ -131,7 +158,9 @@ export default function LoanAcceptance({ route }) {
             <View style={styles.detailRow}>
               <MaterialCommunityIcons name="cash" size={24} color="#FFD700" />
               <Text style={styles.detailLabel}>Amount:</Text>
-              <Text style={styles.detailValue}>{loanDetails.amount}</Text>
+              <Text style={styles.detailValue}>
+                {loanDetails?.amount ? loanDetails.amount : "Not defined"}
+              </Text>
             </View>
             <View style={styles.detailRow}>
               <MaterialCommunityIcons
@@ -140,12 +169,20 @@ export default function LoanAcceptance({ route }) {
                 color="#FFD700"
               />
               <Text style={styles.detailLabel}>Term:</Text>
-              <Text style={styles.detailValue}>{loanDetails.term}</Text>
+              <Text style={styles.detailValue}>
+                {loanDetails?.term
+                  ? capitalizeFirstLetter(loanDetails.term)
+                  : "Not defined"}
+              </Text>
             </View>
             <View style={styles.detailRow}>
               <MaterialCommunityIcons name="bank" size={24} color="#FFD700" />
               <Text style={styles.detailLabel}>Bank:</Text>
-              <Text style={styles.detailValue}>{loanDetails.bank}</Text>
+              <Text style={styles.detailValue}>
+                {loanDetails?.term
+                  ? capitalizeFirstLetter(loanDetails.bank)
+                  : "Not defined"}
+              </Text>
             </View>
           </Surface>
         </Animated.View>

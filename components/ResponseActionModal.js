@@ -53,10 +53,10 @@ const ResponseActionModal = ({
   const accpetOffer = async (response) => {
     try {
       // for enabling signature screen for accepting offer, set this true
-      if (false) {
+      if (true) {
         navigation.navigate(Routes.LoanRequest.LoanAcceptance, {
           loanId: loanId,
-          responseId: response.id,
+          response: response,
         });
       } else {
         //for preivious method (no signature screen)
@@ -188,11 +188,11 @@ const ResponseActionModal = ({
             </Text>
             <Text style={styles.amount}>
               {response?.status === "APPROVED" && loan?.amount
-                ? loan.amount.toLocaleString()
+                ? loan.amount.toLocaleString() + " KWD"
                 : null}
 
               {response?.status === "COUNTER_OFFER" && response?.amount
-                ? response.amount.toLocaleString()
+                ? response.amount.toLocaleString() + " KWD"
                 : null}
             </Text>
 
