@@ -30,6 +30,10 @@ export function Profile() {
   const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
   const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
+  function capitalizeFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,14 +66,20 @@ export function Profile() {
         console.log("Token info response:", response.data);
 
         const userData = response.data;
+        console.log(business);
         setUserProfile({
-          username: userData.username || "N/A",
+          username: business.entity.businessOwnerUser.firstName || "N/A",
           civilId: userData["civil Id"] || "N/A",
           role: Array.isArray(userData.roles)
             ? userData.roles[0]
-            : userData.roles || "N/A",
+            : userData.roles || "Business Owner",
           bank: userData.bank || "N/A",
-          firstName: userData.firstName || userData.username || "N/A",
+          firstName:
+            capitalizeFirstLetter(
+              business.entity.businessOwnerUser.firstName
+            ) ||
+            userData.username ||
+            "N/A",
           lastName: userData.lastName || "",
         });
 
