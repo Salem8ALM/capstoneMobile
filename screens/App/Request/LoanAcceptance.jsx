@@ -28,7 +28,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTabBar } from "../../../navigations/TabBarProvider";
 import { acceptOfferAPI } from "../../../api/LoanRequest";
 import { getToken } from "../../../storage/TokenStorage";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
 
 const { width } = Dimensions.get("window");
@@ -51,6 +51,7 @@ export default function LoanAcceptance({ route }) {
 
   const { loanId, response } = route.params;
   const navigation = useNavigation();
+  const [animationStep, setAnimationStep] = useState(1); // Track which animation is playing
 
   const [notificationVisible, setNotificationVisible] = useState(false); // State to manage banner visibility
   const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
@@ -72,6 +73,12 @@ export default function LoanAcceptance({ route }) {
       { points: [{ x: locationX, y: locationY }], color: "#FFFFFF" },
     ]);
   };
+
+  useEffect(() => {
+    if (showSuccess) {
+      setAnimationStep(1); // Start with the first animation
+    }
+  }, [showSuccess]);
 
   const handleMoveDraw = (e) => {
     if (lines.length > 0) {
@@ -95,18 +102,20 @@ export default function LoanAcceptance({ route }) {
 
   const { setShowTabBar } = useTabBar();
 
-  useEffect(() => {
-    // Delay the tab bar hiding to give the animation a chance to play
-    const hideTabBarTimeout = setTimeout(() => {
-      setShowTabBar(false);
-    }, 100); // Adjust delay as necessary to allow animation time
+  useFocusEffect(
+    React.useCallback(() => {
+      // Hide tab bar when screen is focused
+      const hideTabBarTimeout = setTimeout(() => {
+        setShowTabBar(false);
+      }, 100); // Adjust delay as necessary
 
-    // Reset the tab bar visibility when leaving the screen
-    return () => {
-      clearTimeout(hideTabBarTimeout); // Clear the timeout to prevent unnecessary calls
-      setShowTabBar(true);
-    };
-  }, []); // Empty dependency array ensures this runs only once when the screen is mounted
+      // Cleanup to show tab bar when the screen is blurred
+      return () => {
+        clearTimeout(hideTabBarTimeout);
+        setShowTabBar(true);
+      };
+    }, []) // Empty dependency ensures it runs when screen is focused
+  );
 
   const handleSubmit = async () => {
     if (lines.length === 0) {
@@ -250,14 +259,12 @@ export default function LoanAcceptance({ route }) {
           >
             <LottieView
               ref={animationRef}
-              source={require("../../../assets/acceptOffer.json")}
+              source={require("../../../assets/confirmOrange.json")}
               style={styles.lottie}
               autoPlay={true}
               loop={true}
             />
-            <Text style={styles.successText}>
-              Loan Accepted! The banker will get in contact with you
-            </Text>
+            <Text style={styles.successText}>Loan accepted!</Text>
           </Modal>
         </Portal>
       </PaperProvider>
@@ -347,7 +354,7 @@ const styles = StyleSheet.create({
     height: 300,
   },
   successText: {
-    color: "#FFD700",
+    color: "white",
     fontSize: 24,
     fontWeight: "bold",
     marginTop: 16,
