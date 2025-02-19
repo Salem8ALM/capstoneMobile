@@ -681,7 +681,7 @@ const styles = StyleSheet.create({
   },
   description: {
     color: "#FFFFFF",
-    marginBottom: 16,
+    marginBottom: 8,
   },
   withdrawButton: {
     backgroundColor: "#2C2C2C",
@@ -691,6 +691,7 @@ const styles = StyleSheet.create({
   },
   responsesSection: {
     padding: 16,
+    paddingTop: 0,
     marginBottom: 110,
   },
   responsesTitle: {
