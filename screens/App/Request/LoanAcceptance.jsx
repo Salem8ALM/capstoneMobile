@@ -138,13 +138,16 @@ export default function LoanAcceptance({ route }) {
         quality: 1.0,
       });
 
+      const token = await getToken("access");
+      await acceptOfferAPI(token, loanId, response.id);
+
+      // to check that the animation doesnt work when an error doesnt work
+      // await acceptOfferAPI(null, null, null);
+
       setShowSuccess(true);
       if (animationRef.current) {
         animationRef.current.play();
       }
-
-      const token = await getToken("access");
-      await acceptOfferAPI(token, loanId, response.id);
 
       const timeout = setTimeout(() => {
         setShowSuccess(false);
