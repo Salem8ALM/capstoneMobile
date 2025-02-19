@@ -58,12 +58,16 @@ export default function LoanAcceptance({ route }) {
 
   // Loan details would come from route.params in a real app
   const loanDetails = {
-    amount: response?.amount.toLocaleString() ?? "Not defined",
-    term: response?.loanTerm ?? "Not defined",
-    bank: response?.banker?.bank ?? "Not defined",
+    amount: response?.amount
+      ? response.amount.toLocaleString()
+      : (100000).toLocaleString(),
+    term: response?.loanTerm ? response.loanTerm : "SIX_MONTHS",
+    bank: response?.banker?.bank ? response.banker.bank : "BOUBYAN_BANK",
 
-    repaymentPlan: response?.repaymentPlan ?? "Not defined",
-    counterOffer: response?.amount ?? "Not defined",
+    repaymentPlan: response?.repaymentPlan
+      ? response.repaymentPlan
+      : "Not defined",
+    counterOffer: response?.amount ? response.amount : "Not defined",
   };
 
   const handleStartDraw = (e) => {
@@ -149,6 +153,7 @@ export default function LoanAcceptance({ route }) {
 
       setModalTimeout(timeout);
     } catch (error) {
+      console.log(error);
       setNotificationMessage("Failed to process signature. Try again later.");
       setNotificationVisible(true);
       setTimeout(() => {
