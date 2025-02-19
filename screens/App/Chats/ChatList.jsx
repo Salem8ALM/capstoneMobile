@@ -72,102 +72,97 @@ export const ChatList = () => {
     ).start();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchChatList = async () => {
-        try {
-          const token = await getToken("access");
-          if (!token) {
-            console.warn("No token found, skipping fetch.");
-            return;
-          }
-
-          const chats = await getChatsAPI(token);
-
-          // Map backend response to bankers structure
-          const mappedBankers = chats.map((chat) => {
-            const lastMessage =
-              chat.messages.length > 0
-                ? chat.messages[chat.messages.length - 1]
-                : null;
-
-            // Convert timestamp to Date for sorting
-            const timestamp = lastMessage
-              ? new Date(lastMessage.timestamp)
-              : new Date(0); // Use epoch if no messages
-
-            return {
-              id: chat.id,
-              name: formatRepaymentPlan(chat.banker.bank),
-              logo: avatarMap[chat.banker.bank] || "default-logo-url.png",
-              lastMessage:
-                chat.messages.length > 0
-                  ? chat.messages[chat.messages.length - 1].characters
-                  : "No messages yet",
-              lastMessageBank: lastMessage
-                ? lastMessage.sender.bank
-                : "No messages yet",
-              timestamp: timestamp, // Store as Date object for sorting
-              messages: chat.messages,
-              unreadCount: 0,
-              isActive: true,
-            };
-          });
-
-          // Update the rawBankers state
-          setRawBankers(mappedBankers);
-
-          // Check for new messages and create notifications
-          mappedBankers.forEach((banker) => {
-            const previousChat = previousMessages[banker.id];
-            if (previousChat) {
-              const newMessages = banker.messages.filter(
-                (msg) =>
-                  !previousChat.messages.find(
-                    (prevMsg) => prevMsg.id === msg.id
-                  )
-              );
-
-              newMessages.forEach((msg) => {
-                addNotification({
-                  type: "message",
-                  title: `New message from ${banker.name}`,
-                  message: msg.characters,
-                  chatId: banker.id,
-                  messageId: msg.id,
-                  timestamp: new Date(msg.timestamp),
-                });
-              });
-            }
-          });
-
-          // Update previous messages state
-          const newPreviousMessages = {};
-          mappedBankers.forEach((banker) => {
-            newPreviousMessages[banker.id] = banker;
-          });
-          setPreviousMessages(newPreviousMessages);
-
-          // console.log(mappedBankers[1].timestamp); // This will print the timestamp of the second banker now sorted
-        } catch (error) {
-          setNotificationMessage("Error loading chat list");
-          setNotificationVisible(true);
-          setTimeout(() => {
-            setNotificationVisible(false);
-          }, 3000); // Hide the banner after 3 seconds
+  useEffect(() => {
+    const fetchChatList = async () => {
+      try {
+        const token = await getToken("access");
+        if (!token) {
+          console.warn("No token found, skipping fetch.");
+          return;
         }
-      };
 
-      // Set up polling interval
-      const interval = setInterval(() => {
-        fetchChatList();
-      }, 3000);
+        const chats = await getChatsAPI(token);
 
-      return () => {
-        clearInterval(interval);
-      };
-    }, [])
-  );
+        // Map backend response to bankers structure
+        const mappedBankers = chats.map((chat) => {
+          const lastMessage =
+            chat.messages.length > 0
+              ? chat.messages[chat.messages.length - 1]
+              : null;
+
+          // Convert timestamp to Date for sorting
+          const timestamp = lastMessage
+            ? new Date(lastMessage.timestamp)
+            : new Date(0); // Use epoch if no messages
+
+          return {
+            id: chat.id,
+            name: formatRepaymentPlan(chat.banker.bank),
+            logo: avatarMap[chat.banker.bank] || "default-logo-url.png",
+            lastMessage:
+              chat.messages.length > 0
+                ? chat.messages[chat.messages.length - 1].characters
+                : "No messages yet",
+            lastMessageBank: lastMessage
+              ? lastMessage.sender.bank
+              : "No messages yet",
+            timestamp: timestamp, // Store as Date object for sorting
+            messages: chat.messages,
+            unreadCount: 0,
+            isActive: true,
+          };
+        });
+
+        // Update the rawBankers state
+        setRawBankers(mappedBankers);
+
+        // Check for new messages and create notifications
+        mappedBankers.forEach((banker) => {
+          const previousChat = previousMessages[banker.id];
+          if (previousChat) {
+            const newMessages = banker.messages.filter(
+              (msg) =>
+                !previousChat.messages.find((prevMsg) => prevMsg.id === msg.id)
+            );
+
+            newMessages.forEach((msg) => {
+              addNotification({
+                type: "message",
+                title: `New message from ${banker.name}`,
+                message: msg.characters,
+                chatId: banker.id,
+                messageId: msg.id,
+                timestamp: new Date(msg.timestamp),
+              });
+            });
+          }
+        });
+
+        // Update previous messages state
+        const newPreviousMessages = {};
+        mappedBankers.forEach((banker) => {
+          newPreviousMessages[banker.id] = banker;
+        });
+        setPreviousMessages(newPreviousMessages);
+
+        // console.log(mappedBankers[1].timestamp); // This will print the timestamp of the second banker now sorted
+      } catch (error) {
+        setNotificationMessage("Error loading chat list");
+        setNotificationVisible(true);
+        setTimeout(() => {
+          setNotificationVisible(false);
+        }, 3000); // Hide the banner after 3 seconds
+      }
+    };
+    // Initial fetch
+    fetchChatList();
+
+    // Set up polling interval
+    const intervalId = setInterval(fetchChatList, 2000);
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, [addNotification]);
 
   const renderBankItem = ({ item }) => (
     <TouchableOpacity
