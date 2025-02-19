@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { ActivityIndicator, Surface } from "react-native-paper";
 import LottieView from "lottie-react-native";
+import Routes from "../utils/constants/routes";
 
 const { width } = Dimensions.get("window");
 
@@ -57,6 +58,7 @@ export default function ProcessModal({ visible, onClose, navigation }) {
       onClose();
       setTimeout(() => {
         navigation.popToTop();
+        navigation.replace(Routes.LoanRequest.LoanDashboard); // Replaces the top screen with a specific one
       }, 0);
     }, 6000);
   };

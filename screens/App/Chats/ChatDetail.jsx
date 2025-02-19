@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import {
   Linking,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { getToken } from "../../../storage/TokenStorage";
 import {
@@ -32,6 +32,7 @@ import { getUser } from "../../../storage/UserStorage";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
 import { fetchMessages } from "./fetchMessages";
 import ChatAnimations from "../../../utils/animations/chatAnimations";
+import Routes from "../../../utils/constants/routes";
 
 const formatRepaymentPlan = (plan) => {
   return plan
@@ -78,54 +79,67 @@ export const ChatDetail = ({ route }) => {
   const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   // Load video call information
-  useEffect(() => {
-    const loadVideoCallInformation = async () => {
-      try {
-        let token = await getToken("access");
-        const user = await getUser();
+  useFocusEffect(
+    useCallback(() => {
+      const loadVideoCallInformation = async () => {
+        try {
+          let token = await getToken("access");
+          const user = await getUser();
 
-        token = await getZegoToken(token);
+          token = await getZegoToken(token);
 
-        if (!token || !user) {
-          setNotificationMessage("Missing authentication information");
+          if (!token || !user) {
+            setNotificationMessage("Missing authentication information");
+            setNotificationVisible(true);
+            setTimeout(() => {
+              setNotificationVisible(false);
+            }, 3000); // Hide the banner after 3 seconds
+            return;
+          }
+
+          const url = `${VIDEOCALL_URL}/${chatId}?username=${
+            user.sub
+          }&token=${encodeURIComponent(token)}`;
+
+          console.log(url);
+          setVideoCallUrl(url);
+        } catch (error) {
+          setNotificationMessage("Error loading video call information");
           setNotificationVisible(true);
           setTimeout(() => {
             setNotificationVisible(false);
           }, 3000); // Hide the banner after 3 seconds
-          return;
         }
+      };
 
-        const url = `${VIDEOCALL_URL}/${chatId}?username=${
-          user.sub
-        }&token=${encodeURIComponent(token)}`;
+      // Initial fetch
+      loadVideoCallInformation();
 
-        console.log(url);
-        setVideoCallUrl(url);
-      } catch (error) {
-        setNotificationMessage("Error loading video call information");
-        setNotificationVisible(true);
-        setTimeout(() => {
-          setNotificationVisible(false);
-        }, 3000); // Hide the banner after 3 seconds
-      }
-    };
+      // Set up polling interval
+      const interval = setInterval(() => {
+        loadVideoCallInformation();
+      }, 3000);
 
-    loadVideoCallInformation();
-  }, []);
+      return () => {
+        clearInterval(interval);
+      };
+    }, [])
+  );
 
-  useEffect(() => {
-    // Delay the tab bar hiding to give the animation a chance to play
-    const hideTabBarTimeout = setTimeout(() => {
-      setShowTabBar(false);
-    }, 100); // Adjust delay as necessary to allow animation time
+  useFocusEffect(
+    React.useCallback(() => {
+      // Hide tab bar when screen is focused
+      const hideTabBarTimeout = setTimeout(() => {
+        setShowTabBar(false);
+      }, 100); // Adjust delay as necessary
 
-    // Reset the tab bar visibility when leaving the screen
-    return () => {
-      clearTimeout(hideTabBarTimeout); // Clear the timeout to prevent unnecessary calls
-      setShowTabBar(true);
-    };
-  }, []); // Empty dependency array ensures this runs only once when the screen is mounted
-
+      // Cleanup to show tab bar when the screen is blurred
+      return () => {
+        clearTimeout(hideTabBarTimeout);
+        setShowTabBar(true);
+      };
+    }, []) // Empty dependency ensures it runs when screen is focused
+  );
   const handleSendMessage = async () => {
     if (message.trim()) {
       setMessages((prev) => [
@@ -404,7 +418,7 @@ export const ChatDetail = ({ route }) => {
       >
         <TouchableOpacity
           onPress={() => {
-            navigation.pop();
+            navigation.replace("ChatList");
           }}
           style={styles.backButton}
         >

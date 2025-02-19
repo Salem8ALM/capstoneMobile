@@ -22,6 +22,7 @@ import { Dimensions } from "react-native";
 import { useTabBar } from "../../navigations/TabBarProvider";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -175,18 +176,20 @@ const FinancialAnalysisScreen = ({ route }) => {
 
   const { setShowTabBar } = useTabBar();
 
-  useEffect(() => {
-    // Delay the tab bar hiding to give the animation a chance to play
-    const hideTabBarTimeout = setTimeout(() => {
-      setShowTabBar(false);
-    }, 100); // Adjust delay as necessary to allow animation time
+  useFocusEffect(
+    React.useCallback(() => {
+      // Hide tab bar when screen is focused
+      const hideTabBarTimeout = setTimeout(() => {
+        setShowTabBar(false);
+      }, 100); // Adjust delay as necessary
 
-    // Reset the tab bar visibility when leaving the screen
-    return () => {
-      clearTimeout(hideTabBarTimeout); // Clear the timeout to prevent unnecessary calls
-      setShowTabBar(true);
-    };
-  }, []); // Empty dependency array ensures this runs only once when the screen is mounted
+      // Cleanup to show tab bar when the screen is blurred
+      return () => {
+        clearTimeout(hideTabBarTimeout);
+        setShowTabBar(true);
+      };
+    }, []) // Empty dependency ensures it runs when screen is focused
+  );
 
   const [expandedSections, setExpandedSections] = useState({
     loanInfo: true,

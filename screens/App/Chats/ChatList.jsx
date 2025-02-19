@@ -7,9 +7,9 @@ import {
   FlatList,
   Animated,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { getChatsAPI } from "../../../api/Chat";
-import { useEffect, useState, SafeAreaView, useRef } from "react";
+import { useEffect, useState, SafeAreaView, useRef, useCallback } from "react";
 import { getToken } from "../../../storage/TokenStorage";
 import { useNotifications } from "../../../context/NotificationsContext";
 import ChatAnimations from "../../../utils/animations/chatAnimations";
@@ -158,7 +158,7 @@ export const ChatList = () => {
     fetchChatList();
 
     // Set up polling interval
-    const intervalId = setInterval(fetchChatList, 3000);
+    const intervalId = setInterval(fetchChatList, 2000);
 
     // Cleanup on unmount
     return () => clearInterval(intervalId);

@@ -109,9 +109,6 @@ export const LoanRequestCard = ({
                   <Text variant="titleMedium" style={styles.title}>
                     {loanTitle ? loanTitle : "no title provided"}
                   </Text>
-                  {status === "NEW RESPONSE" && (
-                    <Badge style={styles.newBadge}>Pending</Badge>
-                  )}
                 </View>
                 <Badge
                   style={[

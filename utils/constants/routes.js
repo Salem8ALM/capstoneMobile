@@ -22,6 +22,7 @@ const Routes = {
     LoanRequestBankSelection: "LoanRequestBankSelection",
     LoanRequestReview: "Loan Request Review",
     LoanResponseViewAll: "Loan Response View All",
+    LoanAcceptance: "Loan Acceptance",
   },
   Dashboard: {
     DashboardHome: "Dashboard Home",

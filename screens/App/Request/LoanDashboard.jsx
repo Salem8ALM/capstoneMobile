@@ -9,7 +9,7 @@ import { Appbar, Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LoanRequestCard } from "../../../components/LoanRequestCard";
 import { LinearGradient } from "expo-linear-gradient";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Routes from "../../../utils/constants/routes";
 import { getToken } from "../../../storage/TokenStorage";
 import { getAllRequestsAPI } from "../../../api/LoanRequest";
@@ -17,6 +17,7 @@ import LottieView from "lottie-react-native";
 import UserContext from "../../../context/UserContext";
 import { useNotifications } from "../../../context/NotificationsContext";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
+import { useFocusEffect } from "@react-navigation/native";
 
 const loanTermMap = {
   SIX_MONTHS: "6 Months",
@@ -114,17 +115,21 @@ export default function LoanDashboard({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    // Initial fetch
-    getAllRequests();
-
-    // Set up polling interval
-    const interval = setInterval(() => {
+  useFocusEffect(
+    useCallback(() => {
+      // Initial fetch
       getAllRequests();
-    }, 3000);
 
-    return () => clearInterval(interval);
-  }, []);
+      // Set up polling interval
+      const interval = setInterval(() => {
+        getAllRequests();
+      }, 3000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }, [])
+  );
 
   return (
     <View style={styles.container}>

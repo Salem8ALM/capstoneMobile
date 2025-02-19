@@ -9,6 +9,7 @@ import { getToken } from "../storage/TokenStorage";
 import { createChatEntityAPI } from "../api/Chat";
 import { useNavigation } from "@react-navigation/native";
 import NotificationBanner from "../utils/animations/NotificationBanner";
+import Routes from "../utils/constants/routes";
 
 async function capitalizeFirstLetter(input) {
   if (!input) return ""; // Return an empty string if input is falsy (undefined, null, etc.)
@@ -48,11 +49,20 @@ const ResponseActionModal = ({
   const [notificationMessage, setNotificationMessage] = useState(""); // Message to show in the banner
 
   const navigation = useNavigation();
+
   const accpetOffer = async (response) => {
     try {
-      const token = await getToken("access");
-
-      await acceptOfferAPI(token, loanId, response.id);
+      // for enabling signature screen for accepting offer, set this true
+      if (true) {
+        navigation.navigate(Routes.LoanRequest.LoanAcceptance, {
+          loanId: loanId,
+          response: response,
+        });
+      } else {
+        //for preivious method (no signature screen)
+        const token = await getToken("access");
+        await acceptOfferAPI(token, loanId, response.id);
+      }
     } catch (error) {
       setNotificationMessage("Unable to accept at the moment. Try later");
       setNotificationVisible(true);
@@ -178,11 +188,11 @@ const ResponseActionModal = ({
             </Text>
             <Text style={styles.amount}>
               {response?.status === "APPROVED" && loan?.amount
-                ? loan.amount.toLocaleString()
+                ? loan.amount.toLocaleString() + " KWD"
                 : null}
 
               {response?.status === "COUNTER_OFFER" && response?.amount
-                ? response.amount.toLocaleString()
+                ? response.amount.toLocaleString() + " KWD"
                 : null}
             </Text>
 
