@@ -22,7 +22,9 @@
 - **Biometric Authentication**: Utilize fingerprint or face recognition to authenticate users and refresh expired access tokens.
 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+<img src="https://github.com/user-attachments/assets/4c0c0ad1-7bfa-44e5-ac60-0521ecd32b21" alt="drawing" width="200"/>
+         <img src="https://github.com/user-attachments/assets/f58c5727-f074-439f-84cf-b41d8bb3edc6" alt="drawing" width="200"/>
+   <img src="https://github.com/user-attachments/assets/93d6052e-efb7-4d93-b621-d50ad99d71fc" alt="drawing" width="200"/>
 </div>
 
 ## Tools and Technologies
@@ -43,7 +45,9 @@ The following tools and technologies are used in the development of Shloanik:
 - **Animated (React Native)**: For creating vector animations.
 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+<img src="https://github.com/user-attachments/assets/4edd252b-43f1-4a1c-8d5d-22fc2c581f55" alt="drawing" width="200"/>
+         <img src="https://github.com/user-attachments/assets/f2c12bef-1aff-48d2-b78c-ca77ff3c8820" alt="drawing" width="200"/>
+   <img src="https://github.com/user-attachments/assets/e16e2083-75e2-4d66-97a1-79f4e00fda4e" alt="drawing" width="200"/>
 </div>
 
 ## How It Works
@@ -56,7 +60,9 @@ The following tools and technologies are used in the development of Shloanik:
 6. **Loan Disbursement**: The loan is processed and disbursed upon agreement.
 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+<img src="https://github.com/user-attachments/assets/a597ea1c-8914-4b09-9067-f1299a9f0754" alt="drawing" width="200"/>
+         <img src="https://github.com/user-attachments/assets/66a43740-4453-4c67-b071-1abab126b596" alt="drawing" width="200"/>
+   <img src="https://github.com/user-attachments/assets/f06158ef-1ad2-4a13-b8a3-a187e839e9fa" alt="drawing" width="200"/>
 </div>
 
 ## Installation
@@ -83,8 +89,15 @@ To run the project locally:
    npx react-native run-android # For Android
    npx react-native run-ios # For iOS
    ```
+![Screenshot_20250219_073647_Expo Go](https://github.com/user-attachments/assets/14df62d2-0a1a-4016-aa4a-479fbcf9f51a)
+
+   ![Screenshot_20250219_082101_Expo Go](https://github.com/user-attachments/assets/ddacfc75-9468-4b29-a400-df91f0452b62)
+
+
 <div align="center">
-<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+<img src="https://github.com/user-attachments/assets/a597ea1c-8914-4b09-9067-f1299a9f0754" alt="drawing" width="200"/>
+         <img src="https://github.com/user-attachments/assets/66a43740-4453-4c67-b071-1abab126b596" alt="drawing" width="200"/>
+   <img src="https://github.com/user-attachments/assets/f06158ef-1ad2-4a13-b8a3-a187e839e9fa" alt="drawing" width="200"/>
 </div>
 
 ## Environment Setup
