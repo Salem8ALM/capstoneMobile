@@ -131,7 +131,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - **Open-source models from Civitai** for generating logos and profile images.
 - **OCR** for document processing.
 - **AI-powered insights** for extracting data from business documents.
-
-```
-
-This `README.md` covers the main aspects of your project, including features, tools, and setup instructions. Let me know if you'd like any additional information or changes!
