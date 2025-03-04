@@ -24,13 +24,14 @@ import {
   handlePressOut,
 } from "../../utils/animations/buttonAnimations";
 
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import Routes from "../../utils/constants/routes";
 import UserContext from "../../context/UserContext";
 import { fetchImage } from "../../api/Generic";
 import { getToken } from "../../storage/TokenStorage";
 import FinancialAnalysisModal from "../../components/FinancialAnalysisModal";
 import NotificationBanner from "../../utils/animations/NotificationBanner";
+import { useTabBar } from "../../navigations/TabBarProvider";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -82,6 +83,14 @@ const DashboardHome = () => {
     }).start();
   };
   const [modalVisible, setModalVisible] = useState(false);
+
+  const { setShowTabBar } = useTabBar();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setShowTabBar(true);
+    }, []) // Empty dependency ensures it runs when screen is focused
+  );
 
   const {
     authenticated,

@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useContext } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useContext,
+  useCallback,
+} from "react";
 import { View, StyleSheet, Animated, Pressable, Image } from "react-native";
 import {
   Text,
@@ -26,6 +32,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { Dimensions } from "react-native";
 import NotificationBanner from "../../../utils/animations/NotificationBanner";
+import { useFocusEffect } from "@react-navigation/native";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -255,9 +262,21 @@ const LoanRequestDetails = ({ route, navigation }) => {
     }
   };
 
-  useEffect(() => {
-    console.log(loan);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      // Initial fetch
+      getAllRequests();
+
+      // Set up polling interval
+      const interval = setInterval(() => {
+        getAllRequests();
+      }, 3000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }, [])
+  );
 
   return (
     <Animated.ScrollView
@@ -662,7 +681,7 @@ const styles = StyleSheet.create({
   },
   description: {
     color: "#FFFFFF",
-    marginBottom: 16,
+    marginBottom: 8,
   },
   withdrawButton: {
     backgroundColor: "#2C2C2C",
@@ -672,6 +691,7 @@ const styles = StyleSheet.create({
   },
   responsesSection: {
     padding: 16,
+    paddingTop: 0,
     marginBottom: 110,
   },
   responsesTitle: {

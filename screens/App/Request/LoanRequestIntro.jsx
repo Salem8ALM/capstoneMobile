@@ -76,6 +76,7 @@ const LoanRequestIntro = () => {
         style={styles.backButton}
         onPress={() => navigation.replace(Routes.LoanRequest.LoanDashboard)}
       >
+
         {/* <Ionicons name="arrow-back" size={24} color="white" /> */}
         <Text style={styles.backText}>Back</Text>
       </TouchableOpacity>
@@ -98,7 +99,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#1C1C1E",
   },
-
+  lottieAnimation: {
+    width: 200, // Adjust to your preferred size
+    height: 200,
+    alignSelf: "center",
+  },
   backButton: {
     position: "absolute",
     top: 50,
