@@ -2,9 +2,11 @@
 
 **Shloanik** is a centralized platform that allows business owners to apply for loans and receive responses from banks in the form of offers. Banks can compete and counter-offer, providing business owners with the best possible terms. Shloanik streamlines the loan application process using AI-powered insights, OCR, and electronic signatures, ensuring a seamless experience for both business owners and bankers.
 
+
+
 <div align="center">
-<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="200"/>
-   <img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="200"/>
+<img src="https://github.com/user-attachments/assets/232df8cc-22e7-4ba1-8f41-1e65c74a60c6" alt="drawing" width="200"/>
+   <img src="https://github.com/user-attachments/assets/bb413238-edbc-4093-aec1-40533345a64b" alt="drawing" width="200"/>
       <img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="200"/>
 
 </div>
