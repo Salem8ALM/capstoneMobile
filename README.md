@@ -89,15 +89,11 @@ To run the project locally:
    npx react-native run-android # For Android
    npx react-native run-ios # For iOS
    ```
-![Screenshot_20250219_073647_Expo Go](https://github.com/user-attachments/assets/14df62d2-0a1a-4016-aa4a-479fbcf9f51a)
-
-   ![Screenshot_20250219_082101_Expo Go](https://github.com/user-attachments/assets/ddacfc75-9468-4b29-a400-df91f0452b62)
-
 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/a597ea1c-8914-4b09-9067-f1299a9f0754" alt="drawing" width="200"/>
-         <img src="https://github.com/user-attachments/assets/66a43740-4453-4c67-b071-1abab126b596" alt="drawing" width="200"/>
-   <img src="https://github.com/user-attachments/assets/f06158ef-1ad2-4a13-b8a3-a187e839e9fa" alt="drawing" width="200"/>
+<img src="https://github.com/user-attachments/assets/14df62d2-0a1a-4016-aa4a-479fbcf9f51a" alt="drawing" width="200"/>
+         <img src="https://github.com/user-attachments/assets/ddacfc75-9468-4b29-a400-df91f0452b62" alt="drawing" width="200"/>
+   <img src="https://github.com/user-attachments/assets/c72b688d-cbb2-4b74-94f9-9d809284c5c8" alt="drawing" width="200"/>
 </div>
 
 ## Environment Setup
@@ -110,7 +106,9 @@ Ensure you have the following installed:
 - [Docker](https://www.docker.com/)
 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+<img src="https://github.com/user-attachments/assets/8857ff25-d862-458c-ae6c-b132c6323677" alt="drawing" width="200"/>
+         <img src="https://github.com/user-attachments/assets/14135d71-53e0-4e7a-aecb-bca4f1fc9e78" alt="drawing" width="200"/>
+   <img src="https://github.com/user-attachments/assets/948bfd93-82b7-4248-8f75-19f58266ed52" alt="drawing" width="200"/>
 </div>
 
 ## Contributing
@@ -123,17 +121,10 @@ We welcome contributions to Shloanik! If you want to contribute, follow these st
 4. Push to the branch (`git push origin feature-branch`).
 5. Create a new Pull Request.
 
-<div align="center">
-<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
-</div>
 
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
-<div align="center">
-<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
-</div>
 
 ## Acknowledgements
 
