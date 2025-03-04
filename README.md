@@ -2,6 +2,11 @@
 
 **Shloanik** is a centralized platform that allows business owners to apply for loans and receive responses from banks in the form of offers. Banks can compete and counter-offer, providing business owners with the best possible terms. Shloanik streamlines the loan application process using AI-powered insights, OCR, and electronic signatures, ensuring a seamless experience for both business owners and bankers.
 
+<div align="center">
+<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+   <img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+</div>
+
 ## Features
 
 - **Loan Application & Responses**: Business owners can apply for loans and receive counter-offers from competing banks.
@@ -11,6 +16,10 @@
 - **Electronic Signature**: Business owners can sign loan offers electronically before accepting them.
 - **Banker Interactions**: Bankers can accept, negotiate, or reject loan offers.
 - **Biometric Authentication**: Utilize fingerprint or face recognition to authenticate users and refresh expired access tokens.
+
+<div align="center">
+<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+</div>
 
 ## Tools and Technologies
 
@@ -29,6 +38,10 @@ The following tools and technologies are used in the development of Shloanik:
 - **LottieView**: For JSON-based animations within the app.
 - **Animated (React Native)**: For creating vector animations.
 
+<div align="center">
+<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+</div>
+
 ## How It Works
 
 1. **Business Owner Registration**: The business owner registers and uploads necessary documents (financial statements, business license).
@@ -37,6 +50,10 @@ The following tools and technologies are used in the development of Shloanik:
 4. **Bank Response**: Banks review the application and can either accept, negotiate, or reject the loan offer.
 5. **Loan Acceptance**: Once an offer is accepted, the business owner electronically signs the loan agreement.
 6. **Loan Disbursement**: The loan is processed and disbursed upon agreement.
+
+<div align="center">
+<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+</div>
 
 ## Installation
 
@@ -62,6 +79,9 @@ To run the project locally:
    npx react-native run-android # For Android
    npx react-native run-ios # For iOS
    ```
+<div align="center">
+<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+</div>
 
 ## Environment Setup
 
@@ -71,6 +91,10 @@ Ensure you have the following installed:
 - [React Native CLI](https://reactnative.dev/docs/environment-setup)
 - [Android Studio / Xcode](https://reactnative.dev/docs/environment-setup)
 - [Docker](https://www.docker.com/)
+
+<div align="center">
+<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+</div>
 
 ## Contributing
 
@@ -82,9 +106,17 @@ We welcome contributions to Shloanik! If you want to contribute, follow these st
 4. Push to the branch (`git push origin feature-branch`).
 5. Create a new Pull Request.
 
+<div align="center">
+<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+</div>
+
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
+<div align="center">
+<img src="https://github.com/user-attachments/assets/f1216c7d-6786-46a9-87c0-1695595a927a" alt="drawing" width="300"/>
+</div>
 
 ## Acknowledgements
 
